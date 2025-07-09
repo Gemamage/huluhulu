@@ -1,0 +1,237 @@
+# 依賴套件
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 環境變數檔案
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Next.js 建置檔案
+.next/
+out/
+build/
+dist/
+
+# 快取檔案
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# 測試覆蓋率報告
+coverage/
+*.lcov
+
+# 日誌檔案
+logs/
+*.log
+
+# 執行時檔案
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# 暫存檔案
+.tmp/
+.temp/
+tmp/
+temp/
+
+# 編輯器和 IDE 檔案
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS 系統檔案
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows 系統檔案
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux 系統檔案
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# TypeScript 編譯檔案
+*.tsbuildinfo
+
+# 上傳檔案
+uploads/
+public/uploads/
+
+# 資料庫檔案
+*.db
+*.sqlite
+*.sqlite3
+
+# 備份檔案
+*.backup
+*.bak
+*.old
+
+# 壓縮檔案
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Docker 檔案
+.dockerignore
+
+# Vercel 部署檔案
+.vercel
+
+# Storybook 建置檔案
+storybook-static/
+
+# Jest 快取
+.jest/
+
+# Cypress 測試檔案
+cypress/videos/
+cypress/screenshots/
+
+# Playwright 測試檔案
+test-results/
+playwright-report/
+playwright/.cache/
+
+# 效能分析檔案
+.clinic/
+0x/
+
+# 安全性掃描報告
+.snyk
+
+# 本地開發工具
+.local/
+
+# 暫存的圖片和媒體檔案
+*.tmp.jpg
+*.tmp.png
+*.tmp.gif
+*.tmp.mp4
+*.tmp.pdf
+
+# API 文件產生檔案
+docs/api/
+
+# 監控和分析工具
+.nyc_output/
+
+# 套件管理工具
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.js
+
+# Microbundle 快取
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.js
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# 專案特定的忽略檔案
+# 開發時的測試檔案
+test-data/
+sample-data/
+
+# 本地設定檔案
+local.config.js
+local.config.json
+
+# 臨時的 API 測試檔案
+*.http
+*.rest
+
+# 效能測試結果
+benchmark-results/
+
+# 本地資料庫備份
+*.dump
+*.sql.backup
+
+# 本地憑證檔案
+*.pem
+*.key
+*.crt
+*.p12
+
+# 本地開發用的 Docker 檔案
+docker-compose.override.yml
+docker-compose.local.yml
+
+# 暫存的設計檔案
+*.sketch
+*.fig
+*.xd
+*.psd
+
+# 本地的腳本檔案
+scripts/local/
+
+# 錯誤報告
+error-report.json
+crash-report.json
