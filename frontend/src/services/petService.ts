@@ -77,14 +77,23 @@ export interface ApiResponse<T> {
 }
 
 class PetService {
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   private async makeRequest<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
+      const authHeaders = this.getAuthHeaders();
+      const isFormData = options.body instanceof FormData;
+      
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
-          'Content-Type': 'application/json',
+          ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+          ...authHeaders,
           ...options.headers,
         },
         ...options,
@@ -246,25 +255,55 @@ class PetService {
   /**
    * 搜尋相似寵物
    */
-  async searchSimilarPets(params: {
+  async searchSimilarPets(petId: string, params: {
     type?: string;
     breed?: string;
     color?: string;
     location?: string;
-    excludeId?: string;
   }): Promise<ApiResponse<{ similarPets: Pet[] }>> {
-    const searchParams = new URLSearchParams();
+    const queryParams = new URLSearchParams();
+    queryParams.append('excludeId', petId);
     
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        searchParams.append(key, value.toString());
+      if (value) {
+        queryParams.append(key, value);
       }
     });
 
-    const queryString = searchParams.toString();
-    const endpoint = `/api/pets/search/similar${queryString ? `?${queryString}` : ''}`;
-    
-    return this.makeRequest<{ similarPets: Pet[] }>(endpoint);
+    return this.makeRequest(`/api/pets/search/similar?${queryParams.toString()}`);
+  }
+
+  /**
+   * 獲取搜尋歷史
+   */
+  async getSearchHistory(limit: number = 10): Promise<ApiResponse<{ searchHistory: any[] }>> {
+    return this.makeRequest(`/api/search/history?limit=${limit}`);
+  }
+
+  /**
+   * 清除搜尋歷史
+   */
+  async clearSearchHistory(): Promise<ApiResponse<{}>> {
+    return this.makeRequest('/api/search/history', {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * 獲取熱門搜尋關鍵字
+   */
+  async getPopularSearches(limit: number = 10): Promise<ApiResponse<{ popularSearches: any[] }>> {
+    return this.makeRequest(`/api/search/popular?limit=${limit}`);
+  }
+
+  /**
+   * 獲取搜尋建議
+   */
+  async getSearchSuggestions(query: string): Promise<ApiResponse<{ suggestions: string[] }>> {
+    return this.makeRequest('/api/search/suggestions', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    });
   }
 }
 

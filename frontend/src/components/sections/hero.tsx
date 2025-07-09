@@ -20,25 +20,25 @@ export function Hero({ className }: HeroProps) {
   };
 
   return (
-    <section className={cn('relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900', className)}>
-      {/* 背景裝飾 */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob" />
-      <div className="absolute top-0 right-1/4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000" />
-      <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000" />
+    <section className={cn('relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600', className)} style={{backgroundColor: '#FF8C69'}}>
+      {/* 背景裝飾 - 暖色調 */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-10" />
+      <div className="absolute top-0 left-1/4 w-72 h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" />
+      <div className="absolute top-0 right-1/4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000" />
+      <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000" />
 
       <div className="relative container mx-auto px-4 py-16 sm:py-24 lg:py-32">
         <div className="text-center">
           {/* 主標題 */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
             <span className="block">找回你的</span>
-            <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="block text-white drop-shadow-lg">
               毛孩夥伴
             </span>
           </h1>
 
           {/* 副標題 */}
-          <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl sm:text-2xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
             呼嚕寵物協尋網站，運用 AI 技術幫助您快速找回走失的寵物，
             <br className="hidden sm:block" />
             讓每個毛孩都能安全回家。
@@ -46,18 +46,18 @@ export function Hero({ className }: HeroProps) {
 
           {/* 統計數據 */}
           <div className="flex flex-wrap justify-center gap-8 mb-12">
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <Heart className="w-5 h-5 text-red-500" />
+            <div className="flex items-center gap-2 text-white/90">
+              <Heart className="w-5 h-5 text-white" />
               <span className="font-semibold">1,234+</span>
               <span>成功協尋</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <Users className="w-5 h-5 text-blue-500" />
+            <div className="flex items-center gap-2 text-white/90">
+              <Users className="w-5 h-5 text-white" />
               <span className="font-semibold">5,678+</span>
               <span>註冊用戶</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-              <MapPin className="w-5 h-5 text-green-500" />
+            <div className="flex items-center gap-2 text-white/90">
+              <MapPin className="w-5 h-5 text-white" />
               <span className="font-semibold">全台</span>
               <span>服務範圍</span>
             </div>
@@ -126,16 +126,18 @@ export function Hero({ className }: HeroProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/pets/report-lost"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 shadow-lg"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white hover:bg-gray-50 rounded-2xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500 shadow-xl hover:shadow-2xl"
+              style={{color: '#333333'}}
             >
-              <Heart className="w-5 h-5 mr-2" />
+              <Heart className="w-5 h-5 mr-2" style={{color: '#FF8C69'}} />
               我的寵物走失了
             </Link>
             <Link
               href="/pets/report-found"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border-2 border-blue-600 dark:border-blue-400 rounded-xl transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white hover:bg-gray-50 rounded-2xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500 shadow-xl hover:shadow-2xl"
+              style={{color: '#333333'}}
             >
-              <MapPin className="w-5 h-5 mr-2" />
+              <MapPin className="w-5 h-5 mr-2" style={{color: '#FF8C69'}} />
               我發現了寵物
             </Link>
           </div>

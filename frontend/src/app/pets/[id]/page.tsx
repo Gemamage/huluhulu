@@ -8,6 +8,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { 
   ArrowLeft, 
   MapPin, 
@@ -19,10 +30,14 @@ import {
   AlertTriangle,
   Info,
   Camera,
-  Award
+  Award,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
+import { PetCard } from '@/components/pets/pet-card';
 
 interface PetDetailPageProps {
   params: {
@@ -79,9 +94,13 @@ function PetDetailSkeleton() {
 export default function PetDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
   const [sharing, setSharing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [similarPets, setSimilarPets] = useState<Pet[]>([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
   
   const petId = params.id as string;
 
@@ -91,6 +110,25 @@ export default function PetDetailPage() {
     }
   }, [petId]);
 
+  const loadSimilarPets = async (currentPet: Pet) => {
+    try {
+      setLoadingSimilar(true);
+      const response = await petService.searchSimilarPets({
+        type: currentPet.type,
+        location: currentPet.lastSeenLocation.address,
+        excludeId: currentPet.id
+      });
+      
+      if (response.success && response.data) {
+        setSimilarPets(response.data.similarPets.slice(0, 3)); // 只顯示前3個相似寵物
+      }
+    } catch (error) {
+      console.error('載入相似寵物失敗:', error);
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
+
   const loadPetDetail = async (id: string) => {
     try {
       setLoading(true);
@@ -98,6 +136,7 @@ export default function PetDetailPage() {
       
       if (response.success && response.data) {
         setPet(response.data.pet);
+        loadSimilarPets(response.data.pet);
       } else {
         toast({
           title: '載入失敗',
@@ -148,6 +187,35 @@ export default function PetDetailPage() {
       setSharing(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!pet) return;
+    
+    try {
+      setDeleting(true);
+      const response = await petService.deletePet(pet.id);
+      
+      if (response.success) {
+        toast({
+          title: '刪除成功',
+          description: '寵物協尋案例已成功刪除',
+        });
+        router.push('/pets/my');
+      }
+    } catch (error) {
+      console.error('刪除失敗:', error);
+      toast({
+        title: '刪除失敗',
+        description: '無法刪除此案例，請稍後再試',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // 檢查是否為寵物擁有者
+  const isOwner = isAuthenticated && user && pet && pet.userId === user.id;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('zh-TW', {
@@ -218,14 +286,53 @@ export default function PetDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* 返回按鈕 */}
-      <div className="mb-6">
+      {/* 返回按鈕和操作按鈕 */}
+      <div className="mb-6 flex justify-between items-center">
         <Button variant="ghost" asChild>
           <Link href="/pets" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             返回寵物列表
           </Link>
         </Button>
+        
+        {/* 擁有者操作按鈕 */}
+        {isOwner && (
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/pets/${pet.id}/edit`} className="flex items-center gap-2">
+                <Edit className="h-4 w-4" />
+                編輯
+              </Link>
+            </Button>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  刪除
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>確認刪除</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    您確定要刪除「{pet.name}」的協尋案例嗎？此操作無法復原。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>取消</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    {deleting ? '刪除中...' : '確認刪除'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -497,6 +604,77 @@ export default function PetDetailPage() {
               </Button>
             </CardContent>
           </Card>
+          
+          {/* 相似寵物推薦 */}
+          {similarPets.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>相似案例</CardTitle>
+                <CardDescription>
+                  您可能也想關注這些案例
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {loadingSimilar ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-3 w-3/4" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {similarPets.map((similarPet) => (
+                      <Link key={similarPet.id} href={`/pets/${similarPet.id}`}>
+                        <div className="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                          <div className="flex gap-3">
+                            {similarPet.images && similarPet.images[0] && (
+                              <div className="w-12 h-12 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
+                                <img
+                                  src={similarPet.images[0]}
+                                  alt={similarPet.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">{similarPet.name}</p>
+                              <p className="text-xs text-gray-600 truncate">
+                                {getTypeText(similarPet.type)} • {similarPet.lastSeenLocation.address}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge 
+                                  variant={getStatusColor(similarPet.status)} 
+                                  className="text-xs px-2 py-0"
+                                >
+                                  {getStatusText(similarPet.status)}
+                                </Badge>
+                                {similarPet.isUrgent && (
+                                  <Badge variant="destructive" className="text-xs px-2 py-0">
+                                    緊急
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="pt-2">
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link href={`/pets?type=${pet.type}&location=${encodeURIComponent(pet.lastSeenLocation.address)}`}>
+                      查看更多相似案例
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

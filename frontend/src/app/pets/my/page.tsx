@@ -185,6 +185,7 @@ export default function MyPetsPage() {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const petService = new PetService();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -195,7 +196,6 @@ export default function MyPetsPage() {
   const fetchMyPets = async () => {
     try {
       setLoading(true);
-      const petService = new PetService();
       const response = await petService.getMyPets();
       setPets(response.data.pets);
     } catch (error) {
@@ -222,7 +222,6 @@ export default function MyPetsPage() {
 
     try {
       setDeleting(id);
-      const petService = new PetService();
       await petService.deletePet(id);
       setPets(pets.filter(pet => pet.id !== id));
       toast({

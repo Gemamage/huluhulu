@@ -133,18 +133,26 @@ const additionalFeatures: Feature[] = [
 
 export function Features({ className }: FeaturesProps) {
   return (
-    <section className={cn('py-16 sm:py-24 bg-gray-50 dark:bg-gray-800', className)}>
+    <section
+      id="features-section"
+      className={cn(
+        'py-16 sm:py-24 mx-4 my-8 rounded-3xl shadow-lg',
+        className
+      )}
+      style={{backgroundColor: '#FFF0E5'}}
+    >
       <div className="container mx-auto px-4">
         {/* 標題區塊 */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            強大的
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              功能特色
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{color: '#333333'}}>
+            為什麼選擇
+            <span style={{color: '#FF8C69'}}>
+              呼嚕
             </span>
+            ？
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            結合最新科技與人性化設計，為您提供最完整的寵物協尋解決方案
+          <p className="text-xl max-w-3xl mx-auto" style={{color: '#333333'}}>
+            我們結合最新科技與溫暖人心的服務，為每一個走失的毛孩提供最好的協尋機會
           </p>
         </div>
 
@@ -152,83 +160,54 @@ export function Features({ className }: FeaturesProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {mainFeatures.map((feature, index) => (
             <div
-              key={feature.id}
-              className="group relative bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-              style={{
-                animationDelay: `${index * 100}ms`,
-              }}
+              key={index}
+              className="group relative p-8 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
             >
-              {/* 背景裝飾 */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full -translate-y-12 translate-x-12 opacity-30 group-hover:opacity-50 transition-opacity" />
-              
               {/* 圖示 */}
-              <div className={cn(
-                'inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6',
-                feature.bgColor
-              )}>
-                <div className={feature.color}>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{backgroundColor: '#FF8C69'}}>
+                <div className="text-white">
                   {feature.icon}
                 </div>
               </div>
-
-              {/* 標題 */}
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                {feature.title}
-              </h3>
-
-              {/* 描述 */}
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-
-              {/* 懸停效果 */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* 內容 */}
+              <div>
+                <h3 className="text-xl font-semibold mb-3" style={{color: '#333333'}}>
+                  {feature.title}
+                </h3>
+                <p className="leading-relaxed" style={{color: '#666666'}}>
+                  {feature.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
 
         {/* 額外功能 */}
-        <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              更多貼心功能
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              我們持續優化服務，為您提供更好的使用體驗
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {additionalFeatures.map((feature, index) => (
-              <div
-                key={feature.id}
-                className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
-                style={{
-                  animationDelay: `${(index + 6) * 100}ms`,
-                }}
-              >
-                {/* 圖示 */}
-                <div className={cn(
-                  'flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center',
-                  feature.bgColor
-                )}>
-                  <div className={feature.color}>
-                    {feature.icon}
-                  </div>
-                </div>
-
-                {/* 內容 */}
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                    {feature.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {feature.description}
-                  </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {additionalFeatures.map((feature, index) => (
+            <div
+              key={feature.id}
+              className="group relative p-8 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              {/* 圖示 */}
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4" style={{backgroundColor: '#FF8C69'}}>
+                <div className="text-white">
+                  {feature.icon}
                 </div>
               </div>
-            ))}
-          </div>
+              
+              {/* 內容 */}
+              <div>
+                <h3 className="text-lg font-semibold mb-2" style={{color: '#333333'}}>
+                  {feature.title}
+                </h3>
+                <p className="text-sm leading-relaxed" style={{color: '#666666'}}>
+                  {feature.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* 底部行動呼籲 */}

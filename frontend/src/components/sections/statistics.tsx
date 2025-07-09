@@ -131,7 +131,7 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   };
 
   return (
-    <span className="font-bold text-3xl sm:text-4xl">
+    <span className="font-bold text-4xl" style={{color: '#333333'}}>
       {formatNumber(count)}{suffix}
     </span>
   );
@@ -142,44 +142,41 @@ export function Statistics({ className }: StatisticsProps) {
     <section
       id="statistics-section"
       className={cn(
-        'py-16 sm:py-24 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800',
+        'py-16 sm:py-24 border-t border-gray-200',
         className
       )}
+      style={{backgroundColor: '#FFF0E5'}}
     >
       <div className="container mx-auto px-4">
         {/* 標題區塊 */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{color: '#333333'}}>
             我們的
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span style={{color: '#FF8C69'}}>
               成果
             </span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl max-w-3xl mx-auto" style={{color: '#333333'}}>
             透過科技與愛心，我們已經幫助無數家庭重新團聚
           </p>
         </div>
 
         {/* 統計數據網格 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {statisticsData.map((stat, index) => (
             <div
               key={stat.id}
-              className="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-              style={{
-                animationDelay: `${index * 100}ms`,
-              }}
+              className="text-center p-8 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              {/* 背景裝飾 */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full -translate-y-10 translate-x-10 opacity-50 group-hover:opacity-70 transition-opacity" />
-              
               {/* 圖示 */}
-              <div className={cn('mb-4', stat.color)}>
-                {stat.icon}
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{backgroundColor: '#FF8C69'}}>
+                <div className="text-white">
+                  {stat.icon}
+                </div>
               </div>
 
               {/* 數值 */}
-              <div className="mb-2">
+              <div className="mb-4">
                 <AnimatedCounter 
                   value={stat.value} 
                   {...(stat.suffix && { suffix: stat.suffix })}
@@ -187,17 +184,14 @@ export function Statistics({ className }: StatisticsProps) {
               </div>
 
               {/* 標籤 */}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-xl font-semibold mb-2" style={{color: '#333333'}}>
                 {stat.label}
               </h3>
 
               {/* 描述 */}
-              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+              <p className="leading-relaxed" style={{color: '#666666'}}>
                 {stat.description}
               </p>
-
-              {/* 懸停效果 */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           ))}
         </div>

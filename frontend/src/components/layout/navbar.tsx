@@ -23,6 +23,8 @@ import {
   Heart,
   Search,
   Plus,
+  ShoppingCart,
+  HelpCircle,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -48,33 +50,89 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <Heart className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold text-primary">呼嚕寵物協尋</span>
-        </Link>
-
-        {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-6">
-          <Link
-            href="/pets"
-            className="flex items-center space-x-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            <Search className="h-4 w-4" />
-            <span>搜尋寵物</span>
-          </Link>
-          <Link
-            href="/pets/new"
-            className="flex items-center space-x-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            <span>發布協尋</span>
+    <nav className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+      <div className="container mx-auto px-6 flex h-16 items-center max-w-7xl">
+        {/* Logo - 左邊 */}
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center space-x-2">
+            <Heart className="h-6 w-6" style={{color: '#FF8C69'}} />
+            <span className="text-xl font-bold" style={{color: '#333333'}}>呼嚕</span>
           </Link>
         </div>
 
-        {/* User Menu */}
+        {/* Navigation Links - 中間 */}
+        <div className="hidden md:flex items-center justify-center flex-1 space-x-10">
+          <Link
+            href="/pets/found"
+            className="relative text-sm font-medium transition-all duration-200 hover:pb-1"
+            style={{
+              color: '#333333',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#FF8C69';
+              e.currentTarget.style.borderBottom = '2px solid #FF8C69';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#333333';
+              e.currentTarget.style.borderBottom = 'none';
+            }}
+          >
+            拾獲通報
+          </Link>
+          <Link
+            href="/pets/lost"
+            className="relative text-sm font-medium transition-all duration-200 hover:pb-1"
+            style={{
+              color: '#333333',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#FF8C69';
+              e.currentTarget.style.borderBottom = '2px solid #FF8C69';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#333333';
+              e.currentTarget.style.borderBottom = 'none';
+            }}
+          >
+            走失尋找
+          </Link>
+          <Link
+            href="/about"
+            className="relative text-sm font-medium transition-all duration-200 hover:pb-1"
+            style={{
+              color: '#333333',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#FF8C69';
+              e.currentTarget.style.borderBottom = '2px solid #FF8C69';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#333333';
+              e.currentTarget.style.borderBottom = 'none';
+            }}
+          >
+            關於我們
+          </Link>
+          <Link
+            href="/contact"
+            className="relative text-sm font-medium transition-all duration-200 hover:pb-1"
+            style={{
+              color: '#333333',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#FF8C69';
+              e.currentTarget.style.borderBottom = '2px solid #FF8C69';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#333333';
+              e.currentTarget.style.borderBottom = 'none';
+            }}
+          >
+            聯絡我們
+          </Link>
+        </div>
+
+        {/* User Menu - 右邊 */}
         <div className="flex items-center space-x-4">
           {isAuthenticated && user ? (
             <DropdownMenu>
@@ -135,12 +193,15 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" asChild>
+            <div className="flex items-center space-x-3">
+              <button className="text-sm text-gray-600 hover:text-gray-800 transition-colors">
+                ?
+              </button>
+              <Button variant="ghost" size="sm" asChild>
                 <Link href="/auth/login">登入</Link>
               </Button>
-              <Button asChild>
-                <Link href="/auth/login">註冊</Link>
+              <Button size="sm" asChild>
+                <Link href="/auth/register">註冊</Link>
               </Button>
             </div>
           )}

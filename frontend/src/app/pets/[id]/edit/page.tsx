@@ -72,6 +72,7 @@ export default function EditPetPage() {
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const petService = new PetService();
 
   const petId = params.id as string;
 
@@ -84,7 +85,7 @@ export default function EditPetPage() {
   const fetchPet = async () => {
     try {
       setLoading(true);
-      const response = await PetService.getPet(petId);
+      const response = await petService.getPet(petId);
       const petData = response.data;
       
       // 檢查是否為當前用戶的寵物
@@ -143,11 +144,11 @@ export default function EditPetPage() {
       };
       
       // 更新寵物資訊
-      await PetService.updatePet(pet.id, updateData);
+      await petService.updatePet(pet.id, updateData);
       
       // 如果有新圖片，上傳圖片
       if (formData.images && formData.images.length > 0) {
-        await PetService.uploadPetImages(pet.id, formData.images);
+        await petService.uploadPetImages(pet.id, formData.images);
       }
       
       toast({

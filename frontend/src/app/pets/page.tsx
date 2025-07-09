@@ -2,15 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import { petService, Pet, PetSearchParams } from '@/services/petService';
+import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Filter, Plus, MapPin, Calendar, Phone, Mail } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Filter, Plus, MapPin, Calendar, Phone, Mail, Eye, Share2, DollarSign, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, History, TrendingUp, Heart } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { zhTW } from 'date-fns/locale';
+import { SearchFilters } from '@/shared/types';
+import { SearchSuggestions } from '@/components/search/search-suggestions';
+import { AdvancedSearch } from '@/components/search/advanced-search';
+import { SearchHistory } from '@/components/search/search-history';
+import { PopularSearches } from '@/components/search/popular-searches';
 
 interface PetCardProps {
   pet: Pet;
@@ -176,22 +188,27 @@ function PetCardSkeleton() {
 }
 
 export default function PetsPage() {
+  const { user } = useAuth();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useState<PetSearchParams>({
     page: 1,
     limit: 12,
     sortBy: 'createdAt',
-    sortOrder: 'desc',
+    sortOrder: 'desc'
   });
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
-    totalItems: 0,
-    itemsPerPage: 12,
+    totalCount: 0,
+    hasNext: false,
+    hasPrev: false
   });
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchText, setSearchText] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showSearchHistory, setShowSearchHistory] = useState(false);
+  const [filters, setFilters] = useState<SearchFilters>({});
 
   const loadPets = async (params: PetSearchParams) => {
     try {
@@ -218,22 +235,71 @@ export default function PetsPage() {
     loadPets(searchParams);
   }, [searchParams]);
 
-  const handleSearch = () => {
+  const handleSearch = (query?: string) => {
+    const searchQuery = query !== undefined ? query : searchText;
     const newParams = {
       ...searchParams,
+      ...filters,
       page: 1,
-      location: searchQuery || undefined,
+      search: searchQuery || undefined
     };
     setSearchParams(newParams);
+    setSearchText(searchQuery);
+    loadPets(newParams);
   };
 
-  const handleFilterChange = (key: keyof PetSearchParams, value: any) => {
+  const handleFilterChange = (key: string, value: any) => {
+    const newFilters = {
+      ...filters,
+      [key]: value || undefined
+    };
+    setFilters(newFilters);
+    
     const newParams = {
       ...searchParams,
+      ...newFilters,
       page: 1,
-      [key]: value || undefined,
+      search: searchText || undefined
     };
     setSearchParams(newParams);
+    loadPets(newParams);
+  };
+
+  const handleFiltersChange = (newFilters: SearchFilters) => {
+    setFilters(newFilters);
+    
+    const newParams = {
+      ...searchParams,
+      ...newFilters,
+      page: 1,
+      search: searchText || undefined
+    };
+    setSearchParams(newParams);
+    loadPets(newParams);
+  };
+
+  const handleResetFilters = () => {
+    const resetFilters: SearchFilters = {};
+    setFilters(resetFilters);
+    setSearchText('');
+    
+    const newParams = {
+      page: 1,
+      limit: 12,
+      sortBy: 'createdAt',
+      sortOrder: 'desc' as const
+    };
+    setSearchParams(newParams);
+    loadPets(newParams);
+  };
+
+  const handleSearchSelect = (query: string, searchFilters?: any) => {
+    setSearchText(query);
+    if (searchFilters) {
+      setFilters(searchFilters);
+    }
+    handleSearch(query);
+    setShowSearchHistory(false);
   };
 
   const handlePageChange = (page: number) => {
@@ -259,94 +325,64 @@ export default function PetsPage() {
         </Button>
       </div>
 
-      {/* 搜尋和篩選 */}
+      {/* 搜尋區域 */}
       <div className="mb-6 space-y-4">
-        <div className="flex gap-4">
-          <div className="flex-1 flex gap-2">
-            <Input
-              placeholder="搜尋地點..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <Button onClick={handleSearch}>
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <Button
-            variant="outline"
-            onClick={() => setShowFilters(!showFilters)}
+        {/* 主要搜尋輸入框 */}
+        <div className="flex gap-2">
+          <SearchSuggestions
+            value={searchText}
+            onChange={setSearchText}
+            onSearch={handleSearch}
+            className="flex-1"
+          />
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
           >
             <Filter className="h-4 w-4 mr-2" />
-            篩選
+            進階搜尋
+            {showAdvancedSearch ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
           </Button>
+          {user && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowSearchHistory(!showSearchHistory)}
+            >
+              <History className="h-4 w-4 mr-2" />
+              歷史
+              {showSearchHistory ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
+            </Button>
+          )}
         </div>
 
-        {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-            <Select
-              value={searchParams.type || ''}
-              onValueChange={(value) => handleFilterChange('type', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="寵物類型" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">全部類型</SelectItem>
-                <SelectItem value="dog">狗</SelectItem>
-                <SelectItem value="cat">貓</SelectItem>
-                <SelectItem value="bird">鳥</SelectItem>
-                <SelectItem value="rabbit">兔子</SelectItem>
-                <SelectItem value="hamster">倉鼠</SelectItem>
-                <SelectItem value="fish">魚</SelectItem>
-                <SelectItem value="reptile">爬蟲</SelectItem>
-                <SelectItem value="other">其他</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* 進階搜尋 */}
+        <Collapsible open={showAdvancedSearch} onOpenChange={setShowAdvancedSearch}>
+          <CollapsibleContent>
+            <AdvancedSearch
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              onSearch={() => handleSearch()}
+              onReset={handleResetFilters}
+              className="mb-4"
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
-            <Select
-              value={searchParams.status || ''}
-              onValueChange={(value) => handleFilterChange('status', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="狀態" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">全部狀態</SelectItem>
-                <SelectItem value="lost">走失</SelectItem>
-                <SelectItem value="found">尋獲</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={searchParams.sortBy || 'createdAt'}
-              onValueChange={(value) => handleFilterChange('sortBy', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="排序方式" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="createdAt">發布時間</SelectItem>
-                <SelectItem value="lastSeenDate">最後見到時間</SelectItem>
-                <SelectItem value="reward">懸賞金額</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={searchParams.sortOrder || 'desc'}
-              onValueChange={(value) => handleFilterChange('sortOrder', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="排序順序" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="desc">由新到舊</SelectItem>
-                <SelectItem value="asc">由舊到新</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        {/* 搜尋歷史和熱門搜尋 */}
+        <Collapsible open={showSearchHistory} onOpenChange={setShowSearchHistory}>
+          <CollapsibleContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <SearchHistory
+                onSearchSelect={handleSearchSelect}
+                limit={5}
+              />
+              <PopularSearches
+                onSearchSelect={(query) => handleSearchSelect(query)}
+                limit={8}
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       {/* 寵物列表 */}
