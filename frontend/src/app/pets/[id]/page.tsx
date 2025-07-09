@@ -1,0 +1,504 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { petService, Pet } from '@/services/petService';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
+import { 
+  ArrowLeft, 
+  MapPin, 
+  Calendar, 
+  Phone, 
+  Mail, 
+  Share2, 
+  Heart,
+  AlertTriangle,
+  Info,
+  Camera,
+  Award
+} from 'lucide-react';
+import Link from 'next/link';
+import { toast } from '@/hooks/use-toast';
+
+interface PetDetailPageProps {
+  params: {
+    id: string;
+  };
+}
+
+function PetDetailSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="mb-6">
+        <Skeleton className="h-10 w-32" />
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-48" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <Skeleton className="h-6 w-16" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="aspect-video w-full mb-4" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-24" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PetDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const [pet, setPet] = useState<Pet | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  
+  const petId = params.id as string;
+
+  useEffect(() => {
+    if (petId) {
+      loadPetDetail(petId);
+    }
+  }, [petId]);
+
+  const loadPetDetail = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await petService.getPet(id);
+      
+      if (response.success && response.data) {
+        setPet(response.data.pet);
+      } else {
+        toast({
+          title: '載入失敗',
+          description: '找不到該寵物資訊',
+          variant: 'destructive',
+        });
+        router.push('/pets');
+      }
+    } catch (error) {
+      console.error('載入寵物詳情失敗:', error);
+      toast({
+        title: '載入失敗',
+        description: '無法載入寵物詳情，請稍後再試',
+        variant: 'destructive',
+      });
+      router.push('/pets');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleShare = async (platform?: string) => {
+    if (!pet) return;
+    
+    try {
+      setSharing(true);
+      const response = await petService.sharePet(pet.id, platform);
+      
+      if (response.success && response.data) {
+        // 複製分享連結到剪貼板
+        await navigator.clipboard.writeText(response.data.shareUrl);
+        toast({
+          title: '分享成功',
+          description: '分享連結已複製到剪貼板',
+        });
+        
+        // 更新分享次數
+        setPet(prev => prev ? { ...prev, shareCount: response.data.shareCount } : null);
+      }
+    } catch (error) {
+      console.error('分享失敗:', error);
+      toast({
+        title: '分享失敗',
+        description: '無法分享此案例，請稍後再試',
+        variant: 'destructive',
+      });
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('zh-TW', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    });
+  };
+
+  const getStatusColor = (status: string) => {
+    return status === 'lost' ? 'destructive' : 'secondary';
+  };
+
+  const getStatusText = (status: string) => {
+    return status === 'lost' ? '走失' : '尋獲';
+  };
+
+  const getTypeText = (type: string) => {
+    const typeMap: Record<string, string> = {
+      dog: '狗',
+      cat: '貓',
+      bird: '鳥',
+      rabbit: '兔子',
+      hamster: '倉鼠',
+      fish: '魚',
+      reptile: '爬蟲',
+      other: '其他',
+    };
+    return typeMap[type] || type;
+  };
+
+  const getSizeText = (size?: string) => {
+    const sizeMap: Record<string, string> = {
+      small: '小型',
+      medium: '中型',
+      large: '大型',
+    };
+    return size ? sizeMap[size] || size : '未知';
+  };
+
+  const getGenderText = (gender: string) => {
+    const genderMap: Record<string, string> = {
+      male: '公',
+      female: '母',
+      unknown: '未知',
+    };
+    return genderMap[gender] || gender;
+  };
+
+  if (loading) {
+    return <PetDetailSkeleton />;
+  }
+
+  if (!pet) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">找不到寵物資訊</h1>
+        <Button asChild>
+          <Link href="/pets">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            返回寵物列表
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      {/* 返回按鈕 */}
+      <div className="mb-6">
+        <Button variant="ghost" asChild>
+          <Link href="/pets" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            返回寵物列表
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* 主要內容 */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* 基本資訊 */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                    {pet.name}
+                    {pet.isUrgent && (
+                      <Badge variant="destructive" className="flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        緊急
+                      </Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription className="text-lg mt-2">
+                    {getTypeText(pet.type)} {pet.breed && `• ${pet.breed}`} • {getGenderText(pet.gender)}
+                    {pet.age && ` • ${pet.age}歲`}
+                  </CardDescription>
+                </div>
+                <Badge variant={getStatusColor(pet.status)} className="text-sm px-3 py-1">
+                  {getStatusText(pet.status)}
+                </Badge>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {/* 圖片 */}
+              {pet.images && pet.images.length > 0 && (
+                <div className="space-y-4">
+                  <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={pet.images[0]}
+                      alt={pet.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  {pet.images.length > 1 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {pet.images.slice(1, 5).map((image, index) => (
+                        <div key={index} className="aspect-square bg-gray-100 rounded-md overflow-hidden">
+                          <img
+                            src={image}
+                            alt={`${pet.name} ${index + 2}`}
+                            className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* 描述 */}
+              {pet.description && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    詳細描述
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">{pet.description}</p>
+                </div>
+              )}
+              
+              {/* 特徵資訊 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900">基本資訊</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">體型:</span>
+                      <span className="font-medium">{getSizeText(pet.size)}</span>
+                    </div>
+                    {pet.color && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">顏色:</span>
+                        <span className="font-medium">{pet.color}</span>
+                      </div>
+                    )}
+                    {pet.microchipId && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">晶片號碼:</span>
+                        <span className="font-medium font-mono">{pet.microchipId}</span>
+                      </div>
+                    )}
+                    {pet.vaccinated !== undefined && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">疫苗接種:</span>
+                        <span className="font-medium">{pet.vaccinated ? '已接種' : '未接種'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900">其他資訊</h3>
+                  <div className="space-y-2 text-sm">
+                    {pet.specialMarks && (
+                      <div>
+                        <span className="text-gray-600 block mb-1">特殊標記:</span>
+                        <span className="font-medium">{pet.specialMarks}</span>
+                      </div>
+                    )}
+                    {pet.personality && (
+                      <div>
+                        <span className="text-gray-600 block mb-1">性格特點:</span>
+                        <span className="font-medium">{pet.personality}</span>
+                      </div>
+                    )}
+                    {pet.medicalConditions && (
+                      <div>
+                        <span className="text-gray-600 block mb-1">健康狀況:</span>
+                        <span className="font-medium">{pet.medicalConditions}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* 位置和時間資訊 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                位置和時間資訊
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">最後出現地點</p>
+                  <p className="text-gray-600">{pet.lastSeenLocation.address}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
+                <div>
+                  <p className="font-medium text-gray-900">最後見到時間</p>
+                  <p className="text-gray-600">{formatDate(pet.lastSeenDate)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* 側邊欄 */}
+        <div className="space-y-6">
+          {/* 聯絡資訊 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>聯絡資訊</CardTitle>
+              <CardDescription>
+                如果您有相關線索，請聯絡以下資訊
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <Phone className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{pet.contactInfo.name}</p>
+                    <p className="text-sm text-gray-600">{pet.contactInfo.phone}</p>
+                  </div>
+                </div>
+                
+                {pet.contactInfo.email && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-full">
+                      <Mail className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">{pet.contactInfo.email}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-2">
+                <Button className="w-full" size="lg">
+                  <Phone className="h-4 w-4 mr-2" />
+                  撥打電話
+                </Button>
+                
+                {pet.contactInfo.email && (
+                  <Button variant="outline" className="w-full">
+                    <Mail className="h-4 w-4 mr-2" />
+                    發送郵件
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* 懸賞資訊 */}
+          {pet.reward && pet.reward > 0 && (
+            <Card className="border-yellow-200 bg-yellow-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-yellow-800">
+                  <Award className="h-5 w-5" />
+                  懸賞資訊
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-yellow-800">
+                    NT$ {pet.reward.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    提供有效線索可獲得懸賞
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* 統計資訊 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>案例統計</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">瀏覽次數</span>
+                <span className="font-medium">{pet.viewCount}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">分享次數</span>
+                <span className="font-medium">{pet.shareCount}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">發布時間</span>
+                <span className="font-medium text-sm">
+                  {formatDate(pet.createdAt)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* 分享按鈕 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>幫助分享</CardTitle>
+              <CardDescription>
+                分享此案例，讓更多人看到
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                className="w-full" 
+                variant="outline"
+                onClick={() => handleShare()}
+                disabled={sharing}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                {sharing ? '分享中...' : '複製分享連結'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

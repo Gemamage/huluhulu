@@ -404,7 +404,7 @@ const swaggerUiOptions = {
 /**
  * 設定 Swagger 文件
  */
-export const swaggerSetup = (app: Express): void => {
+export const swaggerSetup = (app: any): void => {
   // API 文件路由
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
   

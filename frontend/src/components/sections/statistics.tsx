@@ -81,7 +81,7 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry && entry.isIntersecting) {
           setIsVisible(true);
         }
       },
@@ -180,7 +180,10 @@ export function Statistics({ className }: StatisticsProps) {
 
               {/* 數值 */}
               <div className="mb-2">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                <AnimatedCounter 
+                  value={stat.value} 
+                  {...(stat.suffix && { suffix: stat.suffix })}
+                />
               </div>
 
               {/* 標籤 */}

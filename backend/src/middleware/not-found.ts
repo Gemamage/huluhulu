@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { NotFoundError } from './error-handler';
+import { NotFoundError } from '../utils/errors';
 
 /**
  * 404 Not Found 中介軟體

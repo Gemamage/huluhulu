@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
+import { AuthProvider } from '@/contexts/auth-context';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ export function Providers({ children }: ProvidersProps) {
             // 資料快取時間 (5 分鐘)
             staleTime: 5 * 60 * 1000,
             // 快取保存時間 (10 分鐘)
-            cacheTime: 10 * 60 * 1000,
+            gcTime: 10 * 60 * 1000,
             // 重新聚焦時重新獲取資料
             refetchOnWindowFocus: false,
             // 重試次數
@@ -42,7 +43,9 @@ export function Providers({ children }: ProvidersProps) {
         enableSystem
         disableTransitionOnChange
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

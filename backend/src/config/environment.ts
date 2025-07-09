@@ -21,11 +21,25 @@ const envSchema = Joi.object({
   EMAIL_PORT: Joi.number().default(587),
   EMAIL_USER: Joi.string().email().required(),
   EMAIL_PASS: Joi.string().required(),
+  EMAIL_FROM_NAME: Joi.string().default('呼嚕寵物協尋網站'),
+  EMAIL_FROM_EMAIL: Joi.string().email().required(),
+  CLIENT_URL: Joi.string().default('http://localhost:3000'),
   RATE_LIMIT_WINDOW_MS: Joi.number().default(15 * 60 * 1000),
   RATE_LIMIT_MAX_REQUESTS: Joi.number().default(100),
   LOG_LEVEL: Joi.string()
     .valid('error', 'warn', 'info', 'debug')
     .default('info'),
+  // Google OAuth 配置
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
+  GOOGLE_CALLBACK_URL: Joi.string().default('/api/auth/google/callback'),
+  // Session 配置
+  SESSION_SECRET: Joi.string().min(32).required(),
+  // AWS S3 配置
+  AWS_ACCESS_KEY_ID: Joi.string().optional(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().optional(),
+  AWS_REGION: Joi.string().default('ap-northeast-1'),
+  AWS_S3_BUCKET: Joi.string().optional(),
 }).unknown();
 
 // 驗證環境變數
@@ -47,8 +61,6 @@ export const config = {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      bufferMaxEntries: 0,
-      bufferCommands: false,
     },
   },
   
@@ -75,11 +87,14 @@ export const config = {
     host: envVars.EMAIL_HOST as string,
     port: envVars.EMAIL_PORT as number,
     secure: envVars.EMAIL_PORT === 465,
-    auth: {
-      user: envVars.EMAIL_USER as string,
-      pass: envVars.EMAIL_PASS as string,
-    },
+    user: envVars.EMAIL_USER as string,
+    password: envVars.EMAIL_PASS as string,
+    fromName: envVars.EMAIL_FROM_NAME as string,
+    fromEmail: envVars.EMAIL_FROM_EMAIL as string,
   },
+
+  // 客戶端 URL
+  clientUrl: envVars.CLIENT_URL as string,
   
   // 速率限制配置
   rateLimit: {
@@ -113,6 +128,27 @@ export const config = {
   // 快取配置
   cache: {
     ttl: 5 * 60, // 5 分鐘
+  },
+  
+  // Google OAuth 配置
+  google: {
+    clientId: envVars.GOOGLE_CLIENT_ID as string,
+    clientSecret: envVars.GOOGLE_CLIENT_SECRET as string,
+    callbackUrl: envVars.GOOGLE_CALLBACK_URL as string,
+  },
+  
+  // Session 配置
+  session: {
+    secret: envVars.SESSION_SECRET as string,
+    maxAge: 24 * 60 * 60 * 1000, // 24 小時
+  },
+  
+  // AWS S3 配置
+  aws: {
+    accessKeyId: envVars.AWS_ACCESS_KEY_ID as string,
+    secretAccessKey: envVars.AWS_SECRET_ACCESS_KEY as string,
+    region: envVars.AWS_REGION as string,
+    s3Bucket: envVars.AWS_S3_BUCKET as string,
   },
 } as const;
 

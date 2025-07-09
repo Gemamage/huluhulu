@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { config } from './environment';
-import { logger } from '@/utils/logger';
+import { logger } from '../utils/logger';
 
 /**
  * 連接到 MongoDB 資料庫
@@ -59,6 +59,10 @@ export const clearDatabase = async (): Promise<void> => {
   }
   
   try {
+    if (!mongoose.connection.db) {
+      throw new Error('資料庫連接未建立');
+    }
+    
     const collections = await mongoose.connection.db.collections();
     
     await Promise.all(

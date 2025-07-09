@@ -1,279 +1,683 @@
-import { Router } from 'express';
-import { asyncHandler } from '@/middleware/error-handler';
-import { ValidationError, NotFoundError } from '@/middleware/error-handler';
-import { logger } from '@/utils/logger';
+import { Router, Request, Response } from 'express';
+import { body, validationResult, query } from 'express-validator';
+import { logger } from '../utils/logger';
+import { AppError } from '../utils/errors';
+import { UserService } from '../services/userService';
+import { EmailService } from '../services/emailService';
+import { authenticate, authorize, authorizeOwnerOrAdmin } from '../middleware/auth';
+import { IUser } from '../models/User';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+import { config } from '../config/environment';
 
 const router = Router();
 
-/**
- * @route   GET /api/users
- * @desc    獲取用戶列表
- * @access  Private (Admin)
- */
-router.get('/', asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, search } = req.query;
+// 配置 Cloudinary
+cloudinary.config({
+  cloud_name: config.cloudinary.cloudName,
+  api_key: config.cloudinary.apiKey,
+  api_secret: config.cloudinary.apiSecret,
+});
 
-  // TODO: 實作用戶列表查詢邏輯
-  // - 分頁處理
-  // - 搜尋功能
-  // - 權限檢查
+// 配置 multer 用於檔案上傳
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: config.upload.maxFileSize,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (config.upload.allowedMimeTypes.includes(file.mimetype as any)) {
+      cb(null, true);
+    } else {
+      cb(new AppError('不支援的檔案格式', 400));
+    }
+  },
+});
 
-  logger.info('獲取用戶列表請求', { page, limit, search });
+// 獲取用戶列表（僅管理員）
+router.get(
+  '/',
+  authenticate,
+  authorize('admin'),
+  [
+    query('page').optional().isInt({ min: 1 }),
+    query('limit').optional().isInt({ min: 1, max: 100 }),
+    query('search').optional().isString(),
+    query('role').optional().isIn(['user', 'admin']),
+    query('isActive').optional().isBoolean(),
+    query('isEmailVerified').optional().isBoolean(),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '查詢參數驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
 
-  res.json({
-    success: true,
-    data: {
-      users: [
-        {
-          id: 'user-1',
-          email: 'user1@example.com',
-          name: '用戶一',
-          phone: '+886912345678',
-          avatar: null,
-          isVerified: true,
-          createdAt: new Date().toISOString(),
+      const {
+        page = 1,
+        limit = 20,
+        search,
+        role,
+        isActive,
+        isEmailVerified,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+      } = req.query;
+
+      // 獲取用戶列表
+      const queryOptions: any = {
+        page: Number(page),
+        limit: Number(limit),
+        search: search as string,
+        sortBy: sortBy as string,
+        sortOrder: sortOrder as 'asc' | 'desc',
+      };
+      
+      if (role) {
+        queryOptions.role = role as 'user' | 'admin';
+      }
+      
+      if (isActive !== undefined) {
+        queryOptions.isActive = Boolean(isActive);
+      }
+      
+      if (isEmailVerified !== undefined) {
+        queryOptions.isEmailVerified = Boolean(isEmailVerified);
+      }
+      
+      const result = await UserService.getUsers(queryOptions);
+
+      logger.info('獲取用戶列表成功', {
+        page,
+        limit,
+        total: result.total,
+        adminId: (req.user as IUser)?._id.toString(),
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      logger.error('獲取用戶列表失敗', { error });
+      res.status(500).json({
+        success: false,
+        message: '獲取用戶列表失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 獲取特定用戶資訊
+router.get(
+  '/:id',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: '缺少用戶 ID',
+        });
+        return;
+      }
+
+      // 獲取用戶資訊
+      const user = await UserService.getUserById(id);
+      if (!user) {
+        res.status(404).json({
+          success: false,
+          message: '用戶不存在',
+        });
+        return;
+      }
+
+      logger.info('獲取用戶資訊成功', { userId: id, requesterId: (req.user as IUser)?._id.toString() });
+
+      res.json({
+        success: true,
+        data: {
+          user: {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+            phone: user.phone,
+            avatar: user.avatar,
+            role: user.role,
+            isEmailVerified: user.isEmailVerified,
+            isActive: user.isActive,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            lastLoginAt: user.lastLoginAt,
+          },
         },
-        {
-          id: 'user-2',
-          email: 'user2@example.com',
-          name: '用戶二',
-          phone: '+886987654321',
-          avatar: null,
-          isVerified: false,
-          createdAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      logger.error('獲取用戶資訊失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '獲取用戶資訊失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 更新用戶資訊
+router.put(
+  '/:id',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  [
+    body('name').optional().trim().isLength({ min: 1 }).withMessage('姓名不能為空'),
+    body('phone').optional().isMobilePhone('zh-TW').withMessage('請提供有效的手機號碼'),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
+
+      const { id } = req.params;
+      const updateData = req.body;
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: '缺少用戶 ID',
+        });
+        return;
+      }
+
+      // 更新用戶資訊
+      const updatedUser = await UserService.updateUser(id, updateData);
+
+      logger.info('用戶資訊更新成功', {
+        userId: id,
+        updateData,
+        updaterId: (req.user as IUser)?._id.toString(),
+      });
+
+      res.json({
+        success: true,
+        message: '用戶資訊更新成功',
+        data: {
+          user: {
+            id: updatedUser._id,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            phone: updatedUser.phone,
+            avatar: updatedUser.avatar,
+            role: updatedUser.role,
+            isEmailVerified: updatedUser.isEmailVerified,
+            isActive: updatedUser.isActive,
+            updatedAt: updatedUser.updatedAt,
+          },
         },
-      ],
-      pagination: {
-        currentPage: Number(page),
-        totalPages: 1,
-        totalItems: 2,
-        itemsPerPage: Number(limit),
-      },
-    },
-  });
-}));
+      });
+    } catch (error) {
+      logger.error('用戶資訊更新失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
 
-/**
- * @route   GET /api/users/:id
- * @desc    獲取特定用戶資訊
- * @access  Private
- */
-router.get('/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  if (!id) {
-    throw new ValidationError('請提供用戶 ID');
+      res.status(500).json({
+        success: false,
+        message: '用戶資訊更新失敗，請稍後再試',
+      });
+    }
   }
+);
 
-  // TODO: 實作獲取用戶資訊邏輯
-  // - 查找用戶
-  // - 權限檢查（只能查看自己的資訊或管理員）
+// 停用用戶帳號（軟刪除）
+router.delete(
+  '/:id',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
 
-  logger.info('獲取用戶資訊請求', { userId: id });
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: '缺少用戶 ID',
+        });
+        return;
+      }
 
-  res.json({
-    success: true,
-    data: {
-      user: {
-        id,
-        email: 'user@example.com',
-        name: 'Test User',
-        phone: '+886912345678',
-        avatar: null,
-        isVerified: true,
-        bio: '愛護動物的熱心人士',
-        location: '台北市',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    },
-  });
-}));
+      // 停用用戶帳號
+      await UserService.deactivateUser(id);
 
-/**
- * @route   PUT /api/users/:id
- * @desc    更新用戶資訊
- * @access  Private
- */
-router.put('/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { name, phone, bio, location } = req.body;
+      logger.info('用戶帳號已停用', {
+        userId: id,
+        deactivatedBy: (req.user as IUser)?._id.toString(),
+      });
 
-  if (!id) {
-    throw new ValidationError('請提供用戶 ID');
+      res.json({
+        success: true,
+        message: '用戶帳號已停用',
+      });
+    } catch (error) {
+      logger.error('停用用戶帳號失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '停用用戶帳號失敗，請稍後再試',
+      });
+    }
   }
+);
 
-  // TODO: 實作更新用戶資訊邏輯
-  // - 權限檢查（只能更新自己的資訊）
-  // - 資料驗證
-  // - 更新用戶資訊
+// 上傳用戶頭像
+router.post(
+  '/:id/avatar',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  upload.single('avatar'),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const file = req.file;
 
-  logger.info('更新用戶資訊請求', { userId: id, updateData: { name, phone, bio, location } });
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: '缺少用戶 ID',
+        });
+        return;
+      }
 
-  res.json({
-    success: true,
-    message: '用戶資訊更新成功',
-    data: {
-      user: {
-        id,
-        email: 'user@example.com',
-        name: name || 'Test User',
-        phone: phone || '+886912345678',
-        bio: bio || '愛護動物的熱心人士',
-        location: location || '台北市',
-        avatar: null,
-        isVerified: true,
-        updatedAt: new Date().toISOString(),
-      },
-    },
-  });
-}));
+      if (!file) {
+        res.status(400).json({
+          success: false,
+          message: '請選擇要上傳的頭像檔案',
+        });
+        return;
+      }
 
-/**
- * @route   DELETE /api/users/:id
- * @desc    刪除用戶帳號
- * @access  Private
- */
-router.delete('/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
+      // 上傳到 Cloudinary
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          {
+            folder: 'pet-finder/avatars',
+            public_id: `user-${id}-${Date.now()}`,
+            transformation: [
+              { width: 200, height: 200, crop: 'fill', gravity: 'face' },
+              { quality: 'auto', fetch_format: 'auto' },
+            ],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(file.buffer);
+      });
 
-  if (!id) {
-    throw new ValidationError('請提供用戶 ID');
-  }
+      const avatarUrl = (uploadResult as any).secure_url;
 
-  // TODO: 實作刪除用戶邏輯
-  // - 權限檢查（只能刪除自己的帳號或管理員）
-  // - 軟刪除或硬刪除
-  // - 清理相關資料
+      // 更新用戶頭像
+      const updatedUser = await UserService.updateUser(id, { avatar: avatarUrl });
 
-  logger.info('刪除用戶請求', { userId: id });
+      logger.info('用戶頭像上傳成功', {
+        userId: id,
+        avatarUrl,
+        uploaderId: (req.user as IUser)?._id.toString(),
+      });
 
-  res.json({
-    success: true,
-    message: '用戶帳號已刪除',
-  });
-}));
-
-/**
- * @route   POST /api/users/:id/avatar
- * @desc    上傳用戶頭像
- * @access  Private
- */
-router.post('/:id/avatar', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  if (!id) {
-    throw new ValidationError('請提供用戶 ID');
-  }
-
-  // TODO: 實作頭像上傳邏輯
-  // - 權限檢查
-  // - 檔案驗證
-  // - 圖片處理
-  // - 上傳到雲端儲存
-
-  logger.info('上傳用戶頭像請求', { userId: id });
-
-  res.json({
-    success: true,
-    message: '頭像上傳成功',
-    data: {
-      avatarUrl: 'https://example.com/avatars/user-avatar.jpg',
-    },
-  });
-}));
-
-/**
- * @route   POST /api/users/:id/verify-email
- * @desc    發送郵箱驗證郵件
- * @access  Private
- */
-router.post('/:id/verify-email', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  if (!id) {
-    throw new ValidationError('請提供用戶 ID');
-  }
-
-  // TODO: 實作郵箱驗證邏輯
-  // - 權限檢查
-  // - 生成驗證令牌
-  // - 發送驗證郵件
-
-  logger.info('發送郵箱驗證請求', { userId: id });
-
-  res.json({
-    success: true,
-    message: '驗證郵件已發送',
-  });
-}));
-
-/**
- * @route   POST /api/users/verify-email/:token
- * @desc    驗證郵箱
- * @access  Public
- */
-router.post('/verify-email/:token', asyncHandler(async (req, res) => {
-  const { token } = req.params;
-
-  if (!token) {
-    throw new ValidationError('請提供驗證令牌');
-  }
-
-  // TODO: 實作郵箱驗證邏輯
-  // - 驗證令牌
-  // - 更新用戶驗證狀態
-
-  logger.info('郵箱驗證請求', { token });
-
-  res.json({
-    success: true,
-    message: '郵箱驗證成功',
-  });
-}));
-
-/**
- * @route   GET /api/users/:id/pets
- * @desc    獲取用戶的寵物列表
- * @access  Private
- */
-router.get('/:id/pets', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { page = 1, limit = 10, status } = req.query;
-
-  if (!id) {
-    throw new ValidationError('請提供用戶 ID');
-  }
-
-  // TODO: 實作獲取用戶寵物列表邏輯
-  // - 權限檢查
-  // - 分頁處理
-  // - 狀態篩選
-
-  logger.info('獲取用戶寵物列表請求', { userId: id, page, limit, status });
-
-  res.json({
-    success: true,
-    data: {
-      pets: [
-        {
-          id: 'pet-1',
-          name: '小白',
-          type: 'dog',
-          breed: '柴犬',
-          status: 'lost',
-          lastSeenLocation: '台北市大安區',
-          createdAt: new Date().toISOString(),
+      res.json({
+        success: true,
+        message: '頭像上傳成功',
+        data: {
+          avatarUrl,
+          user: {
+            id: updatedUser._id,
+            avatar: updatedUser.avatar,
+          },
         },
-      ],
-      pagination: {
-        currentPage: Number(page),
-        totalPages: 1,
-        totalItems: 1,
-        itemsPerPage: Number(limit),
-      },
-    },
-  });
-}));
+      });
+    } catch (error) {
+      logger.error('頭像上傳失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '頭像上傳失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 發送電子郵件驗證
+router.post(
+  '/:id/send-verification',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: '缺少用戶 ID',
+        });
+        return;
+      }
+
+      // 獲取用戶資訊
+      const user = await UserService.getUserById(id);
+      
+      if (user.isEmailVerified) {
+        res.status(400).json({
+          success: false,
+          message: '電子郵件已經驗證過了',
+        });
+        return;
+      }
+
+      // 生成驗證令牌
+      const verificationToken = user.generateEmailVerificationToken();
+      await user.save();
+
+      // 發送驗證郵件
+      await EmailService.sendVerificationEmail(
+        user.email,
+        user.name,
+        verificationToken
+      );
+
+      logger.info('驗證郵件發送成功', {
+        userId: id,
+        email: user.email,
+        requesterId: (req.user as IUser)?._id.toString(),
+      });
+
+      res.json({
+        success: true,
+        message: '驗證郵件已發送，請檢查您的信箱',
+      });
+    } catch (error) {
+      logger.error('發送驗證郵件失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '發送驗證郵件失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 驗證電子郵件
+router.post(
+  '/:id/verify-email',
+  [
+    body('token').notEmpty().withMessage('請提供驗證令牌'),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
+
+      const { id } = req.params;
+      const { token } = req.body;
+
+      // 驗證電子郵件
+      await UserService.verifyEmailByToken(token);
+
+      logger.info('電子郵件驗證成功', {
+         userId: id,
+       });
+
+      res.json({
+        success: true,
+        message: '電子郵件驗證成功',
+      });
+    } catch (error) {
+      logger.error('電子郵件驗證失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '電子郵件驗證失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 獲取用戶的寵物列表
+router.get(
+  '/:id/pets',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  [
+    query('page').optional().isInt({ min: 1 }),
+    query('limit').optional().isInt({ min: 1, max: 50 }),
+    query('status').optional().isIn(['lost', 'found', 'adopted']),
+    query('type').optional().isIn(['dog', 'cat', 'other']),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '查詢參數驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
+
+      const { id } = req.params;
+      
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: '缺少用戶 ID',
+        });
+        return;
+      }
+      
+      const {
+        page = 1,
+        limit = 10,
+        status,
+        type,
+        // sortBy = 'createdAt',
+        // sortOrder = 'desc',
+      } = req.query;
+
+      // 構建查詢條件
+      const query: any = { owner: id };
+      
+      if (status) {
+        query.status = status;
+      }
+      
+      if (type) {
+        query.type = type;
+      }
+
+      // 分頁參數
+      const pageNum = Math.max(1, parseInt(page as string));
+      const limitNum = Math.min(50, Math.max(1, parseInt(limit as string)));
+
+      // 查詢寵物（這裡假設有 Pet 模型，實際需要根據寵物模組實作）
+      // 暫時返回空列表，等寵物模組完成後再實作
+      const pets: any[] = [];
+      const total = 0;
+
+      logger.info('獲取用戶寵物列表成功', {
+        userId: id,
+        query,
+        pagination: { page: pageNum, limit: limitNum },
+        requesterId: (req.user as IUser)?._id.toString(),
+      });
+
+      res.json({
+        success: true,
+        message: '獲取用戶寵物列表成功',
+        data: {
+          pets,
+          pagination: {
+            currentPage: pageNum,
+            totalPages: Math.ceil(total / limitNum),
+            totalItems: total,
+            itemsPerPage: limitNum,
+            hasNextPage: pageNum < Math.ceil(total / limitNum),
+            hasPrevPage: pageNum > 1,
+          },
+        },
+      });
+    } catch (error) {
+      logger.error('獲取用戶寵物列表失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '獲取用戶寵物列表失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 更改密碼
+router.put(
+  '/:id/change-password',
+  authenticate,
+  authorizeOwnerOrAdmin,
+  [
+    body('currentPassword').notEmpty().withMessage('請提供當前密碼'),
+    body('newPassword')
+      .isLength({ min: 8 })
+      .withMessage('新密碼長度至少為 8 個字符')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+      .withMessage('新密碼必須包含至少一個小寫字母、一個大寫字母和一個數字'),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
+
+      const { id } = req.params;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!id || !currentPassword || !newPassword) {
+        res.status(400).json({
+          success: false,
+          message: '缺少必要參數',
+        });
+        return;
+      }
+
+      // 更改密碼
+      await UserService.changePassword(id, currentPassword, newPassword);
+
+      logger.info('密碼更改成功', {
+        userId: id,
+        changedBy: (req.user as IUser)?._id.toString(),
+      });
+
+      res.json({
+        success: true,
+        message: '密碼更改成功',
+      });
+    } catch (error) {
+      logger.error('密碼更改失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '密碼更改失敗，請稍後再試',
+      });
+    }
+  }
+);
 
 export { router as userRoutes };

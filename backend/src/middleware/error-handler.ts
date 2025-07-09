@@ -1,62 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '@/utils/logger';
-import { config } from '@/config/environment';
-
-// 自定義錯誤類別
-export class AppError extends Error {
-  public readonly statusCode: number;
-  public readonly isOperational: boolean;
-
-  constructor(message: string, statusCode: number = 500, isOperational: boolean = true) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = isOperational;
-
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
-
-// 驗證錯誤類別
-export class ValidationError extends AppError {
-  constructor(message: string) {
-    super(message, 400);
-  }
-}
-
-// 認證錯誤類別
-export class AuthenticationError extends AppError {
-  constructor(message: string = '認證失敗') {
-    super(message, 401);
-  }
-}
-
-// 授權錯誤類別
-export class AuthorizationError extends AppError {
-  constructor(message: string = '權限不足') {
-    super(message, 403);
-  }
-}
-
-// 資源未找到錯誤類別
-export class NotFoundError extends AppError {
-  constructor(message: string = '資源未找到') {
-    super(message, 404);
-  }
-}
-
-// 衝突錯誤類別
-export class ConflictError extends AppError {
-  constructor(message: string) {
-    super(message, 409);
-  }
-}
-
-// 速率限制錯誤類別
-export class RateLimitError extends AppError {
-  constructor(message: string = '請求過於頻繁') {
-    super(message, 429);
-  }
-}
+import { logger } from '../utils/logger';
+import { config } from '../config/environment';
+import {
+  AppError,
+  NotFoundError,
+  ServiceUnavailableError,
+} from '../utils/errors';
 
 // 錯誤處理中介軟體
 export const errorHandler = (
@@ -153,13 +102,13 @@ export const errorHandler = (
 export const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
 ) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
 
 // 404 錯誤處理
-export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
   const error = new NotFoundError(`路由 ${req.originalUrl} 不存在`);
   next(error);
 };

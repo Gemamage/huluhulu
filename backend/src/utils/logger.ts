@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { config } from '@/config/environment';
+import { config } from '../config/environment';
 
 // 自定義日誌格式
 const logFormat = winston.format.combine(

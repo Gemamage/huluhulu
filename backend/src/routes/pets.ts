@@ -1,16 +1,17 @@
 import { Router } from 'express';
-import { asyncHandler } from '@/middleware/error-handler';
-import { ValidationError, NotFoundError } from '@/middleware/error-handler';
-import { logger } from '@/utils/logger';
+import { asyncHandler } from '../middleware/error-handler';
+import { ValidationError } from '../utils/errors';
+import { logger } from '../utils/logger';
+import { validateRequest, validateQuery, petSchema, petUpdateSchema, petSearchSchema } from '../utils/validation';
 
 const router = Router();
 
 /**
  * @route   GET /api/pets
- * @desc    獲取寵物列表
+ * @desc    取得寵物列表
  * @access  Public
  */
-router.get('/', asyncHandler(async (req, res) => {
+router.get('/', validateQuery(petSearchSchema), asyncHandler(async (req, res) => {
   const {
     page = 1,
     limit = 12,
@@ -109,6 +110,58 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * @route   GET /api/pets/my
+ * @desc    獲取用戶自己的寵物協尋案例
+ * @access  Private
+ */
+router.get('/my', asyncHandler(async (req, res) => {
+  // TODO: 實作獲取用戶寵物列表邏輯
+  // - 權限檢查
+  // - 根據用戶 ID 查詢
+  // - 分頁處理
+
+  logger.info('獲取用戶寵物列表請求', { userId: req.user?.id });
+
+  res.json({
+    success: true,
+    data: {
+      pets: [
+        {
+          id: 'pet-user-1',
+          name: '我的小白',
+          type: 'dog',
+          breed: '柴犬',
+          gender: 'male',
+          age: 2,
+          color: '白色',
+          size: 'medium',
+          status: 'lost',
+          description: '我家的柴犬走失了',
+          lastSeenLocation: '台北市大安區復興南路',
+          lastSeenDate: new Date().toISOString(),
+          contactName: '王小明',
+          contactPhone: '+886912345678',
+          contactEmail: 'wang@example.com',
+          images: ['https://example.com/images/my-pet-1.jpg'],
+          reward: 5000,
+          views: 156,
+          shares: 23,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userId: req.user?.id,
+        },
+      ],
+      pagination: {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 1,
+        itemsPerPage: 12,
+      },
+    },
+  });
+}));
+
+/**
  * @route   GET /api/pets/:id
  * @desc    獲取特定寵物資訊
  * @access  Public
@@ -174,33 +227,9 @@ router.get('/:id', asyncHandler(async (req, res) => {
  * @desc    新增寵物協尋案例
  * @access  Private
  */
-router.post('/', asyncHandler(async (req, res) => {
-  const {
-    name,
-    type,
-    breed,
-    gender,
-    age,
-    color,
-    size,
-    status,
-    description,
-    lastSeenLocation,
-    lastSeenDate,
-    contactInfo,
-    reward,
-    isUrgent,
-    microchipId,
-    vaccinations,
-    medicalConditions,
-    specialMarks,
-    personality,
-  } = req.body;
-
-  // 基本驗證
-  if (!name || !type || !status || !lastSeenLocation || !contactInfo) {
-    throw new ValidationError('請提供必要的寵物資訊');
-  }
+router.post('/', validateRequest(petSchema), asyncHandler(async (req, res) => {
+  // 使用驗證中間件已驗證的資料
+  const validatedData = req.validatedData;
 
   // TODO: 實作新增寵物邏輯
   // - 資料驗證
@@ -208,30 +237,19 @@ router.post('/', asyncHandler(async (req, res) => {
   // - 地理位置處理
   // - 通知相關用戶
 
-  logger.info('新增寵物協尋案例請求', { name, type, status, lastSeenLocation });
+  logger.info('新增寵物協尋案例請求', { 
+    name: validatedData.name, 
+    type: validatedData.type, 
+    status: validatedData.status, 
+    lastSeenLocation: validatedData.lastSeenLocation 
+  });
 
   const newPet = {
     id: `pet-${Date.now()}`,
-    name,
-    type,
-    breed,
-    gender,
-    age,
-    color,
-    size,
-    status,
-    description,
-    lastSeenLocation,
-    lastSeenDate: lastSeenDate || new Date().toISOString(),
-    contactInfo,
-    images: [],
-    reward: reward || 0,
-    isUrgent: isUrgent || false,
-    microchipId,
-    vaccinations: vaccinations || [],
-    medicalConditions: medicalConditions || [],
-    specialMarks,
-    personality: personality || [],
+    ...validatedData,
+    images: validatedData.images || [],
+    reward: validatedData.reward || 0,
+    isUrgent: validatedData.isUrgent || false,
     viewCount: 0,
     shareCount: 0,
     createdAt: new Date().toISOString(),
@@ -252,9 +270,9 @@ router.post('/', asyncHandler(async (req, res) => {
  * @desc    更新寵物資訊
  * @access  Private
  */
-router.put('/:id', asyncHandler(async (req, res) => {
+router.put('/:id', validateRequest(petUpdateSchema), asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const updateData = req.body;
+  const updateData = req.validatedData;
 
   if (!id) {
     throw new ValidationError('請提供寵物 ID');

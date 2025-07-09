@@ -1,205 +1,540 @@
-import { Router } from 'express';
-import { asyncHandler } from '@/middleware/error-handler';
-import { ValidationError, AuthenticationError } from '@/middleware/error-handler';
-import { logger } from '@/utils/logger';
+import { Router, Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
+import { logger } from '../utils/logger';
+import { AppError } from '../utils/errors';
+import { UserService } from '../services/userService';
+import { EmailService } from '../services/emailService';
+import { VerificationService } from '../services/verificationService';
+import { authenticate } from '../middleware/auth';
+import { requireActiveAccount, requireEmailVerification } from '../middleware/rbac';
+import { IUser } from '../models/User';
 
 const router = Router();
 
-/**
- * @route   POST /api/auth/register
- * @desc    用戶註冊
- * @access  Public
- */
-router.post('/register', asyncHandler(async (req, res) => {
-  const { email, password, name, phone } = req.body;
+// 用戶註冊
+router.post(
+  '/register',
+  [
+    body('email').isEmail().normalizeEmail(),
+    body('password').isLength({ min: 6 }),
+    body('name').trim().isLength({ min: 1 }),
+    body('phone').optional().isMobilePhone('zh-TW'),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
 
-  // 基本驗證
-  if (!email || !password || !name) {
-    throw new ValidationError('請提供必要的註冊資訊');
+      const { email, password, name, phone } = req.body;
+      const userData = { email, password, name, phone };
+
+      // 註冊用戶
+      const result = await UserService.registerUser(userData);
+
+      logger.info('用戶註冊成功', { email, name, userId: result.user._id });
+
+      res.status(201).json({
+        success: true,
+        message: '註冊成功，請檢查您的電子郵件以驗證帳號',
+        data: {
+          user: {
+            id: result.user._id,
+            email: result.user.email,
+            name: result.user.name,
+            isEmailVerified: result.user.isEmailVerified,
+          },
+        },
+      });
+    } catch (error) {
+      logger.error('用戶註冊失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '註冊失敗，請稍後再試',
+      });
+    }
   }
+);
 
-  // TODO: 實作用戶註冊邏輯
-  // - 檢查用戶是否已存在
-  // - 密碼加密
-  // - 建立用戶
-  // - 生成 JWT token
+// 用戶登入
+router.post(
+  '/login',
+  [
+    body('email').isEmail().normalizeEmail(),
+    body('password').notEmpty(),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
 
-  logger.info('用戶註冊請求', { email, name });
+      const { email, password } = req.body;
+      const loginData = { email, password };
 
-  res.status(201).json({
-    success: true,
-    message: '註冊成功',
-    data: {
-      user: {
-        id: 'temp-id',
-        email,
-        name,
-        phone,
-        createdAt: new Date().toISOString(),
+      // 用戶登入
+      const { user, token } = await UserService.loginUser(loginData);
+
+      logger.info('用戶登入成功', { email, userId: user._id });
+
+      res.json({
+        success: true,
+        message: '登入成功',
+        data: {
+          user: {
+            id: user._id,
+            email: user.email,
+            name: user.name,
+            phone: user.phone,
+            avatar: user.avatar,
+            role: user.role,
+            isEmailVerified: user.isEmailVerified,
+            lastLoginAt: user.lastLoginAt,
+          },
+          token,
+        },
+      });
+    } catch (error) {
+      logger.error('用戶登入失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '登入失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 用戶登出
+router.post('/logout', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req.user as IUser)?._id.toString();
+    
+    // TODO: 實作令牌黑名單機制（可選）
+    // 目前採用客戶端刪除令牌的方式
+
+    logger.info('用戶登出成功', { userId });
+
+    res.json({
+      success: true,
+      message: '登出成功',
+    });
+  } catch (error) {
+    logger.error('用戶登出失敗', { error });
+    res.status(500).json({
+      success: false,
+      message: '登出失敗，請稍後再試',
+    });
+  }
+});
+
+// 刷新令牌
+router.post('/refresh', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req.user as IUser)?._id.toString();
+    
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: '無效的令牌',
+      });
+      return;
+    }
+
+    // 獲取用戶資料
+    const user = await UserService.getUserById(userId);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: '用戶不存在',
+      });
+      return;
+    }
+
+    // 生成新令牌
+    const newToken = user.generateAuthToken();
+
+    logger.info('令牌刷新成功', { userId });
+
+    res.json({
+      success: true,
+      message: '令牌刷新成功',
+      data: {
+        token: newToken,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          phone: user.phone,
+          avatar: user.avatar,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified,
+        },
       },
-      token: 'temp-token',
-    },
-  });
-}));
-
-/**
- * @route   POST /api/auth/login
- * @desc    用戶登入
- * @access  Public
- */
-router.post('/login', asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  // 基本驗證
-  if (!email || !password) {
-    throw new ValidationError('請提供電子郵件和密碼');
+    });
+  } catch (error) {
+    logger.error('令牌刷新失敗', { error });
+    res.status(500).json({
+      success: false,
+      message: '令牌刷新失敗，請稍後再試',
+    });
   }
+});
 
-  // TODO: 實作用戶登入邏輯
-  // - 查找用戶
-  // - 驗證密碼
-  // - 生成 JWT token
+// 忘記密碼
+router.post(
+  '/forgot-password',
+  [
+    body('email').isEmail().normalizeEmail(),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
 
-  logger.info('用戶登入請求', { email });
+      const { email } = req.body;
 
-  res.json({
-    success: true,
-    message: '登入成功',
-    data: {
-      user: {
-        id: 'temp-id',
-        email,
-        name: 'Test User',
-        createdAt: new Date().toISOString(),
+      // 查找用戶
+      const user = await UserService.getUserByEmail(email);
+      if (!user) {
+        // 為了安全考量，即使用戶不存在也返回成功訊息
+        res.json({
+          success: true,
+          message: '如果該電子郵件地址存在於我們的系統中，您將收到密碼重設郵件',
+        });
+        return;
+      }
+
+      // 生成密碼重設令牌
+      const resetToken = user.generatePasswordResetToken();
+      await user.save();
+
+      // 發送密碼重設郵件
+      await EmailService.sendPasswordResetEmail(
+        user.email,
+        resetToken,
+        user.name
+      );
+
+      logger.info('密碼重設郵件已發送', { email, userId: user._id });
+
+      res.json({
+        success: true,
+        message: '密碼重設郵件已發送，請檢查您的電子郵件',
+      });
+    } catch (error) {
+      logger.error('忘記密碼處理失敗', { error });
+      res.status(500).json({
+        success: false,
+        message: '處理失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 重設密碼
+router.post(
+  '/reset-password',
+  [
+    body('token').notEmpty().withMessage('請提供重設令牌'),
+    body('newPassword').isLength({ min: 6 }).withMessage('密碼長度至少6個字符'),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({
+          success: false,
+          message: '輸入資料驗證失敗',
+          errors: errors.array(),
+        });
+        return;
+      }
+
+      const { token, newPassword } = req.body;
+
+      // 重設密碼
+      await UserService.resetPassword(token, newPassword);
+
+      logger.info('密碼重設成功');
+
+      res.json({
+        success: true,
+        message: '密碼重設成功，請使用新密碼登入',
+      });
+    } catch (error) {
+      logger.error('密碼重設失敗', { error });
+      
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        message: '密碼重設失敗，請稍後再試',
+      });
+    }
+  }
+);
+
+// 獲取當前用戶資訊
+router.get('/me', authenticate, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req.user as IUser)?._id.toString();
+    
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: '未授權的請求',
+      });
+      return;
+    }
+
+    // 獲取用戶資訊
+    const user = await UserService.getUserById(userId);
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: '用戶不存在',
+      });
+      return;
+    }
+
+    logger.info('獲取用戶資訊成功', { userId });
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          phone: user.phone,
+          avatar: user.avatar,
+          role: user.role,
+          isEmailVerified: user.isEmailVerified,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          lastLoginAt: user.lastLoginAt,
+        },
       },
-      token: 'temp-token',
-    },
-  });
-}));
-
-/**
- * @route   POST /api/auth/logout
- * @desc    用戶登出
- * @access  Private
- */
-router.post('/logout', asyncHandler(async (req, res) => {
-  // TODO: 實作用戶登出邏輯
-  // - 將 token 加入黑名單
-  // - 清除相關 session
-
-  logger.info('用戶登出請求');
-
-  res.json({
-    success: true,
-    message: '登出成功',
-  });
-}));
-
-/**
- * @route   POST /api/auth/refresh
- * @desc    刷新認證令牌
- * @access  Private
- */
-router.post('/refresh', asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
-
-  if (!refreshToken) {
-    throw new ValidationError('請提供刷新令牌');
+    });
+  } catch (error) {
+    logger.error('獲取用戶資訊失敗', { error });
+    res.status(500).json({
+      success: false,
+      message: '獲取用戶資訊失敗，請稍後再試',
+    });
   }
+});
 
-  // TODO: 實作令牌刷新邏輯
-  // - 驗證 refresh token
-  // - 生成新的 access token
+// 電子郵件驗證
+router.get('/verify-email/:token', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token } = req.params;
 
-  logger.info('令牌刷新請求');
+    if (!token) {
+      res.status(400).json({
+        success: false,
+        message: '請提供驗證令牌',
+      });
+      return;
+    }
 
-  res.json({
-    success: true,
-    message: '令牌刷新成功',
-    data: {
-      token: 'new-temp-token',
-      refreshToken: 'new-refresh-token',
-    },
-  });
-}));
+    // 使用新的驗證服務
+    const result = await VerificationService.verifyEmailToken(token);
 
-/**
- * @route   POST /api/auth/forgot-password
- * @desc    忘記密碼
- * @access  Public
- */
-router.post('/forgot-password', asyncHandler(async (req, res) => {
-  const { email } = req.body;
+    if (result.success) {
+      logger.info('電子郵件驗證成功', { token });
+      res.json({
+        success: true,
+        message: result.message,
+        data: result.user ? {
+          user: {
+            id: result.user._id,
+            email: result.user.email,
+            name: result.user.name,
+            isEmailVerified: result.user.isEmailVerified,
+          },
+        } : undefined,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+  } catch (error) {
+    logger.error('電子郵件驗證失敗', { error });
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
 
-  if (!email) {
-    throw new ValidationError('請提供電子郵件地址');
+    res.status(500).json({
+      success: false,
+      message: '電子郵件驗證失敗，請稍後再試',
+    });
   }
+});
 
-  // TODO: 實作忘記密碼邏輯
-  // - 查找用戶
-  // - 生成重設密碼令牌
-  // - 發送重設密碼郵件
+// 重新發送驗證郵件（需要登入）
+router.post('/resend-verification', authenticate, requireActiveAccount, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = req.user as IUser;
+    
+    // 使用新的驗證服務
+    const result = await VerificationService.resendVerificationEmail(user.email);
 
-  logger.info('忘記密碼請求', { email });
+    if (result.success) {
+      logger.info('重新發送驗證郵件成功', { userId: user._id, email: user.email });
+      res.json({
+        success: true,
+        message: result.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.message,
+        cooldownRemaining: result.cooldownRemaining,
+      });
+    }
+  } catch (error) {
+    logger.error('重新發送驗證郵件失敗', { error });
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
 
-  res.json({
-    success: true,
-    message: '密碼重設郵件已發送',
-  });
-}));
-
-/**
- * @route   POST /api/auth/reset-password
- * @desc    重設密碼
- * @access  Public
- */
-router.post('/reset-password', asyncHandler(async (req, res) => {
-  const { token, newPassword } = req.body;
-
-  if (!token || !newPassword) {
-    throw new ValidationError('請提供重設令牌和新密碼');
+    res.status(500).json({
+      success: false,
+      message: '發送失敗，請稍後再試',
+    });
   }
+});
 
-  // TODO: 實作重設密碼邏輯
-  // - 驗證重設令牌
-  // - 更新用戶密碼
-  // - 清除重設令牌
+// 重新發送驗證郵件（無需登入）
+router.post('/resend-verification-email', [
+  body('email').isEmail().normalizeEmail(),
+], async (req: Request, res: Response): Promise<void> => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        success: false,
+        message: '輸入資料驗證失敗',
+        errors: errors.array(),
+      });
+      return;
+    }
 
-  logger.info('重設密碼請求');
+    const { email } = req.body;
 
-  res.json({
-    success: true,
-    message: '密碼重設成功',
-  });
-}));
+    // 使用新的驗證服務
+    const result = await VerificationService.resendVerificationEmail(email);
 
-/**
- * @route   GET /api/auth/me
- * @desc    獲取當前用戶資訊
- * @access  Private
- */
-router.get('/me', asyncHandler(async (req, res) => {
-  // TODO: 實作獲取用戶資訊邏輯
-  // - 從 JWT token 中獲取用戶 ID
-  // - 查找用戶資訊
+    if (result.success) {
+      logger.info('重新發送驗證郵件成功', { email });
+      res.json({
+        success: true,
+        message: result.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.message,
+        cooldownRemaining: result.cooldownRemaining,
+      });
+    }
+  } catch (error) {
+    logger.error('重新發送驗證郵件失敗', { error });
+    
+    if (error instanceof AppError) {
+      res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+      return;
+    }
 
-  logger.info('獲取用戶資訊請求');
+    res.status(500).json({
+      success: false,
+      message: '發送失敗，請稍後再試',
+    });
+  }
+});
 
-  res.json({
-    success: true,
-    data: {
-      user: {
-        id: 'temp-id',
-        email: 'user@example.com',
-        name: 'Test User',
-        phone: '+886912345678',
-        avatar: null,
-        isVerified: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+// 檢查驗證狀態
+router.get('/verification-status', authenticate, requireActiveAccount, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = req.user as IUser;
+    
+    const status = await VerificationService.checkVerificationStatus(user);
+
+    res.json({
+      success: true,
+      data: {
+        needsVerification: status.needsVerification,
+        hasValidToken: status.hasValidToken,
+        tokenExpiry: status.tokenExpiry,
+        isEmailVerified: user.isEmailVerified,
       },
-    },
-  });
-}));
+    });
+  } catch (error) {
+    logger.error('檢查驗證狀態失敗', { error });
+    res.status(500).json({
+      success: false,
+      message: '檢查狀態失敗，請稍後再試',
+    });
+  }
+});
 
 export { router as authRoutes };
