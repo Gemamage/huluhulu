@@ -2,7 +2,7 @@
 import { IUser } from '../../src/models/User';
 import { IPet } from '../../src/models/Pet';
 
-// 用戶測試數據
+// 輕量級用戶測試數據
 export const validUserData = {
   email: 'test@example.com',
   password: 'password123',
@@ -19,12 +19,12 @@ export const otherUserData = {
 
 export const invalidUserData = {
   email: 'invalid-email',
-  password: '123', // 太短
+  password: '123',
   name: '',
   phone: 'invalid-phone'
 };
 
-// 寵物測試數據
+// 輕量級寵物測試數據
 export const validPetData = {
   name: 'Buddy',
   type: 'dog' as const,
@@ -33,23 +33,19 @@ export const validPetData = {
   gender: 'male' as const,
   size: 'large' as const,
   color: 'golden',
-  description: 'A friendly golden retriever',
-  lastSeenLocation: '123 Main St, Taipei',
-  lastSeenDate: new Date(),
-  contactInfo: {
-    name: 'John Doe',
-    phone: '+1234567890',
-    email: 'owner@example.com'
-  },
+  description: 'Friendly dog',
+  lastSeenLocation: '123 Main St',
+  lastSeenDate: new Date('2024-01-01'),
+  contactInfo: { name: 'John Doe', phone: '+1234567890', email: 'owner@example.com' },
   status: 'lost' as const,
-  images: ['https://example.com/image1.jpg'],
+  images: ['test-image.jpg'],
   isUrgent: false
 };
 
 export const invalidPetData = {
-  name: '', // 空名稱
+  name: '',
   type: 'invalid-type',
-  age: -1, // 負數年齡
+  age: -1,
   gender: 'invalid-gender',
   size: 'invalid-size',
   status: 'invalid-status'
