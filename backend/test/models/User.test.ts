@@ -1,13 +1,8 @@
 import { User, IUser } from '../../src/models/User';
 import mongoose from 'mongoose';
+import { validUserData } from '../utils/testData';
 
 describe('User Model', () => {
-  const validUserData = {
-    email: 'test@example.com',
-    password: 'password123',
-    name: 'Test User',
-    phone: '+1234567890'
-  };
 
   afterEach(async () => {
     await User.deleteMany({});

@@ -2,16 +2,10 @@ import { UserService } from '../../src/services/userService';
 import { User, IUser } from '../../src/models/User';
 import jwt from 'jsonwebtoken';
 import { config } from '../../src/config/environment';
+import { validUserData } from '../utils/testData';
 
 describe('UserService - Authentication', () => {
   let testUser: IUser;
-  
-  const validUserData = {
-    email: 'test@example.com',
-    password: 'password123',
-    name: 'Test User',
-    phone: '+1234567890'
-  };
 
   beforeEach(async () => {
     testUser = await new User(validUserData).save();

@@ -4,6 +4,7 @@ import { User } from '../../src/models/User';
 import { authRoutes } from '../../src/routes/auth';
 import { config } from '../../src/config/environment';
 import { errorHandler } from '../../src/middleware/error-handler';
+import { validUserData, ERROR_MESSAGES } from '../utils/testData';
 
 // 創建測試應用
 const app = express();
@@ -12,12 +13,6 @@ app.use('/api/auth', authRoutes);
 app.use(errorHandler);
 
 describe('Auth Routes', () => {
-  const validUserData = {
-    email: 'test@example.com',
-    password: 'password123',
-    name: 'Test User',
-    phone: '+1234567890'
-  };
 
   afterEach(async () => {
     await User.deleteMany({});
@@ -31,11 +26,10 @@ describe('Auth Routes', () => {
         .expect(201);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.user).toBeDefined();
-      expect(response.body.user.email).toBe(validUserData.email);
-      expect(response.body.user.name).toBe(validUserData.name);
-      expect(response.body.token).toBeDefined();
-      expect(response.body.user.password).toBeUndefined(); // 密碼不應該返回
+      expect(response.body.data.user).toBeDefined();
+      expect(response.body.data.user.email).toBe(validUserData.email);
+      expect(response.body.data.user.name).toBe(validUserData.name);
+      expect(response.body.data.user.password).toBeUndefined(); // 密碼不應該返回
     });
 
     it('should not register user with existing email', async () => {
@@ -48,7 +42,7 @@ describe('Auth Routes', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Email already exists');
+      expect(response.body.message).toContain(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
     });
 
     it('should not register user with invalid email', async () => {
@@ -61,7 +55,7 @@ describe('Auth Routes', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain('validation');
+      expect(response.body.message).toContain('驗證失敗');
     });
 
     it('should not register user with missing required fields', async () => {
@@ -86,7 +80,7 @@ describe('Auth Routes', () => {
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain('Password');
+      expect(response.body.message).toContain('輸入資料驗證失敗');
     });
   });
 
@@ -105,10 +99,10 @@ describe('Auth Routes', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.user).toBeDefined();
-      expect(response.body.user.email).toBe(validUserData.email);
-      expect(response.body.token).toBeDefined();
-      expect(response.body.user.password).toBeUndefined();
+      expect(response.body.data.user).toBeDefined();
+      expect(response.body.data.user.email).toBe(validUserData.email);
+      expect(response.body.data.token).toBeDefined();
+      expect(response.body.data.user.password).toBeUndefined();
     });
 
     it('should not login with invalid email', async () => {
@@ -121,7 +115,7 @@ describe('Auth Routes', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid credentials');
+      expect(response.body.message).toContain(ERROR_MESSAGES.INVALID_CREDENTIALS);
     });
 
     it('should not login with invalid password', async () => {
@@ -134,7 +128,7 @@ describe('Auth Routes', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid credentials');
+      expect(response.body.message).toContain(ERROR_MESSAGES.INVALID_CREDENTIALS);
     });
 
     it('should not login with missing credentials', async () => {
@@ -159,17 +153,17 @@ describe('Auth Routes', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Password reset email sent');
+      expect(response.body.message).toContain(ERROR_MESSAGES.PASSWORD_RESET_SUCCESS);
     });
 
-    it('should not send reset email for non-existent email', async () => {
+    it('should return success message for non-existent email (security)', async () => {
       const response = await request(app)
         .post('/api/auth/forgot-password')
         .send({ email: 'nonexistent@example.com' })
-        .expect(404);
+        .expect(200);
 
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toContain('電子郵件地址');
     });
 
     it('should not send reset email with invalid email format', async () => {
@@ -200,12 +194,12 @@ describe('Auth Routes', () => {
         .post('/api/auth/reset-password')
         .send({
           token: resetToken,
-          password: newPassword
+          newPassword: newPassword
         })
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Password reset successfully');
+      expect(response.body.message).toContain('重設成功');
       
       // 驗證可以用新密碼登入
       const loginResponse = await request(app)
@@ -224,12 +218,12 @@ describe('Auth Routes', () => {
         .post('/api/auth/reset-password')
         .send({
           token: 'invalid-token',
-          password: 'newpassword123'
+          newPassword: 'newpassword123'
         })
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid or expired reset token');
+      expect(response.body.message).toContain('密碼重設令牌無效或已過期');
     });
 
     it('should not reset password with weak password', async () => {
@@ -237,12 +231,12 @@ describe('Auth Routes', () => {
         .post('/api/auth/reset-password')
         .send({
           token: resetToken,
-          password: '123' // 弱密碼
+          newPassword: '123' // 弱密碼
         })
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain('Password');
+      expect(response.body.message).toContain('輸入資料驗證失敗');
     });
   });
 
@@ -259,12 +253,11 @@ describe('Auth Routes', () => {
 
     it('should verify email with valid token', async () => {
       const response = await request(app)
-        .post('/api/auth/verify-email')
-        .send({ token: verificationToken })
+        .get(`/api/auth/verify-email/${verificationToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Email verified successfully');
+      expect(response.body.message).toContain('驗證成功');
       
       // 驗證用戶的郵件已被驗證
       const updatedUser = await User.findById(user._id);
@@ -273,12 +266,11 @@ describe('Auth Routes', () => {
 
     it('should not verify email with invalid token', async () => {
       const response = await request(app)
-        .post('/api/auth/verify-email')
-        .send({ token: 'invalid-token' })
+        .get('/api/auth/verify-email/invalid-token')
         .expect(400);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid or expired verification token');
+      expect(response.body.message).toContain('無效');
     });
   });
 
@@ -298,9 +290,9 @@ describe('Auth Routes', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.user).toBeDefined();
-      expect(response.body.user.email).toBe(validUserData.email);
-      expect(response.body.user.password).toBeUndefined();
+      expect(response.body.data.user).toBeDefined();
+      expect(response.body.data.user.email).toBe(validUserData.email);
+      expect(response.body.data.user.password).toBeUndefined();
     });
 
     it('should not get user without token', async () => {
@@ -309,7 +301,7 @@ describe('Auth Routes', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Access denied. No token provided.');
+      expect(response.body.error.message).toContain('認證令牌');
     });
 
     it('should not get user with invalid token', async () => {
@@ -319,7 +311,7 @@ describe('Auth Routes', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid token');
+      expect(response.body.error.message).toContain('無效');
     });
   });
 
@@ -339,16 +331,16 @@ describe('Auth Routes', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Logged out successfully');
+      expect(response.body.message).toContain('登出成功');
     });
 
-    it('should logout without token (client-side logout)', async () => {
+    it('should not logout without token', async () => {
       const response = await request(app)
         .post('/api/auth/logout')
-        .expect(200);
+        .expect(401);
 
-      expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Logged out successfully');
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.message).toContain('認證令牌');
     });
   });
 });

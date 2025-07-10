@@ -1,38 +1,15 @@
 import { Pet, IPet } from '../../src/models/Pet';
 import { User, IUser } from '../../src/models/User';
 import mongoose from 'mongoose';
+import { validUserData, validPetData, createTestPet } from '../utils/testData';
 
 describe('Pet Model', () => {
   let testUser: IUser;
 
-  const validPetData = {
-    name: 'Buddy',
-    type: 'dog' as const,
-    breed: 'Golden Retriever',
-    gender: 'male' as const,
-    age: 3,
-    color: 'Golden',
-    size: 'large' as const,
-    status: 'lost' as const,
-    description: 'Friendly golden retriever, loves to play fetch',
-    lastSeenLocation: '123 Main St, City, State',
-    lastSeenDate: new Date(),
-    contactInfo: {
-      name: 'John Doe',
-      phone: '+1234567890',
-      email: 'john@example.com'
-    },
-    images: ['https://example.com/image1.jpg'],
-    isUrgent: false
-  };
+
 
   beforeEach(async () => {
-    testUser = await new User({
-      email: 'test@example.com',
-      password: 'password123',
-      name: 'Test User',
-      phone: '+1234567890'
-    }).save();
+    testUser = await new User(validUserData).save();
   });
 
   afterEach(async () => {

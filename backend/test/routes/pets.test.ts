@@ -6,6 +6,7 @@ import { Pet } from '../../src/models/Pet';
 import { petRoutes } from '../../src/routes/pets';
 import { authenticate } from '../../src/middleware/auth';
 import { errorHandler } from '../../src/middleware/error-handler';
+import { validUserData, otherUserData, validPetData, createTestPet } from '../utils/testData';
 
 // 創建測試應用
 const app = express();
@@ -19,40 +20,9 @@ describe('Pet Routes', () => {
   let otherUser: IUser;
   let otherAuthToken: string;
 
-  const validUserData = {
-    email: 'test@example.com',
-    password: 'password123',
-    name: 'Test User',
-    phone: '+1234567890'
-  };
 
-  const otherUserData = {
-    email: 'other@example.com',
-    password: 'password123',
-    name: 'Other User',
-    phone: '+1987654321'
-  };
 
-  const validPetData = {
-    name: 'Buddy',
-    type: 'dog',
-    breed: 'Golden Retriever',
-    gender: 'male',
-    age: 3,
-    color: 'Golden',
-    size: 'large',
-    status: 'lost',
-    description: 'Friendly golden retriever, loves to play fetch',
-    lastSeenLocation: '123 Main St, City, State',
-    lastSeenDate: new Date().toISOString(),
-    contactInfo: {
-      name: 'John Doe',
-      phone: '+1234567890',
-      email: 'john@example.com'
-    },
-    images: ['https://example.com/image1.jpg'],
-    isUrgent: false
-  };
+
 
   beforeEach(async () => {
     testUser = await new User(validUserData).save();

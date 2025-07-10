@@ -49,9 +49,12 @@ process.env.OPENAI_API_KEY = 'test-openai-key';
 
 // 模擬外部服務
 jest.mock('../src/services/emailService', () => ({
-  sendEmail: jest.fn().mockResolvedValue(true),
-  sendVerificationEmail: jest.fn().mockResolvedValue(true),
-  sendPasswordResetEmail: jest.fn().mockResolvedValue(true)
+  EmailService: {
+    sendVerificationEmail: jest.fn().mockResolvedValue(true),
+    sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
+    sendWelcomeEmail: jest.fn().mockResolvedValue(true),
+    sendNotificationEmail: jest.fn().mockResolvedValue(true)
+  }
 }));
 
 // cloudinaryService not implemented yet
