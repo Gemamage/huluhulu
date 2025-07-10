@@ -57,10 +57,10 @@ export default function NewPetPage() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
-            發布寵物協尋案例
+            拾獲通報
           </CardTitle>
           <CardDescription>
-            請詳細填寫寵物資訊，這將幫助更多人協助尋找您的寵物
+            感謝您的愛心，請填寫以下資訊，為牠建立一個回家的機會
           </CardDescription>
         </CardHeader>
       </Card>
