@@ -53,19 +53,12 @@ export const petSchema = z.object({
     errorMap: () => ({ message: '請選擇有效的狀態' }),
   }),
   description: z.string().trim().max(1000, '描述不能超過 1000 個字符').optional(),
-  lastSeenLocation: z.object({
-    address: z.string().trim().min(1, '地址為必填項目').max(200, '地址不能超過 200 個字符'),
-    latitude: z.number().min(-90).max(90, '緯度必須在 -90 到 90 之間').optional(),
-    longitude: z.number().min(-180).max(180, '經度必須在 -180 到 180 之間').optional(),
-  }),
+  lastSeenLocation: z.string().trim().min(1, '最後出現地點為必填項目').max(200, '地點描述不能超過 200 個字符'),
   lastSeenDate: z.string().datetime('請提供有效的日期時間格式'),
   contactInfo: z.object({
     name: nameSchema,
     phone: z.string().regex(/^[+]?[0-9\s\-()]+$/, '請提供有效的電話號碼'),
     email: emailSchema.optional(),
-    preferredContact: z.enum(['phone', 'email'], {
-      errorMap: () => ({ message: '請選擇有效的聯絡方式' }),
-    }),
   }),
   images: z.array(z.string().url('請提供有效的圖片 URL')).max(5, '最多只能上傳 5 張圖片').optional(),
   reward: z.number().min(0, '獎勵金額不能為負數').optional(),
@@ -84,11 +77,13 @@ export const petSearchSchema = z.object({
   type: z.enum(['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'reptile', 'other']).optional(),
   status: z.enum(['lost', 'found']).optional(),
   location: z.string().trim().optional(),
-  radius: z.number().min(1).max(100, '搜尋半徑不能超過 100 公里').optional(),
-  page: z.number().int().min(1, '頁碼必須大於 0').default(1),
-  limit: z.number().int().min(1).max(50, '每頁數量不能超過 50').default(10),
+  radius: z.string().transform(val => val ? Number(val) : undefined).pipe(z.number().min(1).max(100, '搜尋半徑不能超過 100 公里')).optional(),
+  page: z.string().transform(val => val ? Number(val) : 1).pipe(z.number().int().min(1, '頁碼必須大於 0')).default('1'),
+  limit: z.string().transform(val => val ? Number(val) : 10).pipe(z.number().int().min(1).max(50, '每頁數量不能超過 50')).default('10'),
   sortBy: z.enum(['createdAt', 'lastSeenDate', 'reward']).default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  search: z.string().trim().optional(),
+  breed: z.string().trim().optional(),
 });
 
 // 隱私設定驗證架構

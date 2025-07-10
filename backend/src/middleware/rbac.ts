@@ -41,7 +41,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   user: [
     Permission.USER_READ,
     Permission.PET_READ,
-    Permission.PET_WRITE,
     Permission.CASE_READ,
     Permission.CASE_WRITE,
   ],

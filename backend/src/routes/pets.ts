@@ -410,6 +410,62 @@ router.post('/:id/share', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * @route   GET /api/pets/user/:userId
+ * @desc    獲取指定用戶的寵物協尋案例
+ * @access  Public
+ */
+router.get('/user/:userId', asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { page = 1, limit = 12, status } = req.query;
+
+  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ValidationError('請提供有效的用戶 ID');
+  }
+
+  logger.info('獲取用戶寵物列表請求', { userId });
+
+  // 建立查詢條件
+  const query: any = { userId: new mongoose.Types.ObjectId(userId) };
+  
+  // 狀態篩選
+  if (status) {
+    query.status = status;
+  }
+
+  // 計算分頁
+  const skip = (Number(page) - 1) * Number(limit);
+  
+  // 執行查詢
+  const [pets, totalItems] = await Promise.all([
+    Pet.find(query)
+      .sort({ isUrgent: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('userId', 'name email')
+      .lean(),
+    Pet.countDocuments(query)
+  ]);
+
+  // 計算分頁資訊
+  const totalPages = Math.ceil(totalItems / Number(limit));
+
+  res.json({
+    success: true,
+    data: {
+      pets,
+      pagination: {
+        currentPage: Number(page),
+        totalPages,
+        totalItems,
+        itemsPerPage: Number(limit),
+        hasNextPage: Number(page) < totalPages,
+        hasPrevPage: Number(page) > 1
+      },
+    },
+  });
+}));
+
+/**
  * @route   GET /api/pets/search/similar
  * @desc    搜尋相似寵物
  * @access  Public
