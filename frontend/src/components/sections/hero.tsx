@@ -20,7 +20,9 @@ export function Hero({ className }: HeroProps) {
   };
 
   return (
-    <section className={cn('relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600', className)} style={{backgroundColor: '#FF8C69'}}>
+    <>
+      {/* 橫幅插畫區域 */}
+      <section className={cn('relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600', className)} style={{backgroundColor: '#FF8C69'}}>
       {/* 背景裝飾 - 暖色調 */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10" />
       <div className="absolute top-0 left-1/4 w-72 h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" />
@@ -64,8 +66,8 @@ export function Hero({ className }: HeroProps) {
           </div>
 
           {/* 搜尋表單 */}
-          <form onSubmit={handleSearch} className="max-w-4xl mx-auto mb-12">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
+          <form onSubmit={handleSearch} className="max-w-4xl mx-auto mb-8">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* 搜尋關鍵字 */}
                 <div className="md:col-span-2">
@@ -80,7 +82,7 @@ export function Hero({ className }: HeroProps) {
                       placeholder="輸入寵物名稱、品種或特徵..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-zinc-700 placeholder-gray-500"
                     />
                   </div>
                 </div>
@@ -98,7 +100,7 @@ export function Hero({ className }: HeroProps) {
                       placeholder="地點"
                       value={searchLocation}
                       onChange={(e) => setSearchLocation(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-zinc-700 placeholder-gray-500"
                     />
                   </div>
                 </div>
@@ -108,41 +110,44 @@ export function Hero({ className }: HeroProps) {
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                 >
                   開始搜尋
                 </button>
                 <Link
                   href="/pets/lost"
-                  className="flex-1 bg-white dark:bg-gray-700 border-2 border-blue-600 text-blue-600 dark:text-blue-400 font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-center"
+                  className="flex-1 bg-white border-2 border-amber-600 text-amber-600 font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 text-center"
                 >
                   瀏覽走失寵物
                 </Link>
               </div>
             </div>
           </form>
+       </div>
+      </div>
+    </section>
 
-          {/* 行動呼籲按鈕 */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/pets/report-lost"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white hover:bg-gray-50 rounded-2xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500 shadow-xl hover:shadow-2xl"
-              style={{color: '#333333'}}
-            >
-              <Heart className="w-5 h-5 mr-2" style={{color: '#FF8C69'}} />
-              我的寵物走失了
-            </Link>
-            <Link
-              href="/pets/report-found"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white hover:bg-gray-50 rounded-2xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-500 shadow-xl hover:shadow-2xl"
-              style={{color: '#333333'}}
-            >
-              <MapPin className="w-5 h-5 mr-2" style={{color: '#FF8C69'}} />
-              我發現了寵物
-            </Link>
-          </div>
+    {/* 行動呼籲區塊 */}
+    <section className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-white rounded-lg shadow-md p-8 mt-8">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            href="/pets/report-lost"
+            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
+          >
+            <Heart className="w-5 h-5 mr-2" />
+            我的寵物走失了
+          </Link>
+          <Link
+            href="/pets/report-found"
+            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white border-2 border-amber-600 text-amber-600 hover:bg-amber-50 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
+          >
+            <MapPin className="w-5 h-5 mr-2" />
+            我發現了寵物
+          </Link>
         </div>
       </div>
     </section>
+  </>
   );
 }

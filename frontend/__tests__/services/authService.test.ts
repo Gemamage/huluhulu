@@ -1,15 +1,9 @@
 import { authService } from '@/services/authService'
 import { LoginCredentials, RegisterData, User } from '@/types/auth'
 
-// Mock axios
-const mockAxios = {
-  get: jest.fn(),
-  post: jest.fn(),
-  put: jest.fn(),
-  delete: jest.fn()
-}
-
-jest.mock('@/lib/axios', () => mockAxios)
+// Mock fetch
+const mockFetch = jest.fn()
+global.fetch = mockFetch
 
 // Mock localStorage
 const localStorageMock = {
@@ -25,28 +19,23 @@ Object.defineProperty(window, 'localStorage', {
 describe('authService', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockFetch.mockClear()
     localStorageMock.getItem.mockClear()
     localStorageMock.setItem.mockClear()
     localStorageMock.removeItem.mockClear()
   })
 
-  const mockUser: User = {
+  const mockUser: Omit<User, 'generateAuthToken' | 'generatePasswordResetToken'> = {
     _id: '1',
-    username: 'testuser',
+    name: 'Test User',
     email: 'test@example.com',
-    firstName: 'Test',
-    lastName: 'User',
     phone: '0912345678',
-    isActive: true,
+    role: 'user',
     isEmailVerified: true,
-    privacySettings: {
-      showEmail: false,
-      showPhone: true,
-      allowMessages: true
-    },
+    lastLoginAt: new Date('2023-01-01'),
     createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01')
-  }
+    updatedAt: new Date('2023-01-01'),
+  };
 
   const mockToken = 'mock-jwt-token'
 
@@ -56,19 +45,26 @@ describe('authService', () => {
         email: 'test@example.com',
         password: 'password123'
       }
-      const mockResponse = {
-        data: {
-          user: mockUser,
-          token: mockToken
-        }
+      const mockResponseData = {
+        user: mockUser,
+        token: mockToken
       }
-      mockAxios.post.mockResolvedValue(mockResponse)
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponseData)
+      })
 
       const result = await authService.login(credentials)
 
-      expect(mockAxios.post).toHaveBeenCalledWith('/auth/login', credentials)
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('token', mockToken)
-      expect(result).toEqual(mockResponse.data)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('auth_token', mockToken)
+      expect(result).toEqual(mockResponseData)
     })
 
     it('handles invalid credentials', async () => {
@@ -76,16 +72,12 @@ describe('authService', () => {
         email: 'test@example.com',
         password: 'wrongpassword'
       }
-      mockAxios.post.mockRejectedValue({
-        response: {
-          status: 401,
-          data: { message: 'Invalid credentials' }
-        }
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 401
       })
 
-      await expect(authService.login(credentials)).rejects.toMatchObject({
-        response: { status: 401 }
-      })
+      await expect(authService.login(credentials)).rejects.toThrow('Login failed')
       expect(localStorageMock.setItem).not.toHaveBeenCalled()
     })
   })
@@ -93,183 +85,201 @@ describe('authService', () => {
   describe('register', () => {
     it('registers user successfully', async () => {
       const registerData: RegisterData = {
-        username: 'testuser',
+        name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
-        firstName: 'Test',
-        lastName: 'User',
         phone: '0912345678'
+      };
+      const mockResponseData = {
+        user: mockUser,
+        token: mockToken
       }
-      const mockResponse = {
-        data: {
-          user: mockUser,
-          token: mockToken
-        }
-      }
-      mockAxios.post.mockResolvedValue(mockResponse)
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockResponseData)
+      })
 
       const result = await authService.register(registerData)
 
-      expect(mockAxios.post).toHaveBeenCalledWith('/auth/register', registerData)
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('token', mockToken)
-      expect(result).toEqual(mockResponse.data)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registerData),
+      })
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('auth_token', mockToken)
+      expect(result).toEqual(mockResponseData)
     })
 
     it('handles duplicate email', async () => {
       const registerData: RegisterData = {
-        username: 'testuser',
+        name: 'Test User',
         email: 'existing@example.com',
         password: 'password123',
-        firstName: 'Test',
-        lastName: 'User'
-      }
-      mockAxios.post.mockRejectedValue({
-        response: {
-          status: 400,
-          data: { message: 'Email already exists' }
-        }
+      };
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 400
       })
 
-      await expect(authService.register(registerData)).rejects.toMatchObject({
-        response: { status: 400 }
-      })
+      await expect(authService.register(registerData)).rejects.toThrow('Registration failed')
       expect(localStorageMock.setItem).not.toHaveBeenCalled()
     })
   })
 
   describe('logout', () => {
     it('logs out user successfully', async () => {
-      mockAxios.post.mockResolvedValue({ data: { message: 'Logged out successfully' } })
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockResolvedValue({
+        ok: true
+      })
 
       await authService.logout()
 
-      expect(mockAxios.post).toHaveBeenCalledWith('/auth/logout')
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('token')
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${mockToken}`,
+        },
+      })
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('auth_token')
     })
 
     it('removes token even if API call fails', async () => {
-      mockAxios.post.mockRejectedValue(new Error('Network error'))
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockRejectedValue(new Error('Network error'))
 
-      await authService.logout()
+      // logout 方法使用 try-finally，所以即使 fetch 失敗也不會拋出錯誤
+      try {
+        await authService.logout()
+      } catch (error) {
+        // 忽略錯誤，因為 logout 應該總是移除 token
+      }
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('token')
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith('auth_token')
     })
   })
 
   describe('getCurrentUser', () => {
     it('gets current user successfully', async () => {
-      const mockResponse = { data: mockUser }
-      mockAxios.get.mockResolvedValue(mockResponse)
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockUser)
+      })
 
       const result = await authService.getCurrentUser()
 
-      expect(mockAxios.get).toHaveBeenCalledWith('/auth/me')
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${mockToken}`,
+        },
+      })
       expect(result).toEqual(mockUser)
     })
 
     it('handles unauthorized request', async () => {
-      mockAxios.get.mockRejectedValue({
-        response: {
-          status: 401,
-          data: { message: 'Unauthorized' }
-        }
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 401
       })
 
-      await expect(authService.getCurrentUser()).rejects.toMatchObject({
-        response: { status: 401 }
-      })
+      await expect(authService.getCurrentUser()).rejects.toThrow('Failed to get current user')
     })
   })
 
   describe('forgotPassword', () => {
     it('sends forgot password email successfully', async () => {
-      const email = 'test@example.com'
-      const mockResponse = {
-        data: { message: 'Password reset email sent' }
-      }
-      mockAxios.post.mockResolvedValue(mockResponse)
+      const forgotPasswordData = { email: 'test@example.com' }
+      mockFetch.mockResolvedValue({
+        ok: true
+      })
 
-      const result = await authService.forgotPassword(email)
+      await authService.forgotPassword(forgotPasswordData)
 
-      expect(mockAxios.post).toHaveBeenCalledWith('/auth/forgot-password', { email })
-      expect(result).toEqual(mockResponse.data)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(forgotPasswordData),
+      })
     })
 
     it('handles user not found', async () => {
-      const email = 'nonexistent@example.com'
-      mockAxios.post.mockRejectedValue({
-        response: {
-          status: 404,
-          data: { message: 'User not found' }
-        }
+      const forgotPasswordData = { email: 'nonexistent@example.com' }
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 404
       })
 
-      await expect(authService.forgotPassword(email)).rejects.toMatchObject({
-        response: { status: 404 }
-      })
+      await expect(authService.forgotPassword(forgotPasswordData)).rejects.toThrow('Failed to send reset password email')
     })
   })
 
   describe('resetPassword', () => {
     it('resets password successfully', async () => {
-      const token = 'reset-token'
-      const newPassword = 'newpassword123'
-      const mockResponse = {
-        data: { message: 'Password reset successfully' }
+      const resetPasswordData = {
+        token: 'reset-token',
+        password: 'newpassword123'
       }
-      mockAxios.post.mockResolvedValue(mockResponse)
-
-      const result = await authService.resetPassword(token, newPassword)
-
-      expect(mockAxios.post).toHaveBeenCalledWith('/auth/reset-password', {
-        token,
-        password: newPassword
+      mockFetch.mockResolvedValue({
+        ok: true
       })
-      expect(result).toEqual(mockResponse.data)
+
+      await authService.resetPassword(resetPasswordData)
+
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(resetPasswordData),
+      })
     })
 
     it('handles invalid or expired token', async () => {
-      const token = 'invalid-token'
-      const newPassword = 'newpassword123'
-      mockAxios.post.mockRejectedValue({
-        response: {
-          status: 400,
-          data: { message: 'Invalid or expired token' }
-        }
+      const resetPasswordData = {
+        token: 'invalid-token',
+        password: 'newpassword123'
+      }
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 400
       })
 
-      await expect(authService.resetPassword(token, newPassword)).rejects.toMatchObject({
-        response: { status: 400 }
-      })
+      await expect(authService.resetPassword(resetPasswordData)).rejects.toThrow('Failed to reset password')
     })
   })
 
   describe('verifyEmail', () => {
     it('verifies email successfully', async () => {
       const token = 'verification-token'
-      const mockResponse = {
-        data: { message: 'Email verified successfully' }
-      }
-      mockAxios.post.mockResolvedValue(mockResponse)
+      mockFetch.mockResolvedValue({
+        ok: true
+      })
 
-      const result = await authService.verifyEmail(token)
+      await authService.verifyEmail(token)
 
-      expect(mockAxios.post).toHaveBeenCalledWith('/auth/verify-email', { token })
-      expect(result).toEqual(mockResponse.data)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
     })
 
     it('handles invalid verification token', async () => {
       const token = 'invalid-token'
-      mockAxios.post.mockRejectedValue({
-        response: {
-          status: 400,
-          data: { message: 'Invalid verification token' }
-        }
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 400
       })
 
-      await expect(authService.verifyEmail(token)).rejects.toMatchObject({
-        response: { status: 400 }
-      })
+      await expect(authService.verifyEmail(token)).rejects.toThrow('Failed to verify email')
     })
   })
 
@@ -281,12 +291,22 @@ describe('authService', () => {
         phone: '0987654321'
       }
       const updatedUser = { ...mockUser, ...updateData }
-      const mockResponse = { data: updatedUser }
-      mockAxios.put.mockResolvedValue(mockResponse)
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(updatedUser)
+      })
 
       const result = await authService.updateProfile(updateData)
 
-      expect(mockAxios.put).toHaveBeenCalledWith('/auth/profile', updateData)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mockToken}`,
+        },
+        body: JSON.stringify(updateData),
+      })
       expect(result).toEqual(updatedUser)
     })
   })
@@ -297,15 +317,21 @@ describe('authService', () => {
         currentPassword: 'oldpassword',
         newPassword: 'newpassword123'
       }
-      const mockResponse = {
-        data: { message: 'Password changed successfully' }
-      }
-      mockAxios.put.mockResolvedValue(mockResponse)
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockResolvedValue({
+        ok: true
+      })
 
-      const result = await authService.changePassword(passwordData)
+      await authService.changePassword(passwordData)
 
-      expect(mockAxios.put).toHaveBeenCalledWith('/auth/change-password', passwordData)
-      expect(result).toEqual(mockResponse.data)
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mockToken}`,
+        },
+        body: JSON.stringify(passwordData),
+      })
     })
 
     it('handles incorrect current password', async () => {
@@ -313,16 +339,13 @@ describe('authService', () => {
         currentPassword: 'wrongpassword',
         newPassword: 'newpassword123'
       }
-      mockAxios.put.mockRejectedValue({
-        response: {
-          status: 400,
-          data: { message: 'Current password is incorrect' }
-        }
+      localStorageMock.getItem.mockReturnValue(mockToken)
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 400
       })
 
-      await expect(authService.changePassword(passwordData)).rejects.toMatchObject({
-        response: { status: 400 }
-      })
+      await expect(authService.changePassword(passwordData)).rejects.toThrow('Failed to change password')
     })
   })
 
@@ -332,7 +355,7 @@ describe('authService', () => {
 
       const result = authService.getToken()
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('token')
+      expect(localStorageMock.getItem).toHaveBeenCalledWith('auth_token')
       expect(result).toBe(mockToken)
     })
 

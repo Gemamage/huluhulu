@@ -170,8 +170,7 @@ describe('validation utils', () => {
 
       const result = validatePetData(invalidPetData)
       expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('寵物名稱為必填項目')
-      expect(result.errors).toContain('寵物類型為必填項目')
+      expect(result.errors).toEqual(['寵物名稱為必填項目', '寵物類型為必填項目'])
     })
 
     it('rejects pet data with invalid email', () => {
@@ -271,7 +270,7 @@ describe('validation utils', () => {
 
       const result = validateSearchFilters(invalidFilters)
       expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('無效的寵物類型')
+      expect(result.errors).toEqual(['無效的寵物類型'])
     })
 
     it('rejects invalid status', () => {

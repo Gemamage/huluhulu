@@ -131,7 +131,7 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   };
 
   return (
-    <span className="font-bold text-4xl" style={{color: '#333333'}}>
+    <span className="font-bold text-4xl text-zinc-700">
       {formatNumber(count)}{suffix}
     </span>
   );
@@ -142,34 +142,33 @@ export function Statistics({ className }: StatisticsProps) {
     <section
       id="statistics-section"
       className={cn(
-        'py-16 sm:py-24 border-t border-gray-200',
+        'py-16 sm:py-24',
         className
       )}
-      style={{backgroundColor: '#FFF0E5'}}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* 標題區塊 */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{color: '#333333'}}>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-zinc-700">
             我們的
-            <span style={{color: '#FF8C69'}}>
+            <span className="text-amber-600">
               成果
             </span>
           </h2>
-          <p className="text-xl max-w-3xl mx-auto" style={{color: '#333333'}}>
+          <p className="text-xl max-w-3xl mx-auto text-zinc-600">
             透過科技與愛心，我們已經幫助無數家庭重新團聚
           </p>
         </div>
 
         {/* 統計數據網格 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {statisticsData.map((stat, index) => (
             <div
               key={stat.id}
-              className="text-center p-8 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-center p-8"
             >
               {/* 圖示 */}
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{backgroundColor: '#FF8C69'}}>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 bg-amber-600">
                 <div className="text-white">
                   {stat.icon}
                 </div>
@@ -184,12 +183,12 @@ export function Statistics({ className }: StatisticsProps) {
               </div>
 
               {/* 標籤 */}
-              <h3 className="text-xl font-semibold mb-2" style={{color: '#333333'}}>
+              <h3 className="text-lg font-semibold mb-2 text-zinc-700">
                 {stat.label}
               </h3>
 
               {/* 描述 */}
-              <p className="leading-relaxed" style={{color: '#666666'}}>
+              <p className="leading-relaxed text-zinc-600">
                 {stat.description}
               </p>
             </div>
@@ -198,9 +197,9 @@ export function Statistics({ className }: StatisticsProps) {
 
         {/* 底部說明 */}
         <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-200 dark:border-blue-800">
-            <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className="text-blue-800 dark:text-blue-200 font-medium">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-amber-50 rounded-full border border-amber-200">
+            <TrendingUp className="w-5 h-5 text-amber-600" />
+            <span className="text-amber-800 font-medium">
               數據持續更新中，每一個數字都代表著一個溫暖的故事
             </span>
           </div>

@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Phone, Mail, User, Calendar, Heart, AlertTriangle } from 'lucide-react';
+import { MapPin, Phone, Mail, User, Calendar, Heart, AlertTriangle, Camera } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { validatePetForm, convertValidationErrors, ValidationResult } from '@/utils/validation';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface PetFormData {
   name: string;
@@ -284,6 +285,22 @@ export function PetForm({ initialData, onSubmit, isLoading = false, mode }: PetF
               />
               {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
             </div>
+          </div>
+
+          <Separator />
+
+          {/* 寵物照片 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Camera className="h-5 w-5" />
+              寵物照片
+            </h3>
+            <ImageUpload
+              images={formData.images || []}
+              onImagesChange={(images) => handleInputChange('images', images)}
+              maxImages={5}
+              maxFileSize={5}
+            />
           </div>
 
           <Separator />

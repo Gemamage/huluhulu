@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { Navbar } from '@/components/layout/navbar';
+import { Footer } from '@/components/layout/footer';
 import { Hero } from '@/components/sections/hero';
 import { Features } from '@/components/sections/features';
 import { RecentPosts } from '@/components/sections/recent-posts';
@@ -31,6 +32,9 @@ export default function HomePage() {
         {/* 行動呼籲區塊 */}
         <CallToAction />
       </main>
+      
+      {/* 頁腳 */}
+      <Footer />
     </>
   );
 }

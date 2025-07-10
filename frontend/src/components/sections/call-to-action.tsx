@@ -94,7 +94,6 @@ export function CallToAction({ className }: CallToActionProps) {
       'py-16 sm:py-24 relative overflow-hidden',
       className
     )}
-    style={{backgroundColor: '#FFF0E5'}}
     >
       {/* 背景裝飾 */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
@@ -105,21 +104,21 @@ export function CallToAction({ className }: CallToActionProps) {
       <div className="relative container mx-auto px-4">
         {/* 主標題區塊 */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6" style={{color: '#333333'}}>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-zinc-700">
             立即
-            <span style={{color: '#FF8C69'}}>
+            <span className="text-amber-600">
               開始行動
             </span>
           </h2>
-          <p className="text-xl max-w-3xl mx-auto mb-8" style={{color: '#333333'}}>
+          <p className="text-xl max-w-3xl mx-auto mb-8 text-zinc-700">
             每一秒都很珍貴，讓我們一起為毛孩們創造回家的機會
           </p>
           
           {/* 信任指標 */}
           <div className="flex flex-wrap justify-center gap-8 mb-8">
             {trustIndicators.map((indicator, index) => (
-              <div key={index} className="flex items-center gap-2" style={{color: '#333333'}}>
-                <div style={{color: '#FF8C69'}}>
+              <div key={index} className="flex items-center gap-2 text-zinc-700">
+                <div className="text-amber-600">
                   {indicator.icon}
                 </div>
                 <div className="text-left">
@@ -139,25 +138,25 @@ export function CallToAction({ className }: CallToActionProps) {
               className="group relative bg-white rounded-3xl p-8 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-4"
             >
               {/* 圖示 */}
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-6" style={{backgroundColor: '#FF8C69'}}>
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-6 bg-amber-600">
                 <div className="text-white">
                   {card.icon}
                 </div>
               </div>
 
               {/* 標題和描述 */}
-              <h3 className="text-2xl font-bold mb-4" style={{color: '#333333'}}>
+              <h3 className="text-2xl font-bold mb-4 text-zinc-700">
                 {card.title}
               </h3>
-              <p className="mb-6 leading-relaxed" style={{color: '#666666'}}>
+              <p className="mb-6 leading-relaxed text-zinc-600">
                 {card.description}
               </p>
 
               {/* 功能列表 */}
               <ul className="space-y-3 mb-8">
                 {card.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-center gap-3 text-sm" style={{color: '#666666'}}>
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{backgroundColor: '#FF8C69'}} />
+                  <li key={featureIndex} className="flex items-center gap-3 text-sm text-zinc-600">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0 bg-amber-600" />
                     {feature}
                   </li>
                 ))}
@@ -166,8 +165,7 @@ export function CallToAction({ className }: CallToActionProps) {
               {/* 行動按鈕 */}
               <Link
                 href={card.href}
-                className="group/btn inline-flex items-center justify-center w-full px-6 py-4 font-semibold rounded-2xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg"
-                style={{backgroundColor: '#FF8C69', color: 'white'}}
+                className="group/btn inline-flex items-center justify-center w-full px-6 py-4 font-semibold rounded-2xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg bg-amber-600 text-white hover:bg-amber-700"
               >
                 立即開始
                 <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
@@ -181,25 +179,25 @@ export function CallToAction({ className }: CallToActionProps) {
           <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-xl">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
               <div>
-                <div className="text-3xl font-bold mb-2" style={{color: '#FF8C69'}}>87%</div>
-                <div style={{color: '#666666'}}>協尋成功率</div>
+                <div className="text-3xl font-bold mb-2 text-amber-600">87%</div>
+                <div className="text-zinc-600">協尋成功率</div>
               </div>
               <div>
-                <div className="text-3xl font-bold mb-2" style={{color: '#FF8C69'}}>3.5天</div>
-                <div style={{color: '#666666'}}>平均找回時間</div>
+                <div className="text-3xl font-bold mb-2 text-amber-600">3.5天</div>
+                <div className="text-zinc-600">平均找回時間</div>
               </div>
               <div>
-                <div className="text-3xl font-bold mb-2" style={{color: '#FF8C69'}}>1,234+</div>
-                <div style={{color: '#666666'}}>成功案例</div>
+                <div className="text-3xl font-bold mb-2 text-amber-600">1,234+</div>
+                <div className="text-zinc-600">成功案例</div>
               </div>
             </div>
             
             <div className="border-t border-gray-200 pt-8">
-              <p className="text-lg mb-4" style={{color: '#333333'}}>
-                <span className="font-semibold" style={{color: '#FF8C69'}}>每一個成功的故事</span>
+              <p className="text-lg mb-4 text-zinc-700">
+                <span className="font-semibold text-amber-600">每一個成功的故事</span>
                 都始於一個簡單的行動
               </p>
-              <p style={{color: '#666666'}}>
+              <p className="text-zinc-600">
                 加入我們，成為毛孩回家路上的那道光
               </p>
             </div>
@@ -209,10 +207,10 @@ export function CallToAction({ className }: CallToActionProps) {
         {/* 緊急協助提示 */}
         <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-3 px-6 py-4 bg-white border border-gray-200 rounded-2xl shadow-lg">
-            <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor: '#FF8C69'}} />
-            <span className="font-medium" style={{color: '#333333'}}>
+            <div className="w-3 h-3 rounded-full animate-pulse bg-amber-600" />
+            <span className="font-medium text-zinc-700">
               緊急情況？請立即撥打 24 小時協助專線：
-              <a href="tel:0800-123-456" className="font-bold underline ml-1" style={{color: '#FF8C69'}}>
+              <a href="tel:0800-123-456" className="font-bold underline ml-1 text-amber-600">
                 0800-123-456
               </a>
             </span>

@@ -66,6 +66,8 @@ describe('useAuth', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockAuthService.getCurrentUser.mockResolvedValue(null)
+    mockAuthService.isAuthenticated.mockReturnValue(false)
   })
 
   describe('login', () => {
@@ -79,18 +81,32 @@ describe('useAuth', () => {
         token: 'mock-token'
       }
       mockAuthService.login.mockResolvedValue(loginResponse)
+      mockAuthService.getCurrentUser.mockResolvedValue(mockUser)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
       })
+
+      // Initially not authenticated
+      expect(result.current.user).toBe(null)
+      expect(result.current.isAuthenticated).toBe(false)
 
       await act(async () => {
         await result.current.login(credentials)
       })
 
       expect(mockAuthService.login).toHaveBeenCalledWith(credentials)
+      
+      // After login, the user should be set via setQueryData
       await waitFor(() => {
         expect(result.current.user).toEqual(mockUser)
+      }, { timeout: 3000 })
+      
+      // 設置 authService.isAuthenticated 為 true（模擬登入後的狀態）
+      mockAuthService.isAuthenticated.mockReturnValue(true)
+      
+      // 檢查 isAuthenticated 狀態
+      await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(true)
       })
     })
@@ -134,18 +150,32 @@ describe('useAuth', () => {
         token: 'mock-token'
       }
       mockAuthService.register.mockResolvedValue(registerResponse)
+      mockAuthService.getCurrentUser.mockResolvedValue(mockUser)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
       })
+
+      // Initially not authenticated
+      expect(result.current.user).toBe(null)
+      expect(result.current.isAuthenticated).toBe(false)
 
       await act(async () => {
         await result.current.register(registerData)
       })
 
       expect(mockAuthService.register).toHaveBeenCalledWith(registerData)
+      
+      // After register, the user should be set via setQueryData
       await waitFor(() => {
         expect(result.current.user).toEqual(mockUser)
+      }, { timeout: 3000 })
+      
+      // 設置 authService.isAuthenticated 為 true（模擬註冊後的狀態）
+      mockAuthService.isAuthenticated.mockReturnValue(true)
+      
+      // 檢查 isAuthenticated 狀態
+      await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(true)
       })
     })
@@ -153,9 +183,10 @@ describe('useAuth', () => {
 
   describe('logout', () => {
     it('logs out user successfully', async () => {
-      mockAuthService.logout.mockResolvedValue(undefined)
+      // Arrange: User is initially logged in
       mockAuthService.getCurrentUser.mockResolvedValue(mockUser)
       mockAuthService.isAuthenticated.mockReturnValue(true)
+      mockAuthService.logout.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
@@ -167,6 +198,7 @@ describe('useAuth', () => {
       })
 
       await act(async () => {
+        mockAuthService.isAuthenticated.mockReturnValue(false)
         await result.current.logout()
       })
 
@@ -226,7 +258,7 @@ describe('useAuth', () => {
         forgotPasswordResult = await result.current.forgotPassword(email)
       })
 
-      expect(mockAuthService.forgotPassword).toHaveBeenCalledWith(email)
+      expect(mockAuthService.forgotPassword).toHaveBeenCalledWith({ email })
       expect(forgotPasswordResult).toEqual(response)
     })
   })
@@ -247,7 +279,7 @@ describe('useAuth', () => {
         resetPasswordResult = await result.current.resetPassword(token, newPassword)
       })
 
-      expect(mockAuthService.resetPassword).toHaveBeenCalledWith(token, newPassword)
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith({ token, newPassword })
       expect(resetPasswordResult).toEqual(response)
     })
   })
@@ -343,20 +375,24 @@ describe('useAuth', () => {
         wrapper: createWrapper()
       })
 
+      // Start login (don't await)
       act(() => {
-        result.current.login(credentials)
+        result.current.login(credentials).catch(() => {})
       })
 
-      // Should be loading
-      expect(result.current.isLoading).toBe(true)
+      // Should be loading (check login-specific loading state)
+      await waitFor(() => {
+        expect(result.current.isLoginLoading).toBe(true)
+      })
 
       // Resolve the login
       act(() => {
         resolveLogin({ user: mockUser, token: 'mock-token' })
       })
 
+      // Wait for loading to finish
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false)
+        expect(result.current.isLoginLoading).toBe(false)
       })
     })
   })

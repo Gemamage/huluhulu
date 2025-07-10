@@ -136,35 +136,34 @@ export function Features({ className }: FeaturesProps) {
     <section
       id="features-section"
       className={cn(
-        'py-16 sm:py-24 mx-4 my-8 rounded-3xl shadow-lg',
+        'py-16 sm:py-24',
         className
       )}
-      style={{backgroundColor: '#FFF0E5'}}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* 標題區塊 */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{color: '#333333'}}>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-zinc-700">
             為什麼選擇
-            <span style={{color: '#FF8C69'}}>
+            <span className="text-amber-600">
               呼嚕
             </span>
             ？
           </h2>
-          <p className="text-xl max-w-3xl mx-auto" style={{color: '#333333'}}>
+          <p className="text-xl max-w-3xl mx-auto text-zinc-600">
             我們結合最新科技與溫暖人心的服務，為每一個走失的毛孩提供最好的協尋機會
           </p>
         </div>
 
         {/* 主要功能 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {mainFeatures.map((feature, index) => (
             <div
               key={index}
-              className="group relative p-8 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+              className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-8"
             >
               {/* 圖示 */}
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{backgroundColor: '#FF8C69'}}>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 bg-amber-600">
                 <div className="text-white">
                   {feature.icon}
                 </div>
@@ -172,10 +171,10 @@ export function Features({ className }: FeaturesProps) {
               
               {/* 內容 */}
               <div>
-                <h3 className="text-xl font-semibold mb-3" style={{color: '#333333'}}>
+                <h3 className="text-lg font-semibold mb-3 text-zinc-700">
                   {feature.title}
                 </h3>
-                <p className="leading-relaxed" style={{color: '#666666'}}>
+                <p className="leading-relaxed text-zinc-600">
                   {feature.description}
                 </p>
               </div>
@@ -184,14 +183,14 @@ export function Features({ className }: FeaturesProps) {
         </div>
 
         {/* 額外功能 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           {additionalFeatures.map((feature, index) => (
             <div
               key={feature.id}
-              className="group relative p-8 rounded-2xl bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-6"
             >
               {/* 圖示 */}
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4" style={{backgroundColor: '#FF8C69'}}>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 bg-amber-600">
                 <div className="text-white">
                   {feature.icon}
                 </div>
@@ -199,10 +198,10 @@ export function Features({ className }: FeaturesProps) {
               
               {/* 內容 */}
               <div>
-                <h3 className="text-lg font-semibold mb-2" style={{color: '#333333'}}>
+                <h3 className="text-lg font-semibold mb-2 text-zinc-700">
                   {feature.title}
                 </h3>
-                <p className="text-sm leading-relaxed" style={{color: '#666666'}}>
+                <p className="text-sm leading-relaxed text-zinc-600">
                   {feature.description}
                 </p>
               </div>
@@ -212,9 +211,9 @@ export function Features({ className }: FeaturesProps) {
 
         {/* 底部行動呼籲 */}
         <div className="text-center mt-16">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full border border-blue-200 dark:border-blue-800">
-            <Brain className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className="text-blue-800 dark:text-blue-200 font-medium">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-amber-50 rounded-full border border-amber-200">
+            <Brain className="w-5 h-5 text-amber-600" />
+            <span className="text-amber-800 font-medium">
               AI 技術持續進化，協尋成功率不斷提升
             </span>
           </div>

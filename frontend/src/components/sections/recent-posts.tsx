@@ -202,17 +202,17 @@ export function RecentPosts({ className }: RecentPostsProps) {
   });
 
   return (
-    <section className={cn('py-16 sm:py-24 bg-white dark:bg-gray-900', className)}>
+    <section className={cn('py-16 sm:py-24', className)}>
       <div className="container mx-auto px-4">
         {/* 標題區塊 */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-700 mb-4">
             最新
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-amber-600">
               協尋資訊
             </span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl text-zinc-600 max-w-3xl mx-auto">
             即時更新的寵物協尋資訊，讓我們一起幫助毛孩回家
           </p>
         </div>
@@ -227,7 +227,7 @@ export function RecentPosts({ className }: RecentPostsProps) {
               placeholder="搜尋寵物名稱、品種或地點..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-zinc-700 placeholder-gray-500"
             />
           </div>
 
@@ -241,8 +241,8 @@ export function RecentPosts({ className }: RecentPostsProps) {
                 className={cn(
                   'px-4 py-2 rounded-lg font-medium transition-colors',
                   filter === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ? 'bg-amber-600 text-white'
+                    : 'bg-gray-100 text-zinc-700 hover:bg-gray-200'
                 )}
               >
                 {status === 'all' ? '全部' : statusConfig[status].label}
@@ -256,13 +256,13 @@ export function RecentPosts({ className }: RecentPostsProps) {
           {filteredPosts.map((post, index) => (
             <div
               key={post.id}
-              className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+              className="group bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               style={{
                 animationDelay: `${index * 100}ms`,
               }}
             >
               {/* 圖片區域 */}
-              <div className="relative h-48 bg-gray-200 dark:bg-gray-700">
+              <div className="relative h-48 bg-gray-200">
                 {post.images[0] ? (
                   <Image
                     src={post.images[0]}
@@ -310,10 +310,10 @@ export function RecentPosts({ className }: RecentPostsProps) {
               <div className="p-6">
                 {/* 寵物資訊 */}
                 <div className="mb-4">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-lg font-semibold text-zinc-700 mb-1">
                     {post.name} ({post.breed})
                   </h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-4 text-sm text-zinc-600">
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
                       {post.location}
@@ -326,12 +326,12 @@ export function RecentPosts({ className }: RecentPostsProps) {
                 </div>
 
                 {/* 描述 */}
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                <p className="text-zinc-600 text-sm mb-4 line-clamp-2">
                   {post.description}
                 </p>
 
                 {/* 統計資訊 */}
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <div className="flex items-center justify-between text-sm text-zinc-500 mb-4">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
@@ -349,15 +349,15 @@ export function RecentPosts({ className }: RecentPostsProps) {
                 <div className="flex gap-2">
                   <Link
                     href={`/pets/${post.id}`}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg transition-colors font-medium"
+                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white text-center py-2 px-4 rounded-lg transition-colors font-medium"
                   >
                     查看詳情
                   </Link>
-                  <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <Heart className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <Heart className="w-5 h-5 text-zinc-600" />
                   </button>
-                  <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <Share2 className="w-5 h-5 text-zinc-600" />
                   </button>
                 </div>
               </div>
@@ -369,7 +369,7 @@ export function RecentPosts({ className }: RecentPostsProps) {
         <div className="text-center">
           <Link
             href="/pets"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
           >
             查看所有協尋資訊
             <ArrowRight className="w-5 h-5" />

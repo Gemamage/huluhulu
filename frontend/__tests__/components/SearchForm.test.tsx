@@ -49,7 +49,7 @@ describe('SearchForm', () => {
     expect(screen.getByLabelText(/性別/i)).toBeInTheDocument()
   })
 
-  it('displays initial filter values', () => {
+  it('displays initial filter values', async () => {
     const initialFilters: SearchFilters = {
       type: 'dog',
       status: 'lost',
@@ -63,12 +63,12 @@ describe('SearchForm', () => {
       <SearchForm onSearch={mockOnSearch} initialFilters={initialFilters} />
     )
 
-    expect(screen.getByDisplayValue('dog')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('lost')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('拉布拉多')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('台北市')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('large')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('male')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('狗')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('走失')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('拉布拉多')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('台北市')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('大型')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('公')).toBeInTheDocument()
   })
 
   it('calls onSearch when form is submitted', async () => {
@@ -145,7 +145,7 @@ describe('SearchForm', () => {
     const typeSelect = screen.getByLabelText(/寵物類型/i)
     await user.selectOptions(typeSelect, 'cat')
 
-    expect(screen.getByDisplayValue('cat')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('貓')).toBeInTheDocument()
   })
 
   it('handles status selection correctly', async () => {
@@ -157,7 +157,7 @@ describe('SearchForm', () => {
     const statusSelect = screen.getByLabelText(/狀態/i)
     await user.selectOptions(statusSelect, 'found')
 
-    expect(screen.getByDisplayValue('found')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('已找到')).toBeInTheDocument()
   })
 
   it('handles size selection correctly', async () => {
@@ -169,7 +169,7 @@ describe('SearchForm', () => {
     const sizeSelect = screen.getByLabelText(/體型/i)
     await user.selectOptions(sizeSelect, 'small')
 
-    expect(screen.getByDisplayValue('small')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('小型')).toBeInTheDocument()
   })
 
   it('handles gender selection correctly', async () => {
@@ -181,7 +181,7 @@ describe('SearchForm', () => {
     const genderSelect = screen.getByLabelText(/性別/i)
     await user.selectOptions(genderSelect, 'female')
 
-    expect(screen.getByDisplayValue('female')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('母')).toBeInTheDocument()
   })
 
   it('validates required fields', async () => {
@@ -194,9 +194,7 @@ describe('SearchForm', () => {
     await user.click(submitButton)
 
     // Should show validation errors for required fields
-    await waitFor(() => {
-      expect(screen.getByText(/請選擇寵物類型/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/請選擇寵物類型/i)).toBeInTheDocument()
   })
 
   it('shows loading state during search', async () => {

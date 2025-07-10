@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
+const notoSansTC = Noto_Sans({ 
+  subsets: ['latin'],
+  variable: '--font-noto-sans-tc',
+  display: 'swap'
+});
 
 export const metadata: Metadata = {
   title: {
@@ -66,10 +71,14 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang='zh-TW' suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${notoSansTC.variable} bg-stone-50 text-zinc-700`}>
         <Providers>
           <div className='relative flex min-h-screen flex-col'>
-            <div className='flex-1'>{children}</div>
+            <div className='flex-1'>
+              <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+                {children}
+              </div>
+            </div>
           </div>
           <Toaster />
         </Providers>

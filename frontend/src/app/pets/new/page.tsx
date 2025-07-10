@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PetForm } from '@/components/pets/pet-form';
+import { FoundPetForm } from '@/components/pets/found-pet-form';
 import { petService, PetData } from '@/services/petService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,25 +14,58 @@ export default function NewPetPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (petData: PetData) => {
+  const handleSubmit = async (formData: any) => {
     try {
       setIsSubmitting(true);
+      
+      // 轉換表單數據格式以符合後端 API
+      const petData = {
+        name: formData.name || '未知',
+        type: formData.type,
+        breed: formData.breed || '未知',
+        age: formData.estimatedAge === 'unknown' ? undefined : formData.estimatedAge,
+        gender: formData.gender === 'unknown' ? undefined : formData.gender,
+        size: formData.size === 'unknown' ? undefined : formData.size,
+        color: formData.color,
+        description: formData.description,
+        specialMarks: formData.specialMarks,
+        behaviorNotes: formData.behaviorNotes,
+        healthCondition: formData.healthCondition,
+        hasCollar: formData.hasCollar,
+        collarDescription: formData.collarDescription,
+        isInjured: formData.isInjured,
+        images: formData.images,
+        status: 'found' as const,
+        location: {
+          address: formData.foundLocation.address,
+          latitude: formData.foundLocation.latitude,
+          longitude: formData.foundLocation.longitude,
+        },
+        foundDate: formData.foundDate,
+        foundTime: formData.foundTime,
+        contact: {
+          name: formData.finderContact.name,
+          phone: formData.finderContact.phone,
+          email: formData.finderContact.email,
+          preferredContact: formData.finderContact.preferredContact,
+        },
+      };
       
       const response = await petService.createPet(petData);
       
       if (response.success && response.data) {
         toast({
-          title: '成功',
-          description: '寵物協尋案例已成功建立',
+          title: '拾獲通報發布成功',
+          description: '感謝您的愛心，拾獲通報已成功發布',
         });
         
         // 跳轉到新建立的寵物詳情頁面
         router.push(`/pets/${response.data.pet.id}`);
       }
     } catch (error) {
-      console.error('建立寵物協尋案例失敗:', error);
+      console.error('發布拾獲通報失敗:', error);
       toast({
-        title: '建立失敗',
+        title: '發布失敗',
         description: error instanceof Error ? error.message : '發生未知錯誤',
         variant: 'destructive',
       });
@@ -68,10 +101,10 @@ export default function NewPetPage() {
       {/* 表單 */}
       <Card>
         <CardContent className="pt-6">
-          <PetForm
+          <FoundPetForm
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
-            submitButtonText="發布協尋案例"
+            submitButtonText="發布拾獲通報"
           />
         </CardContent>
       </Card>
