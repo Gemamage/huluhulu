@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 
 /**
  * 搜尋歷史介面
@@ -17,6 +17,21 @@ export interface ISearchHistory extends Document {
   searchedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * 搜尋歷史靜態方法介面
+ */
+export interface ISearchHistoryModel extends Model<ISearchHistory> {
+  recordSearch(
+    userId: string,
+    searchQuery: string,
+    filters: any,
+    resultCount: number
+  ): Promise<ISearchHistory | null>;
+  getUserSearchHistory(userId: string, limit?: number): Promise<ISearchHistory[]>;
+  getPopularSearches(limit?: number): Promise<any[]>;
+  clearUserHistory(userId: string): Promise<any>;
 }
 
 /**
@@ -193,4 +208,4 @@ searchHistorySchema.statics.clearUserHistory = async function(userId: string) {
   });
 };
 
-export const SearchHistory = mongoose.model<ISearchHistory>('SearchHistory', searchHistorySchema);
+export const SearchHistory = mongoose.model<ISearchHistory, ISearchHistoryModel>('SearchHistory', searchHistorySchema);

@@ -48,6 +48,15 @@ export class AuthorizationError extends AppError {
 }
 
 /**
+ * 禁止訪問錯誤（AuthorizationError 的別名）
+ */
+export class ForbiddenError extends AuthorizationError {
+  constructor(message: string = '禁止訪問') {
+    super(message);
+  }
+}
+
+/**
  * 資源未找到錯誤
  */
 export class NotFoundError extends AppError {

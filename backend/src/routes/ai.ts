@@ -46,10 +46,10 @@ const imageOptimizeSchema = z.object({
 });
 
 const imageCropSchema = z.object({
-  x: z.number().min(0),
-  y: z.number().min(0),
-  width: z.number().min(1),
-  height: z.number().min(1),
+  x: z.coerce.number().min(0),
+  y: z.coerce.number().min(0),
+  width: z.coerce.number().min(1),
+  height: z.coerce.number().min(1),
 });
 
 const similaritySearchSchema = z.object({
@@ -190,7 +190,12 @@ router.post('/crop', authenticate, upload.single('image'), async (req: Request, 
     }
 
     const userId = (req.user as IUser)!._id.toString();
-    const cropOptions = imageCropSchema.parse(req.body);
+    const cropOptions = imageCropSchema.parse(req.body) as {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
 
     logger.info('開始圖像裁剪', {
       userId,
@@ -265,11 +270,18 @@ router.post('/similarity-search', authenticate, upload.single('image'), async (r
     }> = [];
 
     for (const pet of pets) {
-      if (pet.aiFeatures) {
+      if (pet.aiFeatures && pet.aiFeatures.length > 0) {
         try {
+          // 使用第一個圖像特徵進行比較
+          const petFeatures = {
+            colorHistogram: pet.aiFeatures[0].features.slice(0, 256) || [],
+            textureFeatures: pet.aiFeatures[0].features.slice(256, 260) || [],
+            shapeFeatures: pet.aiFeatures[0].features.slice(260, 264) || [],
+            dominantColors: ['#000000'] // 簡化處理
+          };
           const similarity = AIService.calculateImageSimilarity(
             queryFeatures,
-            pet.aiFeatures
+            petFeatures
           );
           
           if (similarity >= threshold) {
@@ -349,12 +361,14 @@ router.get('/suggestions/:petId', authenticate, async (req: Request, res: Respon
     if (pet.size) suggestions.push(pet.size);
     
     // 位置建議
-    if (pet.location?.city) suggestions.push(pet.location.city);
-    if (pet.location?.district) suggestions.push(pet.location.district);
+    if (pet.lastSeenLocation) {
+      const locationParts = pet.lastSeenLocation.split(/[,，\s]+/);
+      suggestions.push(...locationParts.slice(0, 2));
+    }
     
     // 特徵建議
-    if (pet.characteristics && pet.characteristics.length > 0) {
-      suggestions.push(...pet.characteristics.slice(0, 3));
+    if (pet.aiTags && pet.aiTags.length > 0) {
+      suggestions.push(...pet.aiTags.slice(0, 3));
     }
 
     logger.info('生成搜尋建議', {
@@ -380,4 +394,4 @@ router.get('/suggestions/:petId', authenticate, async (req: Request, res: Respon
   }
 });
 
-export default router;
+export { router as aiRoutes };

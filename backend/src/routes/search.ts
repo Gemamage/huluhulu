@@ -6,13 +6,13 @@ import { authenticate } from '../middleware/auth';
 import { requireActiveAccount } from '../middleware/rbac';
 import { SearchHistory } from '../models/SearchHistory';
 import { validateQuery } from '../utils/validation';
-import Joi from 'joi';
+import { z } from 'zod';
 
 const router = Router();
 
 // 搜尋歷史查詢參數驗證
-const searchHistoryQuerySchema = Joi.object({
-  limit: Joi.number().integer().min(1).max(50).default(10)
+const searchHistoryQuerySchema = z.object({
+  limit: z.number().int().min(1).max(50).default(10)
 });
 
 /**
@@ -25,12 +25,13 @@ router.get('/history',
   requireActiveAccount, 
   validateQuery(searchHistoryQuerySchema),
   asyncHandler(async (req, res) => {
-    const { limit } = req.validatedQuery;
+    const { limit = 10 } = req.query;
     const userId = req.user!.id;
+    const limitNumber = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit);
 
-    logger.info('獲取搜尋歷史請求', { userId, limit });
+    logger.info('獲取搜尋歷史請求', { userId, limit: limitNumber });
 
-    const searchHistory = await SearchHistory.getUserSearchHistory(userId, limit);
+    const searchHistory = await SearchHistory.getUserSearchHistory(userId, limitNumber);
 
     res.json({
       success: true,
@@ -71,11 +72,12 @@ router.delete('/history',
 router.get('/popular', 
   validateQuery(searchHistoryQuerySchema),
   asyncHandler(async (req, res) => {
-    const { limit } = req.validatedQuery;
+    const { limit = 10 } = req.query;
+    const limitNumber = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit);
 
-    logger.info('獲取熱門搜尋請求', { limit });
+    logger.info('獲取熱門搜尋請求', { limit: limitNumber });
 
-    const popularSearches = await SearchHistory.getPopularSearches(limit);
+    const popularSearches = await SearchHistory.getPopularSearches(limitNumber);
 
     res.json({
       success: true,

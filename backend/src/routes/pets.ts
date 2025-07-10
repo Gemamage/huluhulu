@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler';
-import { ValidationError, NotFoundError } from '../utils/errors';
+import { ValidationError, NotFoundError, ForbiddenError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import { validateRequest, validateQuery, petSchema, petUpdateSchema, petSearchSchema } from '../utils/validation';
 import { Pet, IPet } from '../models/Pet';
 import { SearchHistory } from '../models/SearchHistory';
 import { authenticate } from '../middleware/auth';
-import { requirePermission, Permission, requireActiveAccount } from '../middleware/rbac';
+import { requirePermission, Permission, requireActiveAccount, hasPermission } from '../middleware/rbac';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -281,7 +281,7 @@ router.put('/:id', authenticate, requireActiveAccount, validateRequest(petUpdate
   }
 
   // 檢查是否為寵物擁有者或管理員
-  if (pet.userId.toString() !== userId && !req.user!.permissions?.includes(Permission.PET_WRITE)) {
+  if (pet.userId.toString() !== userId && !hasPermission(req.user!, Permission.PET_WRITE)) {
     throw new ForbiddenError('您沒有權限修改此寵物資訊');
   }
 
@@ -323,7 +323,7 @@ router.delete('/:id', authenticate, requireActiveAccount, asyncHandler(async (re
   }
 
   // 檢查是否為寵物擁有者或管理員
-  if (pet.userId.toString() !== userId && !req.user!.permissions?.includes(Permission.PET_DELETE)) {
+  if (pet.userId.toString() !== userId && !hasPermission(req.user!, Permission.PET_DELETE)) {
     throw new ForbiddenError('您沒有權限刪除此寵物資訊');
   }
 

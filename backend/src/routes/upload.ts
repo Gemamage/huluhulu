@@ -298,7 +298,7 @@ router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandl
 
   try {
     // 1. 圖像優化處理
-    const optimizedBuffer = await AIService.optimizeImage(req.file.buffer, {
+    const optimizedResult = await AIService.optimizeImage(req.file.buffer, {
       maxWidth: 1200,
       maxHeight: 1200,
       quality: 85,
@@ -306,7 +306,7 @@ router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandl
 
     // 2. 上傳優化後的圖像
     const uploadResult = await S3Service.uploadFile(
-      optimizedBuffer,
+      optimizedResult.buffer,
       req.file.originalname,
       req.file.mimetype,
       userId,
