@@ -27,6 +27,7 @@ import uploadRoutes from './routes/upload';
 import { oauthRoutes } from './routes/oauth';
 import { privacyRoutes } from './routes/privacy';
 import { adminRoutes } from './routes/admin';
+import { aiRoutes } from './routes/ai';
 
 // 建立 Express 應用程式
 const app = express();
@@ -125,6 +126,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/privacy', privacyRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 404 處理
 app.use(notFoundHandler);

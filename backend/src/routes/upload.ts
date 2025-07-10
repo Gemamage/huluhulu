@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { authenticate } from '../middleware/auth';
 import { S3Service } from '../services/s3Service';
+import { AIService } from '../services/aiService';
 import { AppError, ValidationError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import { validateRequest } from '../utils/validation';
@@ -237,49 +238,116 @@ router.delete('/:key(*)', authenticate, async (req: Request, res: Response, next
  * @desc    AI 圖片分析
  * @access  Private
  */
-router.post('/analyze', asyncHandler(async (req, res) => {
+router.post('/analyze', authenticate, asyncHandler(async (req, res) => {
   const { imageUrl } = req.body;
 
   if (!imageUrl) {
     throw new ValidationError('請提供圖片 URL');
   }
 
-  // TODO: 實作 AI 圖片分析邏輯
-  // - Google Vision AI 分析
-  // - 寵物品種識別
-  // - 特徵提取
-  // - 情感分析
+  try {
+    // 使用 AI 服務進行圖像分析
+    const analysis = await AIService.analyzeImage(imageUrl);
+    
+    logger.info('AI 圖片分析完成', { 
+      imageUrl, 
+      userId: (req.user as IUser)._id,
+      confidence: analysis.confidence 
+    });
 
-  logger.info('AI 圖片分析請求', { imageUrl });
-
-  res.json({
-    success: true,
-    message: '圖片分析完成',
-    data: {
-      analysis: {
-        petType: 'dog',
-        breed: '柴犬',
-        confidence: 0.92,
-        colors: ['白色', '棕色'],
-        features: {
-          size: 'medium',
-          age: 'young',
-          gender: 'unknown',
-        },
-        emotions: ['happy', 'alert'],
-        objects: [
-          { name: '狗', confidence: 0.98 },
-          { name: '項圈', confidence: 0.85 },
-        ],
-        text: [], // OCR 結果
-        safeSearch: {
-          adult: 'VERY_UNLIKELY',
-          violence: 'VERY_UNLIKELY',
-          racy: 'UNLIKELY',
+    res.json({
+      success: true,
+      message: '圖片分析完成',
+      data: {
+        analysis,
+      },
+    });
+  } catch (error) {
+    logger.error('AI 圖片分析失敗', { imageUrl, error });
+    
+    // 如果 AI 分析失敗，返回基本分析結果
+    res.json({
+      success: true,
+      message: '圖片分析完成（使用備用分析）',
+      data: {
+        analysis: {
+          confidence: 0.5,
+          labels: ['寵物'],
+          colors: ['未知'],
+          features: ['圖像已上傳'],
+          petType: 'unknown',
+          breed: '未識別',
         },
       },
-    },
-  });
+    });
+  }
+}));
+
+/**
+ * @route   POST /api/upload/process-with-ai
+ * @desc    上傳並自動進行 AI 分析
+ * @access  Private
+ */
+router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new AppError('請選擇要上傳的圖片', 400);
+  }
+
+  const { type = 'pet' } = req.body;
+  const userId = (req.user as IUser)!._id.toString();
+
+  try {
+    // 1. 圖像優化處理
+    const optimizedBuffer = await AIService.optimizeImage(req.file.buffer, {
+      maxWidth: 1200,
+      maxHeight: 1200,
+      quality: 85,
+    });
+
+    // 2. 上傳優化後的圖像
+    const uploadResult = await S3Service.uploadFile(
+      optimizedBuffer,
+      req.file.originalname,
+      req.file.mimetype,
+      userId,
+      type
+    );
+
+    // 3. AI 分析
+    let analysis = null;
+    try {
+      analysis = await AIService.analyzeImage(uploadResult.url);
+    } catch (aiError) {
+      logger.warn('AI 分析失敗，繼續處理', { error: aiError });
+    }
+
+    logger.info('圖像上傳和 AI 分析完成', {
+      userId,
+      fileName: req.file.originalname,
+      type,
+      url: uploadResult.url,
+      hasAnalysis: !!analysis
+    });
+
+    res.status(201).json({
+      success: true,
+      message: '圖像上傳和分析完成',
+      data: {
+        upload: {
+          url: uploadResult.url,
+          key: uploadResult.key,
+          type,
+          originalName: req.file.originalname,
+          size: req.file.size,
+          mimeType: req.file.mimetype,
+        },
+        analysis,
+      },
+    });
+  } catch (error) {
+    logger.error('圖像處理失敗', { error, userId });
+    throw error;
+  }
 }));
 
 /**

@@ -40,6 +40,9 @@ const envSchema = Joi.object({
   AWS_SECRET_ACCESS_KEY: Joi.string().optional(),
   AWS_REGION: Joi.string().default('ap-northeast-1'),
   AWS_S3_BUCKET: Joi.string().optional(),
+  // Google Vision AI 配置
+  GOOGLE_VISION_PROJECT_ID: Joi.string().optional(),
+  GOOGLE_VISION_KEY_PATH: Joi.string().optional(),
 }).unknown();
 
 // 驗證環境變數
@@ -130,11 +133,13 @@ export const config = {
     ttl: 5 * 60, // 5 分鐘
   },
   
-  // Google OAuth 配置
+  // Google 服務配置
   google: {
     clientId: envVars.GOOGLE_CLIENT_ID as string,
     clientSecret: envVars.GOOGLE_CLIENT_SECRET as string,
     callbackUrl: envVars.GOOGLE_CALLBACK_URL as string,
+    projectId: envVars.GOOGLE_VISION_PROJECT_ID as string,
+    visionKeyPath: envVars.GOOGLE_VISION_KEY_PATH as string,
   },
   
   // Session 配置

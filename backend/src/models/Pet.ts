@@ -7,6 +7,23 @@ export interface IContactInfo {
   email: string;
 }
 
+// AI 分析結果介面
+export interface IAIAnalysis {
+  confidence: number;
+  labels: string[];
+  detectedBreed?: string;
+  colors: string[];
+  features: string[];
+}
+
+// 圖像特徵介面
+export interface IImageFeatures {
+  imageUrl: string;
+  features: number[]; // 特徵向量
+  analysis?: IAIAnalysis;
+  processedAt: Date;
+}
+
 // 寵物介面定義
 export interface IPet extends Document {
   _id: mongoose.Types.ObjectId;
@@ -33,6 +50,11 @@ export interface IPet extends Document {
   viewCount: number;
   shareCount: number;
   userId: mongoose.Types.ObjectId;
+  // AI 相關字段
+  aiFeatures?: IImageFeatures[];
+  aiBreedPrediction?: string;
+  aiConfidence?: number;
+  aiTags?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +79,51 @@ const contactInfoSchema = new Schema<IContactInfo>({
     lowercase: true,
     trim: true,
     match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '請提供有效的電子郵件地址'],
+  },
+}, { _id: false });
+
+// AI 分析結果 Schema
+const aiAnalysisSchema = new Schema<IAIAnalysis>({
+  confidence: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 1,
+  },
+  labels: {
+    type: [String],
+    default: [],
+  },
+  detectedBreed: {
+    type: String,
+    trim: true,
+  },
+  colors: {
+    type: [String],
+    default: [],
+  },
+  features: {
+    type: [String],
+    default: [],
+  },
+}, { _id: false });
+
+// 圖像特徵 Schema
+const imageFeaturesSchema = new Schema<IImageFeatures>({
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  features: {
+    type: [Number],
+    required: true,
+  },
+  analysis: {
+    type: aiAnalysisSchema,
+  },
+  processedAt: {
+    type: Date,
+    default: Date.now,
   },
 }, { _id: false });
 
@@ -191,6 +258,31 @@ const petSchema = new Schema<IPet>({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: [true, '用戶 ID 為必填項目'],
+  },
+  // AI 相關字段
+  aiFeatures: {
+    type: [imageFeaturesSchema],
+    default: [],
+  },
+  aiBreedPrediction: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'AI 品種預測長度不能超過 100 個字符'],
+  },
+  aiConfidence: {
+    type: Number,
+    min: [0, 'AI 信心度不能為負數'],
+    max: [1, 'AI 信心度不能超過 1'],
+  },
+  aiTags: {
+    type: [String],
+    default: [],
+    validate: {
+      validator: function(tags: string[]) {
+        return tags.length <= 20;
+      },
+      message: 'AI 標籤數量不能超過 20 個',
+    },
   },
 }, {
   timestamps: true,
