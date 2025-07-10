@@ -7,14 +7,14 @@ export const validUserData = {
   email: 'test@example.com',
   password: 'password123',
   name: 'Test User',
-  phone: '+1234567890'
+  phone: '0912345678'
 };
 
 export const otherUserData = {
   email: 'other@example.com',
   password: 'password123',
   name: 'Other User',
-  phone: '+1987654321'
+  phone: '0987654321'
 };
 
 export const invalidUserData = {
@@ -36,7 +36,7 @@ export const validPetData = {
   description: 'Friendly dog',
   lastSeenLocation: '123 Main St',
   lastSeenDate: new Date('2024-01-01'),
-  contactInfo: { name: 'John Doe', phone: '+1234567890', email: 'owner@example.com' },
+  contactInfo: { name: 'John Doe', phone: '0912345678', email: 'owner@example.com' },
   status: 'lost' as const,
   images: ['test-image.jpg'],
   isUrgent: false

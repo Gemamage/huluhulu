@@ -14,6 +14,10 @@ app.use(errorHandler);
 
 describe('Auth Routes', () => {
 
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
+
   afterEach(async () => {
     await User.deleteMany({});
   });

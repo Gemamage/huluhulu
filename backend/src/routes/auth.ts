@@ -7,7 +7,7 @@ import { EmailService } from '../services/emailService';
 import { VerificationService } from '../services/verificationService';
 import { authenticate } from '../middleware/auth';
 import { requireActiveAccount, requireEmailVerification } from '../middleware/rbac';
-import { IUser } from '../models/User';
+import { User, IUser } from '../models/User';
 
 const router = Router();
 
@@ -34,6 +34,15 @@ router.post(
 
       const { email, password, name, phone } = req.body;
       const userData = { email, password, name, phone };
+
+      // 檢查電子郵件是否已存在
+      const existingUser = await User.findOne({ email: email.toLowerCase() });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: '此電子郵件已被註冊'
+        });
+      }
 
       // 註冊用戶
       const result = await UserService.registerUser(userData);
