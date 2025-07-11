@@ -23,8 +23,8 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#FDBA74", // 品牌主色：柔和溫暖的橘色
+          foreground: "#FFFFFF", // 主色上的文字顏色
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -52,7 +52,7 @@ module.exports = {
         },
         // 寵物協尋網站專用色彩
         pet: {
-          orange: "#FF6B35",
+          orange: "#FDBA74", // 更柔和溫暖的橘色 (類似 orange-300)
           blue: "#004E89",
           green: "#009639",
           yellow: "#FFD23F",

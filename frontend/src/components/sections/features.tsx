@@ -59,8 +59,8 @@ const mainFeatures: Feature[] = [
     icon: <Bell className="w-8 h-8" />,
     title: '即時通知',
     description: '當有相似寵物資訊時，立即推送通知，不錯過任何協尋機會',
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100 dark:bg-orange-900/20',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10 dark:bg-primary/20',
   },
   {
     id: 'social-sharing',
@@ -126,8 +126,8 @@ const additionalFeatures: Feature[] = [
     icon: <Zap className="w-6 h-6" />,
     title: '快速回應',
     description: '平均 3.5 天內協助找回走失寵物',
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-50 dark:bg-orange-900/10',
+    color: 'text-primary',
+    bgColor: 'bg-primary/5 dark:bg-primary/10',
   },
 ];
 

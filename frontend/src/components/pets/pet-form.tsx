@@ -446,7 +446,7 @@ export function PetForm({ initialData, onSubmit, isLoading = false, mode }: PetF
                 className="rounded"
               />
               <Label htmlFor="isUrgent" className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <AlertTriangle className="h-4 w-4 text-primary" />
                 緊急案例
               </Label>
             </div>

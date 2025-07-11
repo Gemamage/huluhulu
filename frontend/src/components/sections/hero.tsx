@@ -22,10 +22,10 @@ export function Hero({ className }: HeroProps) {
   return (
     <>
       {/* 橫幅插畫區域 */}
-      <section className={cn('relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600', className)} style={{backgroundColor: '#FF8C69'}}>
+      <section className={cn('relative overflow-hidden bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400', className)} style={{backgroundColor: '#FDBA74'}}>
       {/* 背景裝飾 - 暖色調 */}
       <div className="absolute inset-0 bg-grid-pattern opacity-10" />
-      <div className="absolute top-0 left-1/4 w-72 h-72 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" />
+      <div className="absolute top-0 left-1/4 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" />
       <div className="absolute top-0 right-1/4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000" />
       <div className="absolute -bottom-8 left-1/3 w-72 h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000" />
 

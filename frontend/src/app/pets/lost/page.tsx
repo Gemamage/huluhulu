@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { LostPetForm } from '@/components/pets/lost-pet-form';
-import { createPet } from '@/services/petService';
+import { petService } from '@/services/petService';
 
 export default function LostPetPage() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function LostPetPage() {
         additionalNotes: formData.additionalNotes,
       };
 
-      const result = await createPet(petData);
+      const result = await petService.createPet(petData);
       
       toast({
         title: '走失協尋發布成功',
