@@ -110,7 +110,7 @@ const mockPosts: PetPost[] = [
     location: '高雄市左營區',
     lastSeenDate: '2024-01-12T09:15:00Z',
     description: '已找到！感謝大家的幫助',
-    images: ['/images/pets/xiao-hua.png'],
+    images: ['/images/pets/cat-04.jpeg'],
     contactInfo: {
       name: '陳小美',
       phone: '0934567890',
@@ -262,7 +262,7 @@ export function RecentPosts({ className }: RecentPostsProps) {
               }}
             >
               {/* 圖片區域 */}
-              <div className="relative h-48 bg-gray-200">
+              <div className="relative aspect-[4/5] bg-gray-200">
                 {post.images[0] ? (
                   <Image
                     src={post.images[0]}

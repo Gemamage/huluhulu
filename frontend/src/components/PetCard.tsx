@@ -100,7 +100,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick }) => {
       role="article"
     >
       <CardHeader className="p-0">
-        <div className="relative h-48 w-full">
+        <div className="relative w-full aspect-[4/5]">
           {pet.images && pet.images.length > 0 ? (
             <Image
               src={pet.images[0]}

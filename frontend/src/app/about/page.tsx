@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, MapPin, Users, Zap } from 'lucide-react';
+import { Statistics } from '@/components/sections/statistics';
 
 export default function AboutPage() {
   return (
@@ -35,8 +36,8 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-800 mb-6">品牌故事</h2>
-              <div className="w-24 h-1 bg-primary mx-auto mb-8"></div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">品牌<span className="text-primary">故事</span></h2>
+              <p className="text-lg text-zinc-600 max-w-3xl mx-auto mb-8">「<span className="text-primary font-semibold">呼嚕</span>」是生命最深沉、最安心的共鳴。我們致力於守護這份代表「<span className="text-primary font-semibold">家</span>」的安心頻率。</p>
             </div>
             
             <div className="bg-white rounded-2xl shadow-lg p-8 mb-12">
@@ -50,6 +51,12 @@ export default function AboutPage() {
                 每年台灣有數萬隻寵物走失，我們相信透過科技的力量和社群的溫暖，能夠為每一個焦急的家庭帶來希望，讓每一隻毛孩子都能安全回到溫暖的家。
               </p>
             </div>
+
+            {/* 我們的成果與里程碑 */}
+            <Statistics />
+
+            {/* 分隔線 */}
+            <div className="border-b border-gray-200 my-16"></div>
 
             {/* 核心價值 */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">

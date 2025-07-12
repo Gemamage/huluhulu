@@ -19,17 +19,14 @@ export default function HomePage() {
       <main className='flex-1'>
         {/* 主視覺區塊 */}
         <Hero />
-        
-        {/* 統計數據區塊 */}
-        <Statistics />
-        
-        {/* 功能特色區塊 */}
-        <Features />
-        
-        {/* 最新協尋案例 */}
+
+        {/* 最新協尋資訊 */}
         <RecentPosts />
-        
-        {/* 行動呼籲區塊 */}
+
+        {/* 為什麼選擇呼嚕 */}
+        <Features />
+
+        {/* 立即開始行動 */}
         <CallToAction />
       </main>
       
