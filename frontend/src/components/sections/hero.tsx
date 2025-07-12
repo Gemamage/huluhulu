@@ -132,18 +132,18 @@ export function Hero({ className }: HeroProps) {
       <div className="bg-white rounded-lg shadow-md p-8 mt-8">
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/pets/report-lost"
-            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
-          >
-            <Heart className="w-5 h-5 mr-2" />
-            我的寵物走失了
-          </Link>
-          <Link
-            href="/pets/report-found"
+            href="/pets/new"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white border-2 border-amber-600 text-amber-600 hover:bg-amber-50 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
           >
             <MapPin className="w-5 h-5 mr-2" />
             我發現了寵物
+          </Link>
+          <Link
+            href="/pets/new"
+            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
+          >
+            <Heart className="w-5 h-5 mr-2" />
+            我的寵物走失了
           </Link>
         </div>
       </div>

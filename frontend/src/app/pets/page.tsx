@@ -23,6 +23,7 @@ import { SearchSuggestions } from '@/components/search/search-suggestions';
 import { AdvancedSearch } from '@/components/search/advanced-search';
 import { SearchHistory } from '@/components/search/search-history';
 import { PopularSearches } from '@/components/search/popular-searches';
+import { mockPosts } from '@/components/sections/recent-posts';
 
 interface PetCardProps {
   pet: Pet;
@@ -96,7 +97,7 @@ function PetCard({ pet }: PetCardProps) {
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
-            <span className="truncate">{pet.lastSeenLocation.address}</span>
+            <span className="truncate">{pet.lastSeenLocation?.address || (pet as any).location}</span>
           </div>
           
           <div className="flex items-center gap-2">
@@ -216,8 +217,28 @@ export default function PetsPage() {
       const response = await petService.getPets(params);
       
       if (response.success && response.data) {
-        setPets(response.data.pets);
-        setPagination(response.data.pagination);
+        if (response.data.pets.length > 0) {
+          setPets(response.data.pets);
+          setPagination(response.data.pagination);
+        } else {
+          // 當沒有真實資料時，使用 mockPosts
+          const adaptedMockPosts = mockPosts.map(post => ({
+            ...post,
+            id: post.id.toString(),
+            lastSeenLocation: { address: post.location, lat: 0, lng: 0 },
+            contactInfo: { ...post.contactInfo, email: '' },
+            viewCount: post.viewCount || 0,
+            shareCount: post.shareCount || 0,
+          }));
+          setPets(adaptedMockPosts as unknown as Pet[]);
+          setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalCount: adaptedMockPosts.length,
+            hasNext: false,
+            hasPrev: false,
+          });
+        }
       }
     } catch (error) {
       console.error('載入寵物列表失敗:', error);

@@ -61,32 +61,32 @@ export default function AboutPage() {
             {/* 核心價值 */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
               <div className="text-center">
-                <div className="bg-orange-50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Zap className="h-8 w-8 text-primary" />
+                <div className="bg-amber-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Zap className="h-8 w-8 text-amber-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">AI 智能配對</h3>
                 <p className="text-gray-600">運用先進的圖像識別技術，自動比對失蹤與發現的寵物</p>
               </div>
               
               <div className="text-center">
-                <div className="bg-orange-50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="h-8 w-8 text-primary" />
+                <div className="bg-amber-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="h-8 w-8 text-amber-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">精準定位</h3>
                 <p className="text-gray-600">基於 GPS 的即時地理通知系統，提供精確的位置資訊</p>
               </div>
               
               <div className="text-center">
-                <div className="bg-orange-50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-primary" />
+                <div className="bg-amber-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-8 w-8 text-amber-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">社群協作</h3>
                 <p className="text-gray-600">建立在地化的寵物協尋社群，凝聚愛心志工的力量</p>
               </div>
               
               <div className="text-center">
-                <div className="bg-orange-50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Heart className="h-8 w-8 text-primary" />
+                <div className="bg-amber-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Heart className="h-8 w-8 text-amber-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">溫暖守護</h3>
                 <p className="text-gray-600">每一次協尋都是愛的傳遞，守護每個家庭的完整</p>

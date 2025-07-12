@@ -69,7 +69,7 @@ export function Navbar() {
             拾獲通報
           </Link>
           <Link
-            href="/pets/lost"
+            href="/pets"
             className="text-lg font-medium text-zinc-700 transition-colors duration-300 hover:text-amber-600"
           >
             走失尋找

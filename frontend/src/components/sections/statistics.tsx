@@ -165,8 +165,8 @@ export function Statistics({ className }: StatisticsProps) {
               className="bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-center p-8"
             >
               {/* 圖示 */}
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 bg-amber-600">
-                <div className="text-white">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 bg-amber-100">
+                <div className="text-amber-500">
                   {stat.icon}
                 </div>
               </div>
