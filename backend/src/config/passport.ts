@@ -66,11 +66,11 @@ passport.use(
 
         if (!email) {
           logger.error('Google 帳號缺少電子郵件', { profileId: profile.id });
-          return done(new Error('無法從 Google 帳號獲取電子郵件地址'), null);
+          return done(new Error('無法從 Google 帳號獲取電子郵件地址'), false);
         }
 
         user = new User({
-          email,
+          email: email,
           name,
           avatar,
           googleId: profile.id,
@@ -103,7 +103,7 @@ passport.use(
         return done(null, user);
       } catch (error) {
         logger.error('Google OAuth 處理失敗', { error, profileId: profile.id });
-        return done(error, null);
+        return done(error, false);
       }
     }
   )

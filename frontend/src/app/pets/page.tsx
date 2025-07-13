@@ -216,35 +216,52 @@ export default function PetsPage() {
       setLoading(true);
       const response = await petService.getPets(params);
       
-      if (response.success && response.data) {
-        if (response.data.pets.length > 0) {
-          setPets(response.data.pets);
-          setPagination(response.data.pagination);
-        } else {
-          // 當沒有真實資料時，使用 mockPosts
-          const adaptedMockPosts = mockPosts.map(post => ({
-            ...post,
-            id: post.id.toString(),
-            lastSeenLocation: { address: post.location, lat: 0, lng: 0 },
-            contactInfo: { ...post.contactInfo, email: '' },
-            viewCount: post.viewCount || 0,
-            shareCount: post.shareCount || 0,
-          }));
-          setPets(adaptedMockPosts as unknown as Pet[]);
-          setPagination({
-            currentPage: 1,
-            totalPages: 1,
-            totalCount: adaptedMockPosts.length,
-            hasNext: false,
-            hasPrev: false,
-          });
-        }
+      if (response.success && response.data && response.data.pets.length > 0) {
+        // 有真實資料時顯示真實資料
+        setPets(response.data.pets);
+        setPagination(response.data.pagination);
+      } else {
+        // 沒有真實資料時，使用 mockPosts 範例資料
+        const adaptedMockPosts = mockPosts.map(post => ({
+          ...post,
+          id: post.id.toString(),
+          lastSeenLocation: { address: post.location, lat: 0, lng: 0 },
+          contactInfo: { ...post.contactInfo, email: '' },
+          viewCount: post.viewCount || 0,
+          shareCount: post.shareCount || 0,
+        }));
+        setPets(adaptedMockPosts as unknown as Pet[]);
+        setPagination({
+          currentPage: 1,
+          totalPages: 1,
+          totalCount: adaptedMockPosts.length,
+          hasNext: false,
+          hasPrev: false,
+        });
       }
     } catch (error) {
       console.error('載入寵物列表失敗:', error);
+      // API 失敗時也顯示範例資料，讓頁面不會空白
+      const adaptedMockPosts = mockPosts.map(post => ({
+        ...post,
+        id: post.id.toString(),
+        lastSeenLocation: { address: post.location, lat: 0, lng: 0 },
+        contactInfo: { ...post.contactInfo, email: '' },
+        viewCount: post.viewCount || 0,
+        shareCount: post.shareCount || 0,
+      }));
+      setPets(adaptedMockPosts as unknown as Pet[]);
+      setPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: adaptedMockPosts.length,
+        hasNext: false,
+        hasPrev: false,
+      });
+      
       toast({
         title: '載入失敗',
-        description: '無法載入寵物列表，請稍後再試',
+        description: '無法載入寵物列表，顯示範例資料',
         variant: 'destructive',
       });
     } finally {
@@ -339,7 +356,7 @@ export default function PetsPage() {
         </div>
         
         <Button asChild>
-          <Link href="/pets/new">
+          <Link href="/pets/lost">
             <Plus className="h-4 w-4 mr-2" />
             發布協尋
           </Link>
@@ -465,7 +482,7 @@ export default function PetsPage() {
             嘗試調整搜尋條件或篩選器，或者發布新的協尋案例
           </p>
           <Button asChild>
-            <Link href="/pets/new">
+            <Link href="/pets/lost">
               <Plus className="h-4 w-4 mr-2" />
               發布協尋
             </Link>

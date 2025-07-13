@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { authenticate } from '../middleware/auth';
 import { AIService } from '../services/aiService';
-import { S3Service } from '../services/s3Service';
+import { CloudinaryService } from '../services/cloudinaryService';
 import { AppError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import { validateRequest } from '../utils/validation';
@@ -140,8 +140,8 @@ router.post('/optimize', authenticate, upload.single('image'), async (req: Reque
       options
     );
 
-    // 上傳優化後的圖像到 S3
-    const uploadResult = await S3Service.uploadFile(
+    // 上傳優化後的圖像到 Cloudinary
+    const uploadResult = await CloudinaryService.uploadFile(
       optimizedBuffer,
       `optimized_${req.file.originalname}`,
       options.format === 'png' ? 'image/png' : 
@@ -154,15 +154,15 @@ router.post('/optimize', authenticate, upload.single('image'), async (req: Reque
       userId,
       originalSize: req.file.size,
       optimizedSize: optimizedBuffer.length,
-      url: uploadResult.url
+      url: uploadResult.secureUrl
     });
 
     res.json({
       success: true,
       message: '圖像優化完成',
       data: {
-        url: uploadResult.url,
-        key: uploadResult.key,
+        url: uploadResult.secureUrl,
+        publicId: uploadResult.publicId,
         metadata: {
           width: metadata.width,
           height: metadata.height,
@@ -206,8 +206,8 @@ router.post('/crop', authenticate, upload.single('image'), async (req: Request, 
     // 裁剪圖像
     const croppedBuffer = await AIService.cropImage(req.file.buffer, cropOptions);
 
-    // 上傳裁剪後的圖像到 S3
-    const uploadResult = await S3Service.uploadFile(
+    // 上傳裁剪後的圖像到 Cloudinary
+    const uploadResult = await CloudinaryService.uploadFile(
       croppedBuffer,
       `cropped_${req.file.originalname}`,
       req.file.mimetype,
@@ -217,15 +217,15 @@ router.post('/crop', authenticate, upload.single('image'), async (req: Request, 
 
     logger.info('圖像裁剪完成', {
       userId,
-      url: uploadResult.url
+      url: uploadResult.secureUrl
     });
 
     res.json({
       success: true,
       message: '圖像裁剪完成',
       data: {
-        url: uploadResult.url,
-        key: uploadResult.key,
+        url: uploadResult.secureUrl,
+        publicId: uploadResult.publicId,
         cropOptions
       }
     });
@@ -273,10 +273,11 @@ router.post('/similarity-search', authenticate, upload.single('image'), async (r
       if (pet.aiFeatures && pet.aiFeatures.length > 0) {
         try {
           // 使用第一個圖像特徵進行比較
+          const features = pet.aiFeatures[0]?.features || [];
           const petFeatures = {
-            colorHistogram: pet.aiFeatures[0].features.slice(0, 256) || [],
-            textureFeatures: pet.aiFeatures[0].features.slice(256, 260) || [],
-            shapeFeatures: pet.aiFeatures[0].features.slice(260, 264) || [],
+            colorHistogram: features.slice(0, 256) || [],
+            textureFeatures: features.slice(256, 260) || [],
+            shapeFeatures: features.slice(260, 264) || [],
             dominantColors: ['#000000'] // 簡化處理
           };
           const similarity = AIService.calculateImageSimilarity(

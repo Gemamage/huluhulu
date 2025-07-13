@@ -107,6 +107,22 @@ if (config.env !== 'production') {
   swaggerSetup(app);
 }
 
+// 根路徑歡迎頁面
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    message: '歡迎使用呼嚕寵物協尋網站 API',
+    version: process.env.npm_package_version || '1.0.0',
+    environment: config.env,
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      apiDocs: config.env !== 'production' ? '/api-docs' : null,
+      api: '/api'
+    },
+    description: '這是一個專為寵物協尋設計的後端 API 服務'
+  });
+});
+
 // 健康檢查端點
 app.get('/health', (_req, res) => {
   res.status(200).json({

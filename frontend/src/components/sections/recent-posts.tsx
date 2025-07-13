@@ -379,3 +379,6 @@ export function RecentPosts({ className }: RecentPostsProps) {
     </section>
   );
 }
+
+// 匯出 mockPosts 供其他組件使用
+export { mockPosts };

@@ -35,11 +35,7 @@ const envSchema = Joi.object({
   GOOGLE_CALLBACK_URL: Joi.string().default('/api/auth/google/callback'),
   // Session 配置
   SESSION_SECRET: Joi.string().min(32).required(),
-  // AWS S3 配置
-  AWS_ACCESS_KEY_ID: Joi.string().optional(),
-  AWS_SECRET_ACCESS_KEY: Joi.string().optional(),
-  AWS_REGION: Joi.string().default('ap-northeast-1'),
-  AWS_S3_BUCKET: Joi.string().optional(),
+
   // Google Vision AI 配置
   GOOGLE_VISION_PROJECT_ID: Joi.string().optional(),
   GOOGLE_VISION_KEY_PATH: Joi.string().optional(),
@@ -138,8 +134,8 @@ export const config = {
     clientId: envVars.GOOGLE_CLIENT_ID as string,
     clientSecret: envVars.GOOGLE_CLIENT_SECRET as string,
     callbackUrl: envVars.GOOGLE_CALLBACK_URL as string,
-    projectId: envVars.GOOGLE_VISION_PROJECT_ID as string,
-    visionKeyPath: envVars.GOOGLE_VISION_KEY_PATH as string,
+    projectId: envVars.GOOGLE_VISION_PROJECT_ID as string || '',
+    visionKeyPath: envVars.GOOGLE_VISION_KEY_PATH as string || '',
   },
   
   // Session 配置
@@ -148,13 +144,7 @@ export const config = {
     maxAge: 24 * 60 * 60 * 1000, // 24 小時
   },
   
-  // AWS S3 配置
-  aws: {
-    accessKeyId: envVars.AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: envVars.AWS_SECRET_ACCESS_KEY as string,
-    region: envVars.AWS_REGION as string,
-    s3Bucket: envVars.AWS_S3_BUCKET as string,
-  },
+
 } as const;
 
 // 型別定義

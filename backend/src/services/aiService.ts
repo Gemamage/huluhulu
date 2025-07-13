@@ -375,7 +375,11 @@ export class AIService {
     
     let similarity = 0;
     for (let i = 0; i < hist1.length; i++) {
-      similarity += Math.min(hist1[i], hist2[i]);
+      const val1 = hist1[i];
+      const val2 = hist2[i];
+      if (val1 !== undefined && val2 !== undefined) {
+        similarity += Math.min(val1, val2);
+      }
     }
     return similarity;
   }
@@ -388,9 +392,13 @@ export class AIService {
     let norm2 = 0;
     
     for (let i = 0; i < vec1.length; i++) {
-      dotProduct += vec1[i] * vec2[i];
-      norm1 += vec1[i] * vec1[i];
-      norm2 += vec2[i] * vec2[i];
+      const val1 = vec1[i];
+      const val2 = vec2[i];
+      if (val1 !== undefined && val2 !== undefined) {
+        dotProduct += val1 * val2;
+        norm1 += val1 * val1;
+        norm2 += val2 * val2;
+      }
     }
     
     return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));

@@ -177,9 +177,9 @@ export function AdvancedSearch({
         <div className="space-y-2">
           <Label>寵物類型</Label>
           <Select 
-            value={filters.type || ''} 
+            value={filters.type || 'all'} 
             onValueChange={(value) => {
-              updateFilter('type', value || undefined);
+              updateFilter('type', value === 'all' ? undefined : value);
               // 清除品種選擇，因為不同類型的品種不同
               if (value !== filters.type) {
                 updateFilter('breed', undefined);
@@ -190,7 +190,7 @@ export function AdvancedSearch({
               <SelectValue placeholder="選擇寵物類型" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">全部類型</SelectItem>
+              <SelectItem value="all">全部類型</SelectItem>
               {PET_TYPES.map((type) => (
                 <SelectItem key={type.value} value={type.value}>
                   {type.label}
@@ -205,14 +205,14 @@ export function AdvancedSearch({
           <div className="space-y-2">
             <Label>品種</Label>
             <Select 
-              value={filters.breed || ''} 
-              onValueChange={(value) => updateFilter('breed', value || undefined)}
+              value={filters.breed || 'all'} 
+              onValueChange={(value) => updateFilter('breed', value === 'all' ? undefined : value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="選擇品種" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">全部品種</SelectItem>
+                <SelectItem value="all">全部品種</SelectItem>
                 {getBreedOptions().map((breed) => (
                   <SelectItem key={breed} value={breed}>
                     {breed}
@@ -227,14 +227,14 @@ export function AdvancedSearch({
         <div className="space-y-2">
           <Label>狀態</Label>
           <Select 
-            value={filters.status || ''} 
-            onValueChange={(value) => updateFilter('status', value || undefined)}
+            value={filters.status || 'all'} 
+            onValueChange={(value) => updateFilter('status', value === 'all' ? undefined : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="選擇狀態" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">全部狀態</SelectItem>
+              <SelectItem value="all">全部狀態</SelectItem>
               {PET_STATUS.map((status) => (
                 <SelectItem key={status.value} value={status.value}>
                   {status.label}

@@ -4,20 +4,15 @@ import { logger } from '../utils/logger';
 import { AppError } from '../utils/errors';
 import { UserService } from '../services/userService';
 import { EmailService } from '../services/emailService';
+import { CloudinaryService } from '../services/cloudinaryService';
 import { authenticate, authorize, authorizeOwnerOrAdmin } from '../middleware/auth';
 import { IUser } from '../models/User';
-import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
 import { config } from '../config/environment';
+import multer from 'multer';
 
 const router = Router();
 
-// 配置 Cloudinary
-cloudinary.config({
-  cloud_name: config.cloudinary.cloudName,
-  api_key: config.cloudinary.apiKey,
-  api_secret: config.cloudinary.apiSecret,
-});
+// Cloudinary 配置已移至 CloudinaryService
 
 // 配置 multer 用於檔案上傳
 const upload = multer({
@@ -333,24 +328,15 @@ router.post(
       }
 
       // 上傳到 Cloudinary
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          {
-            folder: 'pet-finder/avatars',
-            public_id: `user-${id}-${Date.now()}`,
-            transformation: [
-              { width: 200, height: 200, crop: 'fill', gravity: 'face' },
-              { quality: 'auto', fetch_format: 'auto' },
-            ],
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(file.buffer);
-      });
+      const uploadResult = await CloudinaryService.uploadFile(
+        file.buffer,
+        file.originalname,
+        file.mimetype,
+        id,
+        'avatar'
+      );
 
-      const avatarUrl = (uploadResult as any).secure_url;
+      const avatarUrl = uploadResult.secureUrl;
 
       // 更新用戶頭像
       const updatedUser = await UserService.updateUser(id, { avatar: avatarUrl });

@@ -36,7 +36,7 @@ export function ImageUpload({
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/upload`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/upload/single`, {
       method: 'POST',
       headers,
       body: formData,

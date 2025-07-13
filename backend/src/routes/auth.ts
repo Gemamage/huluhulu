@@ -38,10 +38,11 @@ router.post(
       // 檢查電子郵件是否已存在
       const existingUser = await User.findOne({ email: email.toLowerCase() });
       if (existingUser) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: '此電子郵件已被註冊'
         });
+        return;
       }
 
       // 註冊用戶
@@ -146,7 +147,7 @@ router.post(
 // 用戶登出
 router.post('/logout', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as IUser)?._id.toString();
+    const userId = (req.user as IUser)?._id?.toString();
     
     // TODO: 實作令牌黑名單機制（可選）
     // 目前採用客戶端刪除令牌的方式
@@ -169,7 +170,7 @@ router.post('/logout', authenticate, async (req: Request, res: Response): Promis
 // 刷新令牌
 router.post('/refresh', authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = (req.user as IUser)?._id.toString();
+    const userId = (req.user as IUser)?._id?.toString();
     
     if (!userId) {
       res.status(401).json({

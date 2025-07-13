@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { authenticate } from '../middleware/auth';
-import { S3Service } from '../services/s3Service';
+import { CloudinaryService } from '../services/cloudinaryService';
 import { AIService } from '../services/aiService';
 import { AppError, ValidationError } from '../utils/errors';
 import { logger } from '../utils/logger';
@@ -57,39 +57,44 @@ router.post('/single', authenticate, upload.single('image'), async (req: Request
     }
 
     const { type = 'pet' } = req.body;
-    const userId = (req.user as IUser)!._id.toString();
+    const userId = (req.user as IUser)?._id?.toString();
+    if (!userId) {
+      throw new AppError('用戶身份驗證失敗', 401);
+    }
 
     // 驗證 type 參數
     if (!['avatar', 'pet'].includes(type)) {
       throw new AppError('無效的上傳類型', 400);
     }
 
-    // 上傳到 S3
-    const result = await S3Service.uploadFile(
+    // 上傳到 Cloudinary
+    const result = await CloudinaryService.uploadFile(
       req.file.buffer,
       req.file.originalname,
       req.file.mimetype,
       userId,
-      type
+      type as 'avatar' | 'pet' | 'general'
     );
 
     logger.info('文件上傳成功', {
       userId,
       fileName: req.file.originalname,
       type,
-      url: result.url
+      url: result.secureUrl
     });
 
     res.status(201).json({
       success: true,
       message: '文件上傳成功',
       data: {
-        url: result.url,
-        key: result.key,
+        url: result.secureUrl,
+        publicId: result.publicId,
         type,
         originalName: req.file.originalname,
         size: req.file.size,
         mimeType: req.file.mimetype,
+        width: result.width,
+        height: result.height,
       },
     });
   } catch (error) {
@@ -111,21 +116,24 @@ router.post('/multiple', authenticate, upload.array('images', 5), async (req: Re
     }
 
     const { type = 'pet' } = req.body;
-    const userId = (req.user as IUser)!._id.toString();
+    const userId = (req.user as IUser)?._id?.toString();
+    if (!userId) {
+      throw new AppError('用戶身份驗證失敗', 401);
+    }
 
     // 驗證 type 參數
     if (!['avatar', 'pet'].includes(type)) {
       throw new AppError('無效的上傳類型', 400);
     }
 
-    // 批量上傳到 S3
+    // 批量上傳到 Cloudinary
     const uploadPromises = files.map(file => 
-      S3Service.uploadFile(
+      CloudinaryService.uploadFile(
         file.buffer,
         file.originalname,
         file.mimetype,
         userId,
-        type
+        type as 'avatar' | 'pet' | 'general'
       )
     );
 
@@ -140,14 +148,22 @@ router.post('/multiple', authenticate, upload.array('images', 5), async (req: Re
     res.status(201).json({
       success: true,
       message: `成功上傳 ${files.length} 個文件`,
-      data: results.map((result, index) => ({
-        url: result.url,
-        key: result.key,
-        type,
-        originalName: files[index].originalname,
-        size: files[index].size,
-        mimeType: files[index].mimetype,
-      })),
+      data: results.map((result, index) => {
+        const file = files[index];
+        if (!file) {
+          throw new AppError('文件索引錯誤', 500);
+        }
+        return {
+          url: result.secureUrl,
+          publicId: result.publicId,
+          type,
+          originalName: file.originalname,
+          size: file.size,
+          mimeType: file.mimetype,
+          width: result.width,
+          height: result.height,
+        };
+      }),
     });
   } catch (error) {
     next(error);
@@ -165,10 +181,13 @@ router.post('/avatar', authenticate, upload.single('avatar'), async (req: Reques
       throw new AppError('請選擇要上傳的頭像', 400);
     }
 
-    const userId = (req.user as IUser)!._id.toString();
+    const userId = (req.user as IUser)?._id?.toString();
+    if (!userId) {
+      throw new AppError('用戶身份驗證失敗', 401);
+    }
 
-    // 上傳到 S3
-    const result = await S3Service.uploadFile(
+    // 上傳到 Cloudinary
+    const result = await CloudinaryService.uploadFile(
       req.file.buffer,
       req.file.originalname,
       req.file.mimetype,
@@ -186,11 +205,13 @@ router.post('/avatar', authenticate, upload.single('avatar'), async (req: Reques
       success: true,
       message: '頭像上傳成功',
       data: {
-        url: result.url,
-        key: result.key,
+        url: result.secureUrl,
+        publicId: result.publicId,
         originalName: req.file.originalname,
         size: req.file.size,
         mimeType: req.file.mimetype,
+        width: result.width,
+        height: result.height,
       },
     });
   } catch (error) {
@@ -199,29 +220,32 @@ router.post('/avatar', authenticate, upload.single('avatar'), async (req: Reques
 });
 
 /**
- * @route DELETE /api/upload/:key
+ * @route DELETE /api/upload/:publicId
  * @desc 刪除上傳的文件
  * @access Private
  */
-router.delete('/:key(*)', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:publicId(*)', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { key } = req.params;
+    const { publicId } = req.params;
     
-    if (!key) {
-      throw new AppError('文件 key 不能為空', 400);
+    if (!publicId) {
+      throw new AppError('文件 publicId 不能為空', 400);
     }
 
     // 檢查文件是否屬於當前用戶
-    const userId = (req.user as IUser)!._id.toString();
-    if (!key.includes(userId)) {
+    const userId = (req.user as IUser)?._id?.toString();
+    if (!userId) {
+      throw new AppError('用戶身份驗證失敗', 401);
+    }
+    if (!publicId.includes(userId)) {
       throw new AppError('無權限刪除此文件', 403);
     }
 
-    await S3Service.deleteFile(key);
+    await CloudinaryService.deleteFile(publicId);
 
     logger.info('文件刪除成功', {
       userId,
-      key
+      publicId
     });
 
     res.json({
@@ -305,18 +329,18 @@ router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandl
     });
 
     // 2. 上傳優化後的圖像
-    const uploadResult = await S3Service.uploadFile(
+    const uploadResult = await CloudinaryService.uploadFile(
       optimizedResult.buffer,
       req.file.originalname,
       req.file.mimetype,
       userId,
-      type
+      type as 'avatar' | 'pet' | 'general'
     );
 
     // 3. AI 分析
     let analysis = null;
     try {
-      analysis = await AIService.analyzeImage(uploadResult.url);
+      analysis = await AIService.analyzeImage(uploadResult.secureUrl);
     } catch (aiError) {
       logger.warn('AI 分析失敗，繼續處理', { error: aiError });
     }
@@ -325,7 +349,7 @@ router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandl
       userId,
       fileName: req.file.originalname,
       type,
-      url: uploadResult.url,
+      url: uploadResult.secureUrl,
       hasAnalysis: !!analysis
     });
 
@@ -334,12 +358,14 @@ router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandl
       message: '圖像上傳和分析完成',
       data: {
         upload: {
-          url: uploadResult.url,
-          key: uploadResult.key,
+          url: uploadResult.secureUrl,
+          publicId: uploadResult.publicId,
           type,
           originalName: req.file.originalname,
           size: req.file.size,
           mimeType: req.file.mimetype,
+          width: uploadResult.width,
+          height: uploadResult.height,
         },
         analysis,
       },
@@ -351,36 +377,25 @@ router.post('/process-with-ai', authenticate, upload.single('image'), asyncHandl
 }));
 
 /**
- * @route POST /api/upload/presigned-url
- * @desc 生成預簽名上傳 URL
+ * @route GET /api/upload/config
+ * @desc 獲取上傳配置信息
  * @access Private
  */
-router.post('/presigned-url', authenticate, validateRequest(presignedUrlSchema), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/config', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fileName, mimeType, type } = req.body;
     const userId = (req.user as IUser)!._id.toString();
 
-    const result = await S3Service.generatePresignedUploadUrl(
-      userId,
-      fileName,
-      mimeType,
-      type
-    );
-
-    logger.info('預簽名 URL 生成成功', {
-      userId,
-      fileName,
-      type
-    });
+    logger.info('獲取上傳配置', { userId });
 
     res.json({
       success: true,
-      message: '預簽名 URL 生成成功',
+      message: '上傳配置獲取成功',
       data: {
-        uploadUrl: result.uploadUrl,
-        key: result.key,
-        publicUrl: result.publicUrl,
-        expiresIn: 300, // 5 分鐘
+        maxFileSize: 5 * 1024 * 1024, // 5MB
+        allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        uploadEndpoint: '/api/upload/avatar',
+        processEndpoint: '/api/upload/process-with-ai',
+        service: 'cloudinary'
       },
     });
   } catch (error) {
@@ -409,7 +424,9 @@ router.post('/delete-multiple', authenticate, async (req: Request, res: Response
       throw new AppError('無權限刪除部分文件', 403);
     }
 
-    await S3Service.deleteMultipleFiles(keys);
+    // 批量刪除 Cloudinary 文件
+    const deletePromises = keys.map(publicId => CloudinaryService.deleteFile(publicId));
+    await Promise.all(deletePromises);
 
     logger.info('批量文件刪除成功', {
       userId,
@@ -426,37 +443,43 @@ router.post('/delete-multiple', authenticate, async (req: Request, res: Response
 });
 
 /**
- * @route GET /api/upload/download/:key
- * @desc 生成預簽名下載 URL
+ * @route GET /api/upload/download/:publicId
+ * @desc 獲取 Cloudinary 圖片的優化 URL
  * @access Private
  */
-router.get('/download/:key(*)', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/download/:publicId(*)', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { key } = req.params;
+    const { publicId } = req.params;
     
-    if (!key) {
-      throw new AppError('文件 key 不能為空', 400);
+    if (!publicId) {
+      throw new AppError('文件 publicId 不能為空', 400);
     }
 
-    // 檢查文件是否屬於當前用戶或是公開文件
+    // 檢查文件是否屬於當前用戶
     const userId = (req.user as IUser)!._id.toString();
-    if (!key.includes(userId) && !key.includes('public/')) {
+    if (!publicId.includes(userId)) {
       throw new AppError('無權限訪問此文件', 403);
     }
 
-    const downloadUrl = await S3Service.generatePresignedDownloadUrl(key);
+    const optimizedUrl = CloudinaryService.getOptimizedUrl(publicId, {
+      width: 800,
+      height: 600,
+      crop: 'limit',
+      quality: 'auto',
+      format: 'auto'
+    });
 
-    logger.info('預簽名下載 URL 生成成功', {
+    logger.info('優化 URL 生成成功', {
       userId,
-      key
+      publicId
     });
 
     res.json({
       success: true,
-      message: '下載 URL 生成成功',
+      message: '優化 URL 生成成功',
       data: {
-        downloadUrl,
-        expiresIn: 3600, // 1 小時
+        downloadUrl: optimizedUrl,
+        publicId,
       },
     });
   } catch (error) {
@@ -466,7 +489,7 @@ router.get('/download/:key(*)', authenticate, async (req: Request, res: Response
 
 /**
  * @route GET /api/upload/health
- * @desc S3 服務健康檢查
+ * @desc Cloudinary 服務健康檢查
  * @access Private (Admin)
  */
 router.get('/health', authenticate, async (req: Request, res: Response, next: NextFunction) => {
@@ -476,11 +499,11 @@ router.get('/health', authenticate, async (req: Request, res: Response, next: Ne
       throw new AppError('無權限訪問', 403);
     }
 
-    const isHealthy = await S3Service.healthCheck();
+    const isHealthy = await CloudinaryService.checkConnection();
 
     res.json({
       success: true,
-      message: 'S3 服務狀態檢查完成',
+      message: 'Cloudinary 服務狀態檢查完成',
       data: {
         status: isHealthy ? 'healthy' : 'unhealthy',
         timestamp: new Date().toISOString(),
