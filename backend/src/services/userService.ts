@@ -43,7 +43,7 @@ export class UserService {
   /**
    * 用戶註冊
    */
-  static async registerUser(userData: RegisterUserData): Promise<{
+  async registerUser(userData: RegisterUserData): Promise<{
     user: IUser;
     token: string;
   }> {
@@ -93,7 +93,7 @@ export class UserService {
   /**
    * 用戶登入
    */
-  static async loginUser(loginData: LoginUserData): Promise<{
+  async loginUser(loginData: LoginUserData): Promise<{
     user: IUser;
     token: string;
   }> {
@@ -143,7 +143,7 @@ export class UserService {
   /**
    * 根據 ID 獲取用戶
    */
-  static async getUserById(userId: string): Promise<IUser> {
+  async getUserById(userId: string): Promise<IUser> {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new ValidationError('無效的用戶 ID');
@@ -164,7 +164,7 @@ export class UserService {
   /**
    * 根據電子郵件獲取用戶
    */
-  static async getUserByEmail(email: string): Promise<IUser | null> {
+  async getUserByEmail(email: string): Promise<IUser | null> {
     try {
       const user = await User.findOne({ email: email.toLowerCase() });
       return user;
@@ -177,7 +177,7 @@ export class UserService {
   /**
    * 更新用戶資料
    */
-  static async updateUser(userId: string, updateData: UpdateUserData): Promise<IUser> {
+  async updateUser(userId: string, updateData: UpdateUserData): Promise<IUser> {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new ValidationError('無效的用戶 ID');
@@ -216,7 +216,7 @@ export class UserService {
   /**
    * 更改用戶密碼
    */
-  static async changePassword(
+  async changePassword(
     userId: string,
     currentPassword: string,
     newPassword: string
@@ -251,7 +251,7 @@ export class UserService {
   /**
    * 重設密碼
    */
-  static async resetPassword(token: string, newPassword: string): Promise<void> {
+  async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
       // 查找具有有效重設令牌的用戶
       const user = await User.findOne({
@@ -280,7 +280,7 @@ export class UserService {
   /**
    * 驗證電子郵件
    */
-  static async verifyEmail(userId: string, token: string): Promise<void> {
+  async verifyEmail(userId: string, token: string): Promise<void> {
     try {
       const user = await User.findById(userId);
       if (!user) {
@@ -310,7 +310,7 @@ export class UserService {
   /**
    * 通過令牌驗證電子郵件
    */
-  static async verifyEmailByToken(token: string): Promise<void> {
+  async verifyEmailByToken(token: string): Promise<void> {
     try {
       const user = await User.findOne({ emailVerificationToken: token });
       if (!user) {
@@ -336,7 +336,7 @@ export class UserService {
   /**
    * 停用用戶
    */
-  static async deactivateUser(userId: string): Promise<void> {
+  async deactivateUser(userId: string): Promise<void> {
     try {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         throw new ValidationError('無效的用戶 ID');
@@ -360,7 +360,7 @@ export class UserService {
   /**
    * 獲取用戶列表（分頁）
    */
-  static async getUsers(options: UserQueryOptions = {}): Promise<{
+  async getUsers(options: UserQueryOptions = {}): Promise<{
     users: IUser[];
     total: number;
     page: number;

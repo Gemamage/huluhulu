@@ -10,6 +10,7 @@ import { requireActiveAccount, requireEmailVerification } from '../middleware/rb
 import { User, IUser } from '../models/User';
 
 const router = Router();
+const userService = new UserService();
 
 // 用戶註冊
 router.post(
@@ -35,18 +36,8 @@ router.post(
       const { email, password, name, phone } = req.body;
       const userData = { email, password, name, phone };
 
-      // 檢查電子郵件是否已存在
-      const existingUser = await User.findOne({ email: email.toLowerCase() });
-      if (existingUser) {
-        res.status(400).json({
-          success: false,
-          message: '此電子郵件已被註冊'
-        });
-        return;
-      }
-
-      // 註冊用戶
-      const result = await UserService.registerUser(userData);
+      // 註冊用戶（UserService 內部會檢查電子郵件是否已存在）
+      const result = await userService.registerUser(userData);
 
       logger.info('用戶註冊成功', { email, name, userId: result.user._id });
 
@@ -104,7 +95,7 @@ router.post(
       const loginData = { email, password };
 
       // 用戶登入
-      const { user, token } = await UserService.loginUser(loginData);
+      const { user, token } = await userService.loginUser(loginData);
 
       logger.info('用戶登入成功', { email, userId: user._id });
 
@@ -181,7 +172,7 @@ router.post('/refresh', authenticate, async (req: Request, res: Response): Promi
     }
 
     // 獲取用戶資料
-    const user = await UserService.getUserById(userId);
+    const user = await userService.getUserById(userId);
     if (!user) {
       res.status(404).json({
         success: false,
@@ -241,7 +232,7 @@ router.post(
       const { email } = req.body;
 
       // 查找用戶
-      const user = await UserService.getUserByEmail(email);
+      const user = await userService.getUserByEmail(email);
       if (!user) {
         // 為了安全考量，即使用戶不存在也返回成功訊息
         res.json({
@@ -300,7 +291,7 @@ router.post(
       const { token, newPassword } = req.body;
 
       // 重設密碼
-      await UserService.resetPassword(token, newPassword);
+      await userService.resetPassword(token, newPassword);
 
       logger.info('密碼重設成功');
 
@@ -341,7 +332,7 @@ router.get('/me', authenticate, async (req: Request, res: Response): Promise<voi
     }
 
     // 獲取用戶資訊
-    const user = await UserService.getUserById(userId);
+    const user = await userService.getUserById(userId);
     if (!user) {
       res.status(404).json({
         success: false,

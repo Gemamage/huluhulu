@@ -11,6 +11,7 @@ import { config } from '../config/environment';
 import multer from 'multer';
 
 const router = Router();
+const userService = new UserService();
 
 // Cloudinary 配置已移至 CloudinaryService
 
@@ -86,7 +87,7 @@ router.get(
         queryOptions.isEmailVerified = Boolean(isEmailVerified);
       }
       
-      const result = await UserService.getUsers(queryOptions);
+      const result = await userService.getUsers(queryOptions);
 
       logger.info('獲取用戶列表成功', {
         page,
@@ -127,7 +128,7 @@ router.get(
       }
 
       // 獲取用戶資訊
-      const user = await UserService.getUserById(id);
+      const user = await userService.getUserById(id);
       if (!user) {
         res.status(404).json({
           success: false,
@@ -208,7 +209,7 @@ router.put(
       }
 
       // 更新用戶資訊
-      const updatedUser = await UserService.updateUser(id, updateData);
+      const updatedUser = await userService.updateUser(id, updateData);
 
       logger.info('用戶資訊更新成功', {
         userId: id,
@@ -270,7 +271,7 @@ router.delete(
       }
 
       // 停用用戶帳號
-      await UserService.deactivateUser(id);
+      await userService.deactivateUser(id);
 
       logger.info('用戶帳號已停用', {
         userId: id,
@@ -339,7 +340,7 @@ router.post(
       const avatarUrl = uploadResult.secureUrl;
 
       // 更新用戶頭像
-      const updatedUser = await UserService.updateUser(id, { avatar: avatarUrl });
+      const updatedUser = await userService.updateUser(id, { avatar: avatarUrl });
 
       logger.info('用戶頭像上傳成功', {
         userId: id,
@@ -395,7 +396,7 @@ router.post(
       }
 
       // 獲取用戶資訊
-      const user = await UserService.getUserById(id);
+      const user = await userService.getUserById(id);
       
       if (user.isEmailVerified) {
         res.status(400).json({
@@ -467,7 +468,7 @@ router.post(
       const { token } = req.body;
 
       // 驗證電子郵件
-      await UserService.verifyEmailByToken(token);
+      await userService.verifyEmailByToken(token);
 
       logger.info('電子郵件驗證成功', {
          userId: id,
@@ -636,7 +637,7 @@ router.put(
       }
 
       // 更改密碼
-      await UserService.changePassword(id, currentPassword, newPassword);
+      await userService.changePassword(id, currentPassword, newPassword);
 
       logger.info('密碼更改成功', {
         userId: id,
