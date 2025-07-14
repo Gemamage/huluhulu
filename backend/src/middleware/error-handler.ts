@@ -5,7 +5,14 @@ import {
   AppError,
   NotFoundError,
   ServiceUnavailableError,
+  ErrorFactory,
+  formatErrorResponse,
+  formatErrorForLogging,
+  isOperationalError,
+  ErrorCode,
+  InternalServerError,
 } from '../utils/errors';
+import { ZodError } from 'zod';
 
 // 錯誤處理中介軟體
 export const errorHandler = (
@@ -14,88 +21,71 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  let statusCode = 500;
-  let message = '伺服器內部錯誤';
-  let details: any = undefined;
+  let appError: AppError;
 
-  // 記錄錯誤
-  logger.error('錯誤處理中介軟體捕獲錯誤:', {
-    error: error.message,
-    stack: error.stack,
+  // 建立請求上下文
+  const requestContext = {
     url: req.url,
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-  });
-
-  // 處理自定義應用程式錯誤
-  if (error instanceof AppError) {
-    statusCode = error.statusCode;
-    message = error.message;
-  }
-  // 處理 Mongoose 驗證錯誤
-  else if (error.name === 'ValidationError') {
-    statusCode = 400;
-    message = '資料驗證失敗';
-    details = Object.values((error as any).errors).map((err: any) => ({
-      field: err.path,
-      message: err.message,
-    }));
-  }
-  // 處理 Mongoose 重複鍵錯誤
-  else if (error.name === 'MongoServerError' && (error as any).code === 11000) {
-    statusCode = 409;
-    message = '資料已存在';
-    const field = Object.keys((error as any).keyValue)[0];
-    details = { field, message: `${field} 已被使用` };
-  }
-  // 處理 Mongoose CastError
-  else if (error.name === 'CastError') {
-    statusCode = 400;
-    message = '無效的資料格式';
-    details = { field: (error as any).path, message: '無效的 ID 格式' };
-  }
-  // 處理 JWT 錯誤
-  else if (error.name === 'JsonWebTokenError') {
-    statusCode = 401;
-    message = '無效的認證令牌';
-  }
-  else if (error.name === 'TokenExpiredError') {
-    statusCode = 401;
-    message = '認證令牌已過期';
-  }
-  // 處理 Joi 驗證錯誤
-  else if (error.name === 'ValidationError' && (error as any).isJoi) {
-    statusCode = 400;
-    message = '請求資料驗證失敗';
-    details = (error as any).details.map((detail: any) => ({
-      field: detail.path.join('.'),
-      message: detail.message,
-    }));
-  }
-
-  // 建構錯誤回應
-  const errorResponse: any = {
-    success: false,
-    error: {
-      message,
-      statusCode,
-      timestamp: new Date().toISOString(),
-      path: req.path,
-      method: req.method,
-    },
+    userId: (req as any).user?.id,
+    timestamp: new Date().toISOString(),
   };
 
-  // 在開發環境中包含更多錯誤詳情
-  if (config.env === 'development') {
-    errorResponse.error.stack = error.stack;
-    errorResponse.error.details = details;
-  } else if (details) {
-    errorResponse.error.details = details;
+  // 轉換不同類型的錯誤為 AppError
+  if (error instanceof AppError) {
+    appError = error;
+  } else if (error instanceof ZodError) {
+    appError = ErrorFactory.fromZodError(error);
+  } else if (error.name === 'ValidationError') {
+    // Mongoose 驗證錯誤
+    appError = ErrorFactory.fromMongooseError(error);
+  } else if (error.name === 'MongoServerError' && (error as any).code === 11000) {
+    // Mongoose 重複鍵錯誤
+    appError = ErrorFactory.fromMongooseError(error);
+  } else if (error.name === 'CastError') {
+    // Mongoose CastError
+    appError = ErrorFactory.fromMongooseError(error);
+  } else if (error.name === 'JsonWebTokenError') {
+    appError = ErrorFactory.createAuthenticationError('invalid_token');
+  } else if (error.name === 'TokenExpiredError') {
+    appError = ErrorFactory.createAuthenticationError('token_expired');
+  } else if (error.name === 'MulterError') {
+    // 檔案上傳錯誤
+    appError = new AppError(
+      '檔案上傳失敗: ' + error.message,
+      400,
+      ErrorCode.VALIDATION_ERROR
+    );
+  } else {
+    // 未知錯誤，轉換為內部伺服器錯誤
+    appError = new InternalServerError(
+      config.env === 'development' ? error.message : '內部伺服器錯誤'
+    );
   }
 
+  // 記錄錯誤
+  const logData = formatErrorForLogging(appError, requestContext);
+  
+  if (isOperationalError(appError)) {
+    logger.warn('操作性錯誤:', logData);
+  } else {
+    logger.error('系統錯誤:', logData);
+  }
+
+  // 格式化錯誤響應
+  const errorResponse = formatErrorResponse(
+    appError,
+    config.env === 'development'
+  );
+
+  // 添加請求路徑和方法到響應中
+  errorResponse.error.path = req.path;
+  errorResponse.error.method = req.method;
+
   // 發送錯誤回應
-  res.status(statusCode).json(errorResponse);
+  res.status(appError.statusCode).json(errorResponse);
 };
 
 // 非同步錯誤處理包裝器

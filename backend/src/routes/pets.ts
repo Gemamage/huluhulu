@@ -12,7 +12,9 @@ declare global {
     }
   }
 }
-import { validateRequest, validateQuery, petSchema, petUpdateSchema, petSearchSchema } from '../utils/validation';
+import { validateRequest, validateQuery } from '../utils/validation';
+import { petSchema, petUpdateSchema } from '../schemas/pet';
+import { petSearchSchema } from '../schemas/search';
 import { Pet, IPet } from '../models/Pet';
 import { SearchHistory } from '../models/SearchHistory';
 import { authenticate } from '../middleware/auth';

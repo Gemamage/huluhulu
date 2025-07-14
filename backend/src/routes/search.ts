@@ -6,14 +6,9 @@ import { authenticate } from '../middleware/auth';
 import { requireActiveAccount } from '../middleware/rbac';
 import { SearchHistory } from '../models/SearchHistory';
 import { validateQuery } from '../utils/validation';
-import { z } from 'zod';
+import { searchHistoryQuerySchema } from '../schemas/upload';
 
 const router = Router();
-
-// 搜尋歷史查詢參數驗證
-const searchHistoryQuerySchema = z.object({
-  limit: z.number().int().min(1).max(50).default(10)
-});
 
 /**
  * @route   GET /api/search/history

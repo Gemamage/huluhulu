@@ -6,10 +6,10 @@ import { AIService } from '../services/aiService';
 import { AppError, ValidationError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import { validateRequest } from '../utils/validation';
-import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { IUser } from '../models/User';
 import { asyncHandler } from '../middleware/error-handler';
+import { presignedUrlSchema } from '../schemas/upload';
 
 const router = express.Router();
 
@@ -38,12 +38,7 @@ const upload = multer({
   },
 });
 
-// 驗證 schema
-const presignedUrlSchema = z.object({
-  fileName: z.string().min(1, '文件名不能為空'),
-  mimeType: z.string().regex(/^image\/(jpeg|jpg|png|webp|gif)$/, '不支援的文件類型'),
-  type: z.enum(['avatar', 'pet']).default('pet'),
-});
+
 
 /**
  * @route POST /api/upload/single

@@ -6,10 +6,14 @@ import { CloudinaryService } from '../services/cloudinaryService';
 import { AppError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import { validateRequest } from '../utils/validation';
-import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { IUser } from '../models/User';
 import { Pet } from '../models/Pet';
+import { 
+  imageOptimizeSchema,
+  imageCropSchema,
+  similaritySearchSchema
+} from '../schemas/ai';
 
 const router = express.Router();
 
@@ -37,26 +41,7 @@ const upload = multer({
   },
 });
 
-// 驗證 schema
-const imageOptimizeSchema = z.object({
-  maxWidth: z.number().min(100).max(2000).optional(),
-  maxHeight: z.number().min(100).max(2000).optional(),
-  quality: z.number().min(10).max(100).optional(),
-  format: z.enum(['jpeg', 'png', 'webp']).optional(),
-});
 
-const imageCropSchema = z.object({
-  x: z.coerce.number().min(0),
-  y: z.coerce.number().min(0),
-  width: z.coerce.number().min(1),
-  height: z.coerce.number().min(1),
-});
-
-const similaritySearchSchema = z.object({
-  petId: z.string().optional(),
-  threshold: z.number().min(0).max(1).default(0.7),
-  limit: z.number().min(1).max(50).default(10),
-});
 
 /**
  * @route POST /api/ai/analyze

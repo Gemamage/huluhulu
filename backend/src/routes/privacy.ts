@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import { validateRequest } from '../utils/validation';
-import { privacySettingsSchema } from '../utils/validation';
+import { privacySettingsSchema } from '../schemas/common';
 import { IUser, User } from '../models/User';
 import { logger } from '../utils/logger';
 import { AppError } from '../utils/errors';
