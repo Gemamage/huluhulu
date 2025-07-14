@@ -2,6 +2,16 @@ import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler';
 import { ValidationError, NotFoundError, ForbiddenError } from '../utils/errors';
 import { logger } from '../utils/logger';
+
+// 擴展 Express Request 介面
+declare global {
+  namespace Express {
+    interface Request {
+      validatedData?: any;
+      validatedQuery?: any;
+    }
+  }
+}
 import { validateRequest, validateQuery, petSchema, petUpdateSchema, petSearchSchema } from '../utils/validation';
 import { Pet, IPet } from '../models/Pet';
 import { SearchHistory } from '../models/SearchHistory';

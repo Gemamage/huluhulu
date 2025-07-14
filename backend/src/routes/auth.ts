@@ -7,7 +7,7 @@ import { EmailService } from '../services/emailService';
 import { VerificationService } from '../services/verificationService';
 import { authenticate } from '../middleware/auth';
 import { requireActiveAccount, requireEmailVerification } from '../middleware/rbac';
-import { User, IUser } from '../models/User';
+import { IUser } from '../models/User';
 
 const router = Router();
 const userService = new UserService();

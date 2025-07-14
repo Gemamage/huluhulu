@@ -1,6 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { config } from '../src/config/environment';
+import { beforeAll } from '@jest/globals';
 
 // 全局共享的 MongoDB 實例
 let mongod: MongoMemoryServer;
@@ -13,13 +14,13 @@ beforeAll(async () => {
       // 使用更小的內存配置和優化選項
       mongod = await MongoMemoryServer.create({
         instance: {
-          dbSize: 1, // 1MB 數據庫大小
+          dbName: 'test', // 測試數據庫名稱
           storageEngine: 'ephemeralForTest', // 使用內存存儲引擎
           port: undefined, // 讓系統自動分配端口
         },
         binary: {
           version: '6.0.0', // 使用較新但穩定的版本
-          skipMD5: true, // 跳過 MD5 檢查以提升啟動速度
+          checkMD5: false, // 跳過 MD5 檢查以提升啟動速度
         }
       });
       
@@ -32,7 +33,8 @@ beforeAll(async () => {
         socketTimeoutMS: 10000, // 10秒套接字超時
         connectTimeoutMS: 5000, // 5秒連接超時
         maxIdleTimeMS: 30000, // 30秒最大空閒時間
-        bufferMaxEntries: 0, // 禁用緩衝
+        // bufferCommands 用於禁用命令緩衝
+        bufferCommands: false,
       });
       
       isSetup = true;
@@ -88,7 +90,8 @@ afterAll(async () => {
 }, 10000);
 
 // 優化的環境變數設置
-process.env.NODE_ENV = 'test';
+// 使用 Object.defineProperty 來設置 NODE_ENV
+Object.defineProperty(process.env, 'NODE_ENV', { value: 'test' });
 process.env.MONGODB_URI = 'mongodb://localhost:27017/pet-finder-test';
 process.env.JWT_SECRET = 'test-jwt-secret-key-with-minimum-32-characters-length';
 process.env.EMAIL_FROM = 'test@example.com';

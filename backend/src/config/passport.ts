@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { config } from './environment';
-import { User, IUser } from '../models/User';
+import { IUser, User } from '../models/User';
 import { logger } from '../utils/logger';
 
 // 序列化用戶 - 將用戶 ID 存儲到 session

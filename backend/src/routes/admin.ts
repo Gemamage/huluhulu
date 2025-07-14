@@ -12,9 +12,10 @@ import {
   Permission,
   getUserPermissions,
 } from '../middleware/rbac';
-import { IUser, User } from '../models/User';
+import { IUser } from '../models/User';
 
 const router = Router();
+const userService = new UserService();
 
 // 通用中介軟體 - 所有管理員路由都需要認證和活躍帳號
 router.use(authenticate);
@@ -53,32 +54,17 @@ router.get(
         isEmailVerified,
       } = req.query;
 
-      // 構建查詢條件
-      const filter: any = {};
-      
-      if (search) {
-        filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-        ];
-      }
-      
-      if (role) filter.role = role;
-      if (isActive !== undefined) filter.isActive = isActive === 'true';
-      if (isEmailVerified !== undefined) filter.isEmailVerified = isEmailVerified === 'true';
+      // 使用 UserService 獲取用戶列表
+      const result = await userService.getAdminUserList({
+        page: Number(page),
+        limit: Number(limit),
+        search: search as string,
+        role: role as 'user' | 'moderator' | 'admin',
+        isActive: isActive === 'true',
+        isEmailVerified: isEmailVerified === 'true',
+      });
 
-      // 執行查詢
-      const skip = (Number(page) - 1) * Number(limit);
-      const [users, total] = await Promise.all([
-        User.find(filter)
-          .select('-password -passwordResetToken -passwordResetExpires -emailVerificationToken -emailVerificationExpires')
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(Number(limit)),
-        User.countDocuments(filter),
-      ]);
-
-      const totalPages = Math.ceil(total / Number(limit));
+      const { users, total, totalPages } = result;
 
       logger.info('獲取用戶列表成功', {
         adminId: (req.user as IUser)._id,
@@ -116,18 +102,16 @@ router.get(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-
-      const user = await User.findById(userId).select(
-        '-password -passwordResetToken -passwordResetExpires -emailVerificationToken -emailVerificationExpires'
-      );
-
-      if (!user) {
-        res.status(404).json({
+      
+      if (!userId) {
+        res.status(400).json({
           success: false,
-          message: '用戶不存在',
+          message: '用戶 ID 為必填項目',
         });
         return;
       }
+
+      const user = await userService.getAdminUserById(userId);
 
       logger.info('獲取用戶詳情成功', {
         adminId: (req.user as IUser)._id,
@@ -173,55 +157,21 @@ router.put(
       const { userId } = req.params;
       const { name, phone, role, isActive } = req.body;
       const adminUser = req.user as IUser;
-
-      // 檢查目標用戶是否存在
-      const targetUser = await User.findById(userId);
-      if (!targetUser) {
-        res.status(404).json({
+      
+      if (!userId) {
+        res.status(400).json({
           success: false,
-          message: '用戶不存在',
+          message: '用戶 ID 為必填項目',
         });
         return;
       }
 
-      // 防止管理員修改自己的角色或狀態
-      if (targetUser._id.toString() === adminUser._id.toString()) {
-        if (role !== undefined || isActive !== undefined) {
-          res.status(400).json({
-            success: false,
-            message: '不能修改自己的角色或帳號狀態',
-          });
-          return;
-        }
-      }
-
-      // 只有超級管理員可以設置管理員角色
-      if (role === 'admin' && adminUser.role !== 'admin') {
-        res.status(403).json({
-          success: false,
-          message: '只有超級管理員可以設置管理員角色',
-        });
-        return;
-      }
-
-      // 更新用戶資料
-      const updateData: any = {};
-      if (name !== undefined) updateData.name = name;
-      if (phone !== undefined) updateData.phone = phone;
-      if (role !== undefined) updateData.role = role;
-      if (isActive !== undefined) updateData.isActive = isActive;
-
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        updateData,
-        { new: true, runValidators: true }
-      ).select('-password -passwordResetToken -passwordResetExpires -emailVerificationToken -emailVerificationExpires');
-
-      logger.info('管理員更新用戶資料成功', {
-        adminId: adminUser._id,
-        targetUserId: userId,
-        updateData,
-      });
+      // 使用 UserService 更新用戶資料
+       const updatedUser = await userService.adminUpdateUser(
+         userId,
+         { name, phone, role, isActive },
+         adminUser
+       );
 
       res.json({
         success: true,
@@ -255,46 +205,17 @@ router.delete(
     try {
       const { userId } = req.params;
       const adminUser = req.user as IUser;
-
-      // 檢查目標用戶是否存在
-      const targetUser = await User.findById(userId);
-      if (!targetUser) {
-        res.status(404).json({
-          success: false,
-          message: '用戶不存在',
-        });
-        return;
-      }
-
-      // 防止管理員刪除自己
-      if (targetUser._id.toString() === adminUser._id.toString()) {
+      
+      if (!userId) {
         res.status(400).json({
           success: false,
-          message: '不能刪除自己的帳號',
+          message: '用戶 ID 為必填項目',
         });
         return;
       }
 
-      // 只有超級管理員可以刪除管理員
-      if (targetUser.role === 'admin' && adminUser.role !== 'admin') {
-        res.status(403).json({
-          success: false,
-          message: '只有超級管理員可以刪除管理員帳號',
-        });
-        return;
-      }
-
-      // 軟刪除：將用戶標記為非活躍
-      await User.findByIdAndUpdate(userId, {
-        isActive: false,
-        email: `deleted_${Date.now()}_${targetUser.email}`,
-      });
-
-      logger.info('管理員刪除用戶成功', {
-        adminId: adminUser._id,
-        targetUserId: userId,
-        targetUserEmail: targetUser.email,
-      });
+      // 使用 UserService 刪除用戶
+      await userService.adminDeleteUser(userId, adminUser);
 
       res.json({
         success: true,
@@ -318,31 +239,20 @@ router.post(
     try {
       const { userId } = req.params;
       const adminUser = req.user as IUser;
-
-      // 檢查目標用戶是否存在
-      const targetUser = await User.findById(userId);
-      if (!targetUser) {
-        res.status(404).json({
+      
+      if (!userId) {
+        res.status(400).json({
           success: false,
-          message: '用戶不存在',
+          message: '用戶 ID 為必填項目',
         });
         return;
       }
 
-      // 生成臨時密碼
-      const tempPassword = Math.random().toString(36).slice(-8);
-      
-      // 更新用戶密碼
-      targetUser.password = tempPassword;
-      await targetUser.save();
+      // 使用 UserService 重設用戶密碼
+      const tempPassword = await userService.adminResetUserPassword(userId, adminUser);
 
       // 發送新密碼郵件（這裡簡化處理，實際應該發送重設連結）
       // await EmailService.sendPasswordResetEmail(targetUser.email, resetToken, targetUser.name);
-
-      logger.info('管理員重設用戶密碼成功', {
-        adminId: adminUser._id,
-        targetUserId: userId,
-      });
 
       res.json({
         success: true,
@@ -367,19 +277,8 @@ router.get(
   requirePermission(Permission.ANALYTICS_READ),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const [totalUsers, activeUsers, verifiedUsers, adminUsers] = await Promise.all([
-        User.countDocuments(),
-        User.countDocuments({ isActive: true }),
-        User.countDocuments({ isEmailVerified: true }),
-        User.countDocuments({ role: { $in: ['admin', 'moderator'] } }),
-      ]);
-
-      // 最近30天註冊用戶
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const recentUsers = await User.countDocuments({
-        createdAt: { $gte: thirtyDaysAgo },
-      });
+      // 使用 UserService 獲取系統統計
+      const stats = await userService.getSystemStatistics();
 
       logger.info('獲取系統統計成功', {
         adminId: (req.user as IUser)._id,
@@ -387,16 +286,7 @@ router.get(
 
       res.json({
         success: true,
-        data: {
-          users: {
-            total: totalUsers,
-            active: activeUsers,
-            verified: verifiedUsers,
-            admins: adminUsers,
-            recent: recentUsers,
-          },
-          // 可以添加更多統計數據
-        },
+        data: stats,
       });
     } catch (error) {
       logger.error('獲取系統統計失敗', { error });
@@ -414,17 +304,18 @@ router.post(
   requirePermission(Permission.SYSTEM_CONFIG),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const cleanedCount = await VerificationService.cleanupExpiredTokens();
+      // 使用 UserService 清理過期驗證令牌
+      const result = await userService.cleanupExpiredTokens();
 
       logger.info('清理過期令牌成功', {
         adminId: (req.user as IUser)._id,
-        cleanedCount,
+        cleanedCount: result.deletedCount,
       });
 
       res.json({
         success: true,
-        message: `已清理 ${cleanedCount} 個過期驗證令牌`,
-        data: { cleanedCount },
+        message: `已清理 ${result.deletedCount} 個過期驗證令牌`,
+        data: { cleanedCount: result.deletedCount },
       });
     } catch (error) {
       logger.error('清理過期令牌失敗', { error });

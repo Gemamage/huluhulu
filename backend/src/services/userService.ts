@@ -1,4 +1,5 @@
-import { User, IUser } from '../models/User';
+import { IUser } from '../models/User';
+import { UserRepository } from '../repositories/userRepository';
 import { ValidationError, AuthenticationError, NotFoundError } from '../utils/errors';
 import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
@@ -24,6 +25,14 @@ export interface UpdateUserData {
   avatar?: string;
 }
 
+// 管理員更新用戶資料介面
+export interface AdminUpdateUserData {
+  name?: string;
+  phone?: string;
+  role?: 'user' | 'moderator' | 'admin';
+  isActive?: boolean;
+}
+
 // 用戶查詢選項介面
 export interface UserQueryOptions {
   page?: number;
@@ -31,7 +40,7 @@ export interface UserQueryOptions {
   search?: string;
   isActive?: boolean;
   isEmailVerified?: boolean;
-  role?: 'user' | 'admin';
+  role?: 'user' | 'moderator' | 'admin';
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
@@ -40,6 +49,11 @@ export interface UserQueryOptions {
  * 用戶服務類別
  */
 export class UserService {
+  private userRepository: UserRepository;
+
+  constructor() {
+    this.userRepository = new UserRepository();
+  }
   /**
    * 用戶註冊
    */
@@ -49,18 +63,21 @@ export class UserService {
   }> {
     try {
       // 檢查電子郵件是否已存在
-      const existingUser = await User.findOne({ email: userData.email.toLowerCase() });
+      const existingUser = await this.userRepository.findByEmail(userData.email.toLowerCase());
       if (existingUser) {
         throw new ValidationError('此電子郵件已被註冊');
       }
       
-      // 建立新用戶
-      const user = new User({
+      // 建立新用戶資料
+      const newUserData = {
         email: userData.email.toLowerCase(),
         password: userData.password,
         name: userData.name.trim(),
         phone: userData.phone?.trim(),
-      });
+      };
+      
+      // 建立新用戶
+      const user = await this.userRepository.create(newUserData);
       
       // 生成電子郵件驗證令牌
       user.generateEmailVerificationToken();
@@ -99,8 +116,7 @@ export class UserService {
   }> {
     try {
       // 查找用戶（包含密碼）
-      const user = await User.findOne({ email: loginData.email.toLowerCase() })
-        .select('+password');
+      const user = await this.userRepository.findByEmail(loginData.email.toLowerCase());
       
       if (!user) {
         throw new AuthenticationError('電子郵件或密碼錯誤');
@@ -149,7 +165,7 @@ export class UserService {
         throw new ValidationError('無效的用戶 ID');
       }
       
-      const user = await User.findById(userId);
+      const user = await this.userRepository.findById(userId);
       if (!user) {
         throw new NotFoundError('用戶不存在');
       }
@@ -166,7 +182,7 @@ export class UserService {
    */
   async getUserByEmail(email: string): Promise<IUser | null> {
     try {
-      const user = await User.findOne({ email: email.toLowerCase() });
+      const user = await this.userRepository.findByEmail(email.toLowerCase());
       return user;
     } catch (error) {
       logger.error('根據電子郵件獲取用戶失敗', { error, email });
@@ -183,7 +199,7 @@ export class UserService {
         throw new ValidationError('無效的用戶 ID');
       }
       
-      const user = await User.findById(userId);
+      const user = await this.userRepository.findById(userId);
       if (!user) {
         throw new NotFoundError('用戶不存在');
       }
@@ -226,7 +242,7 @@ export class UserService {
         throw new ValidationError('無效的用戶 ID');
       }
       
-      const user = await User.findById(userId).select('+password');
+      const user = await this.userRepository.findById(userId);
       if (!user) {
         throw new NotFoundError('用戶不存在');
       }
@@ -254,10 +270,7 @@ export class UserService {
   async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
       // 查找具有有效重設令牌的用戶
-      const user = await User.findOne({
-        passwordResetToken: token,
-        passwordResetExpires: { $gt: new Date() },
-      }).select('+passwordResetToken +passwordResetExpires');
+      const user = await this.userRepository.findByPasswordResetTokenWithExpiry(token);
       
       if (!user) {
         throw new ValidationError('密碼重設令牌無效或已過期');
@@ -282,7 +295,7 @@ export class UserService {
    */
   async verifyEmail(userId: string, token: string): Promise<void> {
     try {
-      const user = await User.findById(userId);
+      const user = await this.userRepository.findById(userId);
       if (!user) {
         throw new NotFoundError('用戶不存在');
       }
@@ -312,7 +325,7 @@ export class UserService {
    */
   async verifyEmailByToken(token: string): Promise<void> {
     try {
-      const user = await User.findOne({ emailVerificationToken: token });
+      const user = await this.userRepository.findByEmailVerificationToken(token);
       if (!user) {
         throw new ValidationError('驗證令牌無效或已過期');
       }
@@ -342,13 +355,12 @@ export class UserService {
         throw new ValidationError('無效的用戶 ID');
       }
       
-      const user = await User.findById(userId);
+      const user = await this.userRepository.findById(userId);
       if (!user) {
         throw new NotFoundError('用戶不存在');
       }
       
-      user.isActive = false;
-      await user.save();
+      await this.userRepository.deactivate(userId);
       
       logger.info('用戶已停用', { userId: user._id });
     } catch (error) {
@@ -401,22 +413,13 @@ export class UserService {
         query.role = role;
       }
       
-      // 計算跳過的文檔數量
-      const skip = (page - 1) * limit;
-      
-      // 建立排序物件
-      const sort: any = {};
-      sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
-      
       // 執行查詢
-      const [users, total] = await Promise.all([
-        User.find(query)
-          .sort(sort)
-          .skip(skip)
-          .limit(limit)
-          .exec(),
-        User.countDocuments(query),
-      ]);
+      const { users, total } = await this.userRepository.findWithPagination(query, {
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+      });
       
       const totalPages = Math.ceil(total / limit);
       
@@ -429,6 +432,261 @@ export class UserService {
       };
     } catch (error) {
       logger.error('獲取用戶列表失敗', { error, options });
+      throw error;
+    }
+  }
+
+  // ===== 管理員功能方法 =====
+
+  /**
+   * 管理員獲取用戶列表（帶篩選和分頁）
+   */
+  async getAdminUserList(options: UserQueryOptions = {}): Promise<{
+    users: IUser[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        search,
+        role,
+        isActive,
+        isEmailVerified,
+      } = options;
+
+      // 構建查詢條件
+      const filter: any = {};
+      
+      if (search) {
+        filter.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ];
+      }
+      
+      if (role) filter.role = role;
+      if (isActive !== undefined) filter.isActive = isActive;
+      if (isEmailVerified !== undefined) filter.isEmailVerified = isEmailVerified;
+
+      // 執行查詢
+      const skip = (Number(page) - 1) * Number(limit);
+      const selectFields = '-password -passwordResetToken -passwordResetExpires -emailVerificationToken -emailVerificationExpires';
+      
+      const [users, total] = await Promise.all([
+        this.userRepository.findWithSelect(filter, selectFields, {
+          sort: { createdAt: -1 },
+          skip,
+          limit: Number(limit),
+        }),
+        this.userRepository.countDocuments(filter),
+      ]);
+
+      const totalPages = Math.ceil(total / Number(limit));
+
+      return {
+        users,
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages,
+      };
+    } catch (error) {
+      logger.error('管理員獲取用戶列表失敗', { error, options });
+      throw error;
+    }
+  }
+
+  /**
+   * 管理員獲取單個用戶詳情
+   */
+  async getAdminUserById(userId: string): Promise<IUser> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ValidationError('無效的用戶 ID');
+      }
+
+      const selectFields = '-password -passwordResetToken -passwordResetExpires -emailVerificationToken -emailVerificationExpires';
+      const user = await this.userRepository.findByIdWithSelect(userId, selectFields);
+      
+      if (!user) {
+        throw new NotFoundError('用戶不存在');
+      }
+
+      return user;
+    } catch (error) {
+      logger.error('管理員獲取用戶詳情失敗', { error, userId });
+      throw error;
+    }
+  }
+
+  /**
+   * 管理員更新用戶資料
+   */
+  async adminUpdateUser(
+    userId: string,
+    updateData: AdminUpdateUserData,
+    adminUser: IUser
+  ): Promise<IUser> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ValidationError('無效的用戶 ID');
+      }
+
+      // 檢查目標用戶是否存在
+      const targetUser = await this.userRepository.findById(userId);
+      if (!targetUser) {
+        throw new NotFoundError('用戶不存在');
+      }
+
+      // 防止管理員修改自己的角色或狀態
+      if (targetUser._id.toString() === adminUser._id.toString()) {
+        if (updateData.role !== undefined || updateData.isActive !== undefined) {
+          throw new ValidationError('不能修改自己的角色或帳號狀態');
+        }
+      }
+
+      // 只有超級管理員可以設置管理員角色
+      if (updateData.role === 'admin' && adminUser.role !== 'admin') {
+        throw new ValidationError('只有超級管理員可以設置管理員角色');
+      }
+
+      // 更新用戶資料
+      const updateFields: any = {};
+      if (updateData.name !== undefined) updateFields.name = updateData.name;
+      if (updateData.phone !== undefined) updateFields.phone = updateData.phone;
+      if (updateData.role !== undefined) updateFields.role = updateData.role;
+      if (updateData.isActive !== undefined) updateFields.isActive = updateData.isActive;
+
+      const updatedUser = await this.userRepository.updateWithValidation(userId, updateFields);
+      
+      if (!updatedUser) {
+        throw new NotFoundError('更新失敗，用戶不存在');
+      }
+
+      logger.info('管理員更新用戶資料成功', {
+        adminId: adminUser._id,
+        targetUserId: userId,
+        updateData: updateFields,
+      });
+
+      return updatedUser;
+    } catch (error) {
+      logger.error('管理員更新用戶資料失敗', { error, userId, updateData });
+      throw error;
+    }
+  }
+
+  /**
+   * 管理員刪除用戶（軟刪除）
+   */
+  async adminDeleteUser(userId: string, adminUser: IUser): Promise<void> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ValidationError('無效的用戶 ID');
+      }
+
+      // 檢查目標用戶是否存在
+      const targetUser = await this.userRepository.findById(userId);
+      if (!targetUser) {
+        throw new NotFoundError('用戶不存在');
+      }
+
+      // 防止管理員刪除自己
+      if (targetUser._id.toString() === adminUser._id.toString()) {
+        throw new ValidationError('不能刪除自己的帳號');
+      }
+
+      // 只有超級管理員可以刪除管理員
+      if (targetUser.role === 'admin' && adminUser.role !== 'admin') {
+        throw new ValidationError('只有超級管理員可以刪除管理員帳號');
+      }
+
+      // 軟刪除：將用戶標記為非活躍
+      await this.userRepository.softDelete(userId, targetUser.email);
+
+      logger.info('管理員刪除用戶成功', {
+        adminId: adminUser._id,
+        targetUserId: userId,
+        targetUserEmail: targetUser.email,
+      });
+    } catch (error) {
+      logger.error('管理員刪除用戶失敗', { error, userId });
+      throw error;
+    }
+  }
+
+  /**
+   * 管理員重設用戶密碼
+   */
+  async adminResetUserPassword(userId: string, adminUser: IUser): Promise<string> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ValidationError('無效的用戶 ID');
+      }
+
+      // 檢查目標用戶是否存在
+      const targetUser = await this.userRepository.findById(userId);
+      if (!targetUser) {
+        throw new NotFoundError('用戶不存在');
+      }
+
+      // 生成臨時密碼
+      const tempPassword = Math.random().toString(36).slice(-8);
+      
+      // 更新用戶密碼
+      await this.userRepository.updatePassword(userId, tempPassword);
+
+      logger.info('管理員重設用戶密碼成功', {
+        adminId: adminUser._id,
+        targetUserId: userId,
+      });
+
+      return tempPassword;
+    } catch (error) {
+      logger.error('管理員重設用戶密碼失敗', { error, userId });
+      throw error;
+    }
+  }
+
+  /**
+   * 獲取系統統計
+   */
+  async getSystemStatistics(): Promise<{
+    users: {
+      total: number;
+      active: number;
+      verified: number;
+      admins: number;
+      recent: number;
+    };
+  }> {
+    try {
+      const stats = await this.userRepository.getStatistics();
+      
+      return {
+        users: stats,
+      };
+    } catch (error) {
+      logger.error('獲取系統統計失敗', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * 清理過期驗證令牌
+   */
+  async cleanupExpiredTokens(): Promise<{ deletedCount: number }> {
+    try {
+      const result = await this.userRepository.cleanupExpiredTokens();
+      
+      logger.info('清理過期驗證令牌成功', { deletedCount: result.deletedCount });
+      return result;
+    } catch (error) {
+      logger.error('清理過期驗證令牌失敗', { error });
       throw error;
     }
   }

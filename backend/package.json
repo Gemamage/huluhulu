@@ -25,7 +25,6 @@
     "test:slow": "jest test/routes --maxWorkers=25% --testTimeout=30000",
     "test:performance": "node scripts/test-performance.js",
     "test:benchmark": "jest --setupFilesAfterEnv ./test/setup-optimized.ts --verbose --detectOpenHandles",
-
     "setup:env": "node scripts/setup-env.js",
     "db:seed": "ts-node src/scripts/seed.ts",
     "db:migrate": "ts-node src/scripts/migrate.ts",
@@ -43,7 +42,6 @@
   "author": "程式小白",
   "license": "MIT",
   "dependencies": {
-
     "@google-cloud/vision": "^5.2.0",
     "@types/express-session": "^1.18.2",
     "@types/passport": "^1.0.17",
@@ -72,7 +70,6 @@
     "sharp": "^0.34.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
-    "tsconfig-paths": "^4.2.0",
     "winston": "^3.11.0",
     "zod": "^3.25.76"
   },

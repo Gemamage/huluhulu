@@ -83,8 +83,7 @@ const searchHistorySchema = new Schema<ISearchHistory>({
   },
   searchedAt: {
     type: Date,
-    default: Date.now,
-    index: true
+    default: Date.now
   }
 }, {
   timestamps: true,

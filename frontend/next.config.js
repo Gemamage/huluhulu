@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   images: {
     domains: [
       'localhost',
@@ -15,7 +12,7 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
   },
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    CUSTOM_KEY: process.env.CUSTOM_KEY || 'default-value',
   },
   // 啟用嚴格模式
   reactStrictMode: true,

@@ -47,7 +47,7 @@ export function ImageUpload({
     }
 
     const result = await response.json();
-    return result.data.imageUrl;
+    return result.data.url;
   };
 
   const handleFileSelect = async (files: FileList | null) => {
