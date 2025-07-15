@@ -2,11 +2,18 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthProvider } from '@/contexts/auth-context';
+import { useNotificationService } from '@/hooks/useNotifications';
 
 interface ProvidersProps {
   children: React.ReactNode;
+}
+
+// 通知服務初始化組件
+function NotificationServiceProvider({ children }: { children: React.ReactNode }) {
+  useNotificationService();
+  return <>{children}</>;
 }
 
 export function Providers({ children }: ProvidersProps) {
@@ -44,7 +51,9 @@ export function Providers({ children }: ProvidersProps) {
         disableTransitionOnChange
       >
         <AuthProvider>
-          {children}
+          <NotificationServiceProvider>
+            {children}
+          </NotificationServiceProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

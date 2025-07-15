@@ -178,19 +178,19 @@ export class AIService {
   ): number {
     try {
       // 計算顏色直方圖相似度
-      const colorSimilarity = this.calculateHistogramSimilarity(
+      const colorSimilarity = AIService.calculateHistogramSimilarity(
         features1.colorHistogram,
         features2.colorHistogram
       );
       
       // 計算紋理相似度
-      const textureSimilarity = this.calculateVectorSimilarity(
+      const textureSimilarity = AIService.calculateVectorSimilarity(
         features1.textureFeatures,
         features2.textureFeatures
       );
       
       // 計算形狀相似度
-      const shapeSimilarity = this.calculateVectorSimilarity(
+      const shapeSimilarity = AIService.calculateVectorSimilarity(
         features1.shapeFeatures,
         features2.shapeFeatures
       );
@@ -231,10 +231,10 @@ export class AIService {
       const safeSearch = result.safeSearchAnnotation || {};
       
       // 分析寵物類型和品種
-      const petAnalysis = this.analyzePetFromLabels(labels);
-      
+      const petAnalysis = AIService.analyzePetFromLabels(labels);
+
       // 提取圖像特徵
-      const features = await this.extractImageFeatures(imageBuffer);
+      const features = await AIService.extractImageFeatures(imageBuffer);
 
       return {
         petType: petAnalysis.type,
@@ -252,7 +252,7 @@ export class AIService {
       logger.error('Vision AI 分析失敗', { error });
       
       // 備用方案：使用本地分析
-      return this.analyzeImageLocally(imageBuffer);
+      return AIService.analyzeImageLocally(imageBuffer);
     }
   }
 
@@ -261,7 +261,7 @@ export class AIService {
    */
   static async analyzeImageLocally(imageBuffer: Buffer): Promise<AIAnalysisResult> {
     try {
-      const features = await this.extractImageFeatures(imageBuffer);
+      const features = await AIService.extractImageFeatures(imageBuffer);
       
       return {
         petType: 'unknown',
@@ -441,6 +441,91 @@ export class AIService {
           racy: 'VERY_UNLIKELY'
         }
       };
+    }
+  }
+
+  /**
+   * 計算兩隻寵物的相似度
+   */
+  static calculateSimilarity(pet1: any, pet2: any): number {
+    try {
+      let similarity = 0;
+      let factors = 0;
+
+      // 品種相似度 (權重: 30%)
+      if (pet1.breed && pet2.breed) {
+        factors++;
+        if (pet1.breed === pet2.breed) {
+          similarity += 0.3;
+        } else if (pet1.breed.includes('混種') || pet2.breed.includes('混種')) {
+          similarity += 0.15;
+        }
+      }
+
+      // 顏色相似度 (權重: 25%)
+      if (pet1.color && pet2.color) {
+        factors++;
+        const color1 = pet1.color.toLowerCase();
+        const color2 = pet2.color.toLowerCase();
+        if (color1 === color2) {
+          similarity += 0.25;
+        } else if (color1.includes(color2) || color2.includes(color1)) {
+          similarity += 0.15;
+        }
+      }
+
+      // 大小相似度 (權重: 20%)
+      if (pet1.size && pet2.size) {
+        factors++;
+        if (pet1.size === pet2.size) {
+          similarity += 0.2;
+        } else {
+          const sizes = ['小型', '中型', '大型'];
+          const index1 = sizes.indexOf(pet1.size);
+          const index2 = sizes.indexOf(pet2.size);
+          if (index1 !== -1 && index2 !== -1) {
+            const diff = Math.abs(index1 - index2);
+            if (diff === 1) similarity += 0.1;
+          }
+        }
+      }
+
+      // 年齡相似度 (權重: 15%)
+      if (pet1.age && pet2.age) {
+        factors++;
+        const ageDiff = Math.abs(pet1.age - pet2.age);
+        if (ageDiff === 0) {
+          similarity += 0.15;
+        } else if (ageDiff <= 1) {
+          similarity += 0.1;
+        } else if (ageDiff <= 3) {
+          similarity += 0.05;
+        }
+      }
+
+      // 性別相似度 (權重: 10%)
+      if (pet1.gender && pet2.gender) {
+        factors++;
+        if (pet1.gender === pet2.gender) {
+          similarity += 0.1;
+        }
+      }
+
+      // 如果有圖像特徵，計算圖像相似度
+      if (pet1.imageFeatures && pet2.imageFeatures) {
+        const imageSimilarity = AIService.calculateImageSimilarity(
+          pet1.imageFeatures,
+          pet2.imageFeatures
+        );
+        similarity += imageSimilarity * 0.3; // 圖像相似度權重 30%
+        factors++;
+      }
+
+      // 正規化相似度分數
+      return factors > 0 ? Math.min(similarity, 1) : 0;
+    } catch (error) {
+      logger.error('相似度計算失敗', { error });
+      return 0;
     }
   }
 

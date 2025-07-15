@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/auth-context';
+import { NotificationPopover } from '@/components/notifications';
 import {
   User,
   LogOut,
@@ -25,6 +26,7 @@ import {
   Plus,
   ShoppingCart,
   HelpCircle,
+  Bell,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -91,6 +93,11 @@ export function Navbar() {
         {/* User Menu - 右邊 */}
         <div className="flex items-center space-x-4">
           {isAuthenticated && user ? (
+            <>
+              {/* 通知彈出視窗 */}
+              <NotificationPopover />
+              
+              {/* 用戶選單 */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -133,6 +140,12 @@ export function Navbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link href="/notifications" className="flex items-center">
+                    <Bell className="mr-2 h-4 w-4" />
+                    <span>通知中心</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/settings" className="flex items-center">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>設定</span>
@@ -148,6 +161,7 @@ export function Navbar() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </>
           ) : (
             <div className="flex items-center space-x-3">
               <button className="text-sm text-gray-600 hover:text-gray-800 transition-colors">

@@ -7,6 +7,8 @@ import rateLimit from 'express-rate-limit';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import passport from 'passport';
+import { createServer } from 'http';
+
 
 import { config } from './config/environment';
 import { connectDatabase } from './config/database';
@@ -14,6 +16,11 @@ import { logger } from './utils/logger';
 import { errorHandler } from './middleware/error-handler';
 import { notFoundHandler } from './middleware/not-found';
 import { swaggerSetup } from './config/swagger';
+
+// 服務導入
+import { SocketService } from './services/socketService';
+import { NotificationService } from './services/notificationService';
+import { SmartNotificationService } from './services/smartNotificationService';
 
 // Passport 配置
 import './config/passport';
@@ -28,9 +35,15 @@ import { oauthRoutes } from './routes/oauth';
 import { privacyRoutes } from './routes/privacy';
 import { adminRoutes } from './routes/admin';
 import { aiRoutes } from './routes/ai';
+import notificationRoutes from './routes/notifications';
+import { smartNotificationRoutes } from './routes/smartNotifications';
 
-// 建立 Express 應用程式
+// 建立 Express 應用程式和 HTTP 伺服器
 const app = express();
+const httpServer = createServer(app);
+
+// 初始化 Socket 服務
+const io = SocketService.initialize(httpServer);
 
 // 安全性中介軟體
 app.use(helmet({
@@ -143,6 +156,8 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/privacy', privacyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/smart-notifications', smartNotificationRoutes);
 
 // 404 處理
 app.use(notFoundHandler);
@@ -158,18 +173,43 @@ const startServer = async (): Promise<void> => {
     logger.info('資料庫連接成功');
 
     // 啟動伺服器
-    const server = app.listen(config.port, () => {
+    const server = httpServer.listen(config.port, () => {
       logger.info(`伺服器運行在 http://localhost:${config.port}`);
       logger.info(`環境: ${config.env}`);
+      logger.info('Socket.IO 服務已啟動');
       
       if (config.env !== 'production') {
         logger.info(`API 文件: http://localhost:${config.port}/api-docs`);
       }
     });
 
+    // 啟動通知服務的定期任務
+    NotificationService.startScheduledTasks();
+    logger.info('通知服務定期任務已啟動');
+
+    // 初始化智能通知服務
+    await SmartNotificationService.initialize();
+    logger.info('智能通知服務已初始化');
+
     // 優雅關閉
-    const gracefulShutdown = (signal: string) => {
+    const gracefulShutdown = async (signal: string) => {
       logger.info(`收到 ${signal} 信號，開始優雅關閉...`);
+      
+      try {
+        // 停止通知服務定期任務
+        NotificationService.stopScheduledTasks();
+        
+        // 停止智能通知服務
+        await SmartNotificationService.stop();
+        logger.info('智能通知服務已停止');
+      } catch (error) {
+        logger.error('停止服務時發生錯誤:', error);
+      }
+      
+      // 關閉 Socket.IO 連接
+      io.close(() => {
+        logger.info('Socket.IO 伺服器已關閉');
+      });
       
       server.close(() => {
         logger.info('HTTP 伺服器已關閉');
@@ -208,4 +248,4 @@ if (require.main === module) {
   startServer();
 }
 
-export { app };
+export { app, httpServer, io };

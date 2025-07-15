@@ -305,7 +305,7 @@ router.post('/similarity-search', authenticate, upload.single('image'), async (r
             location: pet.location,
             status: pet.status,
             createdAt: pet.createdAt,
-            owner: pet.owner
+            owner: pet.userId
           },
           similarity: Math.round(similarity * 100) / 100
         })),

@@ -39,6 +39,18 @@ const envSchema = Joi.object({
   // Google Vision AI 配置
   GOOGLE_VISION_PROJECT_ID: Joi.string().optional(),
   GOOGLE_VISION_KEY_PATH: Joi.string().optional(),
+  
+  // Firebase 配置
+  FIREBASE_PROJECT_ID: Joi.string().optional(),
+  FIREBASE_SERVICE_ACCOUNT_KEY: Joi.string().optional(),
+  
+  // SendGrid 配置
+  SENDGRID_API_KEY: Joi.string().optional(),
+  SENDGRID_FROM_EMAIL: Joi.string().email().optional(),
+  
+  // 通知配置
+  NOTIFICATION_CLEANUP_INTERVAL: Joi.number().default(60 * 60 * 1000), // 1 小時
+  NOTIFICATION_RETENTION_DAYS: Joi.number().default(30),
 }).unknown();
 
 // 驗證環境變數
@@ -144,6 +156,28 @@ export const config = {
     maxAge: 24 * 60 * 60 * 1000, // 24 小時
   },
   
+  // Firebase 配置
+  firebase: {
+    projectId: envVars.FIREBASE_PROJECT_ID as string || '',
+    serviceAccountKey: envVars.FIREBASE_SERVICE_ACCOUNT_KEY 
+      ? JSON.parse(envVars.FIREBASE_SERVICE_ACCOUNT_KEY as string) 
+      : null,
+  },
+  
+  // SendGrid 配置
+  sendgrid: {
+    apiKey: envVars.SENDGRID_API_KEY as string || '',
+    fromEmail: envVars.SENDGRID_FROM_EMAIL as string || envVars.EMAIL_FROM_EMAIL as string,
+  },
+  
+  // 通知配置
+  notification: {
+    cleanupInterval: envVars.NOTIFICATION_CLEANUP_INTERVAL as number,
+    retentionDays: envVars.NOTIFICATION_RETENTION_DAYS as number,
+    batchSize: 100,
+    maxRetries: 3,
+    retryDelay: 5000, // 5 秒
+  },
 
 } as const;
 
