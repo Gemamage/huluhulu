@@ -114,7 +114,7 @@ export interface ApiResponse<T> {
 
 class AIService {
   private getAuthHeaders(): Record<string, string> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 

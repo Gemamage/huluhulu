@@ -23,7 +23,7 @@ import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { petRoutes } from './routes/pets';
 import { searchRoutes } from './routes/search';
-import uploadRoutes from './routes/upload';
+import { default as uploadRoutes } from './routes/upload';
 import { oauthRoutes } from './routes/oauth';
 import { privacyRoutes } from './routes/privacy';
 import { adminRoutes } from './routes/admin';

@@ -30,7 +30,7 @@ export function ImageUpload({
     formData.append('image', file);
     formData.append('type', 'pet');
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('auth_token');
     const headers: HeadersInit = {};
     if (token) {
       headers.Authorization = `Bearer ${token}`;
