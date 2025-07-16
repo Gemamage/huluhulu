@@ -30,6 +30,11 @@ class NotificationService {
       return;
     }
 
+    // 確保只在客戶端執行
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     try {
       // 請求通知權限
       const permission = await requestNotificationPermission();
@@ -124,10 +129,12 @@ class NotificationService {
       data: notification.data
     });
 
-    // 觸發自定義事件供組件監聽
-    window.dispatchEvent(new CustomEvent('realtimeNotification', {
-      detail: notification
-    }));
+    // 觸發自定義事件供組件監聽（僅在客戶端）
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('realtimeNotification', {
+        detail: notification
+      }));
+    }
   }
 
   /**
@@ -158,6 +165,12 @@ class NotificationService {
       const authToken = authService.getToken();
       if (!authToken) {
         console.warn('No auth token available for FCM registration');
+        return;
+      }
+
+      // 確保只在客戶端執行（因為使用了 navigator API）
+      if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+        console.warn('Cannot register FCM token on server side');
         return;
       }
 

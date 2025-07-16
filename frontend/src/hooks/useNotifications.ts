@@ -213,6 +213,9 @@ export const useRealtimeNotifications = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // 確保只在客戶端執行
+    if (typeof window === 'undefined') return;
+    
     // 監聽即時通知事件
     const handleRealtimeNotification = (event: CustomEvent<RealtimeNotificationData>) => {
       const notification = event.detail;
