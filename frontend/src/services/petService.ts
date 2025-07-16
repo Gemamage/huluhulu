@@ -3,6 +3,7 @@
 
 import { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet';
 import { SearchFilters, AdvancedSearchResponse, SearchAnalytics, ElasticsearchHealth } from '@/types/search';
+import { errorHandler, ApiError, ApiErrorCode } from './errorHandler';
 import { authService } from './authService';
 
 // PetService 介面定義 - 提升類型安全性
@@ -43,50 +44,111 @@ interface PetServiceMethods {
 class PetService implements PetServiceMethods {
   private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-  private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
-    const token = authService.getToken();
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
+  private async makeRequest(url: string, options: RequestInit = {}, context?: string): Promise<any> {
+    const requestContext = context || `${options.method || 'GET'} ${url}`;
+    
+    try {
+      const token = authService.getToken();
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
 
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${this.baseUrl}${url}`, {
-      ...options,
-      headers,
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        authService.removeToken();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
 
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      return response.json();
+      // 設置請求超時
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超時
+
+      const response = await fetch(`${this.baseUrl}${url}`, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        // 嘗試解析錯誤回應
+        let errorDetails;
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            errorDetails = await response.json();
+          }
+        } catch {
+          // 忽略解析錯誤
+        }
+
+        const apiError = errorHandler.createErrorFromResponse(response, errorDetails);
+        const handlingResult = errorHandler.handleError(apiError, requestContext);
+
+        // 處理認證錯誤
+        if (apiError.isAuthError()) {
+          authService.removeToken();
+          if (typeof window !== 'undefined' && handlingResult.shouldRedirect) {
+            window.location.href = handlingResult.shouldRedirect;
+          }
+        }
+
+        // 如果需要重試，則重試
+        if (handlingResult.shouldRetry && handlingResult.retryDelay) {
+          await new Promise(resolve => setTimeout(resolve, handlingResult.retryDelay));
+          return this.makeRequest(url, options, context);
+        }
+
+        throw apiError;
+      }
+
+      // 重置重試計數（成功時）
+      errorHandler.resetRetryCount(requestContext);
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return response.json();
+      }
+      return response;
+      
+    } catch (error) {
+      // 處理網路錯誤
+      if (error instanceof ApiError) {
+        throw error; // 重新拋出已處理的 ApiError
+      }
+
+      const networkError = errorHandler.createErrorFromNetworkError(error as Error);
+      const handlingResult = errorHandler.handleError(networkError, requestContext);
+
+      // 如果需要重試，則重試
+      if (handlingResult.shouldRetry && handlingResult.retryDelay) {
+        await new Promise(resolve => setTimeout(resolve, handlingResult.retryDelay));
+        return this.makeRequest(url, options, context);
+      }
+
+      throw networkError;
     }
-    return response;
   }
 
   async getAllPets(filters?: SearchFilters): Promise<PetSearchResult> {
-    const params = new URLSearchParams();
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          params.append(key, String(value));
-        }
-      });
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, String(value));
+          }
+        });
+      }
+      const url = `/pets${params.toString() ? `?${params.toString()}` : ''}`;
+      return this.makeRequest(url, {}, 'getAllPets');
+    } catch (error) {
+      throw new ApiError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        '獲取寵物列表失敗',
+        { filters, originalError: error }
+      );
     }
-    const url = `/pets${params.toString() ? `?${params.toString()}` : ''}`;
-    return this.makeRequest(url);
   }
 
   // API 命名一致性：getPets 作為 getAllPets 的別名
@@ -99,17 +161,33 @@ class PetService implements PetServiceMethods {
   }
 
   async createPet(data: CreatePetData): Promise<Pet> {
-    return this.makeRequest('/pets', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      return this.makeRequest('/pets', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }, 'createPet');
+    } catch (error) {
+      throw new ApiError(
+        ApiErrorCode.VALIDATION_ERROR,
+        '創建寵物資料失敗',
+        { data, originalError: error }
+      );
+    }
   }
 
   async updatePet(id: string, data: UpdatePetData): Promise<Pet> {
-    return this.makeRequest(`/pets/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    try {
+      return this.makeRequest(`/pets/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }, 'updatePet');
+    } catch (error) {
+      throw new ApiError(
+        ApiErrorCode.VALIDATION_ERROR,
+        '更新寵物資料失敗',
+        { id, data, originalError: error }
+      );
+    }
   }
 
   async deletePet(id: string): Promise<void> {
@@ -122,18 +200,28 @@ class PetService implements PetServiceMethods {
     query: string,
     filters: Omit<SearchFilters, 'q'> = {}
   ): Promise<PetSearchResult> {
-    const params = new URLSearchParams();
-    params.append('q', query);
+    try {
+      const params = new URLSearchParams();
+      params.append('q', query);
 
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        params.append(key, value.toString());
-      }
-    });
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          params.append(key, value.toString());
+        }
+      });
 
-    return this.makeRequest<PetSearchResult>(
-      `/pets/search?${params.toString()}`
-    );
+      return this.makeRequest<PetSearchResult>(
+        `/pets/search?${params.toString()}`,
+        {},
+        'searchPets'
+      );
+    } catch (error) {
+      throw new ApiError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        '搜尋寵物失敗',
+        { query, filters, originalError: error }
+      );
+    }
   }
 
   // Elasticsearch 進階搜尋
@@ -141,15 +229,23 @@ class PetService implements PetServiceMethods {
     query: string,
     filters: SearchFilters = {}
   ): Promise<AdvancedSearchResponse<Pet>> {
-    const searchData = {
-      q: query,
-      ...filters
-    };
+    try {
+      const searchData = {
+        q: query,
+        ...filters
+      };
 
-    return this.makeRequest('/advanced-search/pets', {
-      method: 'POST',
-      body: JSON.stringify(searchData),
-    });
+      return this.makeRequest('/advanced-search/pets', {
+        method: 'POST',
+        body: JSON.stringify(searchData),
+      }, 'advancedSearch');
+    } catch (error) {
+      throw new ApiError(
+        ApiErrorCode.UNKNOWN_ERROR,
+        '進階搜尋失敗',
+        { query, filters, originalError: error }
+      );
+    }
   }
 
   // 獲取搜尋建議
