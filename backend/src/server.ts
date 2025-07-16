@@ -37,6 +37,7 @@ import { adminRoutes } from './routes/admin';
 import { aiRoutes } from './routes/ai';
 import notificationRoutes from './routes/notifications';
 import { smartNotificationRoutes } from './routes/smartNotifications';
+import communityRoutes from './routes/community';
 
 // 建立 Express 應用程式和 HTTP 伺服器
 const app = express();
@@ -158,6 +159,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/smart-notifications', smartNotificationRoutes);
+app.use('/api/community', communityRoutes);
 
 // 404 處理
 app.use(notFoundHandler);

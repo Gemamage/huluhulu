@@ -94,5 +94,8 @@
     "image-optimization": "圖像壓縮和格式優化",
     "similarity-search": "基於特徵向量的相似度搜尋",
     "ai-search-suggestions": "智能搜尋建議和自動完成"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^7.2.0"
   }
 }
