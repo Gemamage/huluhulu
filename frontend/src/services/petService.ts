@@ -54,6 +54,11 @@ class PetService {
     return this.makeRequest(url);
   }
 
+  // API 命名一致性：getPets 作為 getAllPets 的別名
+  async getPets(filters?: SearchFilters): Promise<PetSearchResult> {
+    return this.getAllPets(filters);
+  }
+
   async getPetById(id: string): Promise<Pet> {
     return this.makeRequest(`/pets/${id}`);
   }
