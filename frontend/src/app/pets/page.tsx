@@ -214,7 +214,7 @@ export default function PetsPage() {
   const loadPets = async (params: PetSearchParams) => {
     try {
       setLoading(true);
-      const response = await petService.getPets(params);
+      const response = await petService.getAllPets(params);
       
       if (response.success && response.data && response.data.pets.length > 0) {
         // 有真實資料時顯示真實資料

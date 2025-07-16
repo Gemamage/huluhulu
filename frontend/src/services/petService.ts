@@ -2,7 +2,7 @@
 // 這個文件提供前端測試所需的寵物服務
 
 import { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet';
-import { SearchFilters } from '@/types/search';
+import { SearchFilters, AdvancedSearchResponse, SearchAnalytics, ElasticsearchHealth } from '@/types/search';
 import { authService } from './authService';
 
 class PetService {
@@ -94,6 +94,45 @@ class PetService {
     return this.makeRequest<PetSearchResult>(
       `/pets/search?${params.toString()}`
     );
+  }
+
+  // Elasticsearch 進階搜尋
+  async advancedSearch(
+    query: string,
+    filters: SearchFilters = {}
+  ): Promise<AdvancedSearchResponse<Pet>> {
+    const searchData = {
+      q: query,
+      ...filters
+    };
+
+    return this.makeRequest('/advanced-search/pets', {
+      method: 'POST',
+      body: JSON.stringify(searchData),
+    });
+  }
+
+  // 獲取搜尋建議
+  async getSearchSuggestions(query: string): Promise<string[]> {
+    const params = new URLSearchParams();
+    params.append('q', query);
+    
+    const response = await this.makeRequest(`/advanced-search/suggestions?${params.toString()}`);
+    return response.suggestions || [];
+  }
+
+  // 獲取搜尋分析數據
+  async getSearchAnalytics(timeRange: string = '7d'): Promise<SearchAnalytics> {
+    const params = new URLSearchParams();
+    params.append('timeRange', timeRange);
+    
+    const response = await this.makeRequest(`/advanced-search/analytics?${params.toString()}`);
+    return response.data || response;
+  }
+
+  // 檢查 Elasticsearch 服務健康狀態
+  async checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }> {
+    return this.makeRequest('/advanced-search/health');
   }
 
   async getMyPets(): Promise<PetSearchResult> {

@@ -21,6 +21,9 @@ import { swaggerSetup } from './config/swagger';
 import { SocketService } from './services/socketService';
 import { NotificationService } from './services/notificationService';
 import { SmartNotificationService } from './services/smartNotificationService';
+import { elasticsearchService } from './services/elasticsearchService';
+import { petSearchService } from './services/petSearchService';
+import { mockElasticsearchService } from './services/mockElasticsearchService';
 
 // Passport 配置
 import './config/passport';
@@ -38,6 +41,7 @@ import { aiRoutes } from './routes/ai';
 import notificationRoutes from './routes/notifications';
 import { smartNotificationRoutes } from './routes/smartNotifications';
 import communityRoutes from './routes/community';
+import advancedSearchRoutes from './routes/advancedSearch';
 
 // 建立 Express 應用程式和 HTTP 伺服器
 const app = express();
@@ -153,6 +157,7 @@ app.use('/api/oauth', oauthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/pets', petRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/advanced-search', advancedSearchRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/privacy', privacyRoutes);
 app.use('/api/admin', adminRoutes);
@@ -173,6 +178,34 @@ const startServer = async (): Promise<void> => {
     // 連接資料庫
     await connectDatabase();
     logger.info('資料庫連接成功');
+
+    // 初始化搜尋服務
+    const useElasticsearch = process.env.ELASTICSEARCH_URL && process.env.NODE_ENV !== 'development';
+    
+    if (useElasticsearch) {
+      try {
+        const elasticsearchConnected = await elasticsearchService.connect();
+        if (elasticsearchConnected) {
+          logger.info('Elasticsearch 服務已啟動');
+          
+          // 初始化搜尋索引
+          await petSearchService.initializePetIndex();
+          await petSearchService.initializeSearchAnalyticsIndex();
+          logger.info('搜尋索引初始化完成');
+        } else {
+          logger.warn('Elasticsearch 連接失敗，切換到模擬服務');
+          await mockElasticsearchService.initializeIndex();
+          logger.info('模擬搜尋服務初始化完成');
+        }
+      } catch (error) {
+        logger.error('Elasticsearch 初始化失敗，切換到模擬服務:', error);
+        await mockElasticsearchService.initializeIndex();
+        logger.info('模擬搜尋服務初始化完成');
+      }
+    } else {
+      await mockElasticsearchService.initializeIndex();
+      logger.info('開發模式：使用模擬搜尋服務');
+    }
 
     // 啟動伺服器
     const server = httpServer.listen(config.port, () => {
@@ -204,6 +237,14 @@ const startServer = async (): Promise<void> => {
         // 停止智能通知服務
         await SmartNotificationService.stop();
         logger.info('智能通知服務已停止');
+        
+        // 關閉搜尋服務連接
+        if (process.env.ELASTICSEARCH_URL && process.env.NODE_ENV !== 'development') {
+          await elasticsearchService.close();
+          logger.info('Elasticsearch 連接已關閉');
+        } else {
+          logger.info('模擬搜尋服務已清理');
+        }
       } catch (error) {
         logger.error('停止服務時發生錯誤:', error);
       }

@@ -18,7 +18,8 @@ interface SearchSuggestion {
 interface SearchSuggestionsProps {
   value: string;
   onChange: (value: string) => void;
-  onSearch: (query: string) => void;
+  onSearch: () => void;
+  suggestions: string[];
   placeholder?: string;
   className?: string;
 }
@@ -86,13 +87,13 @@ export function SearchSuggestions({
     onChange(suggestion.query);
     setShowSuggestions(false);
     setSelectedIndex(-1);
-    onSearch(suggestion.query);
+    onSearch();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) {
       if (e.key === 'Enter') {
-        onSearch(value);
+        onSearch();
         setShowSuggestions(false);
       }
       return;
@@ -114,7 +115,7 @@ export function SearchSuggestions({
         if (selectedIndex >= 0) {
           handleSuggestionSelect(suggestions[selectedIndex]);
         } else {
-          onSearch(value);
+          onSearch();
           setShowSuggestions(false);
         }
         break;
@@ -153,7 +154,7 @@ export function SearchSuggestions({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(value);
+    onSearch();
     setShowSuggestions(false);
   };
 

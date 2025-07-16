@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Filter, X, Search, SlidersHorizontal } from 'lucide-react';
-import { SearchFilters } from '@/shared/types';
+import { SearchFilters } from '@/types/search';
 
 interface AdvancedSearchProps {
   filters: SearchFilters;
@@ -38,11 +38,14 @@ const PET_STATUS = [
 ];
 
 const SORT_OPTIONS = [
+  { value: 'relevance', label: '相關性' },
+  { value: 'date_desc', label: '最新發布' },
+  { value: 'date_asc', label: '最早發布' },
+  { value: 'distance', label: '距離最近' },
+  { value: 'reward_desc', label: '獎金最高' },
   { value: 'createdAt', label: '發布時間' },
   { value: 'lastSeen', label: '最後見到時間' },
-  { value: 'reward', label: '懸賞金額' },
   { value: 'views', label: '瀏覽次數' },
-  { value: 'shares', label: '分享次數' },
 ];
 
 const SORT_ORDER = [
@@ -127,15 +130,11 @@ export function AdvancedSearch({
   };
 
   const getActiveFiltersCount = () => {
-    let count = 0;
-    if (filters.type) count++;
-    if (filters.status) count++;
-    if (filters.location) count++;
-    if (filters.breed) count++;
-    if (filters.radius && filters.radius !== 10) count++;
-    if (filters.sortBy && filters.sortBy !== 'createdAt') count++;
-    if (filters.sortOrder && filters.sortOrder !== 'desc') count++;
-    return count;
+    return Object.values(filters).filter(v => {
+      if (v === undefined || v === '' || v === null) return false;
+      if (typeof v === 'object' && Object.keys(v).length === 0) return false;
+      return true;
+    }).length;
   };
 
   const hasActiveFilters = getActiveFiltersCount() > 0;
@@ -292,46 +291,21 @@ export function AdvancedSearch({
         {/* 排序選項 */}
         <div className="space-y-4">
           <Label>排序方式</Label>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm">排序依據</Label>
-              <Select 
-                value={filters.sortBy || 'createdAt'} 
-                onValueChange={(value) => updateFilter('sortBy', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-sm">排序順序</Label>
-              <Select 
-                value={filters.sortOrder || 'desc'} 
-                onValueChange={(value) => updateFilter('sortOrder', value as 'asc' | 'desc')}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_ORDER.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <Select 
+            value={filters.sortBy || 'relevance'} 
+            onValueChange={(value) => updateFilter('sortBy', value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* 操作按鈕 */}
