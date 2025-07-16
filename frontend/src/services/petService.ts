@@ -5,8 +5,11 @@ import { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet'
 import { SearchFilters, AdvancedSearchResponse, SearchAnalytics, ElasticsearchHealth } from '@/types/search';
 import { errorHandler, ApiError, ApiErrorCode } from './errorHandler';
 import { authService } from './authService';
+import { searchService } from './searchService';
+import { imageService } from './imageService';
 
 // PetService 介面定義 - 提升類型安全性
+// 專注於核心寵物 CRUD 操作和用戶相關功能
 interface PetServiceMethods {
   // 基本 CRUD 操作
   getPets(filters?: SearchFilters): Promise<PetSearchResult>;
@@ -16,29 +19,25 @@ interface PetServiceMethods {
   updatePet(id: string, data: UpdatePetData): Promise<Pet>;
   deletePet(id: string): Promise<void>;
   
-  // 搜尋功能
-  searchPets(query: string, filters?: Omit<SearchFilters, 'q'>): Promise<PetSearchResult>;
-  advancedSearch(query: string, filters?: SearchFilters): Promise<AdvancedSearchResponse<Pet>>;
-  getSearchSuggestions(query: string): Promise<string[]>;
-  
   // 用戶相關
   getMyPets(): Promise<PetSearchResult>;
   favoritePet(petId: string): Promise<void>;
   unfavoritePet(petId: string): Promise<void>;
   getFavoritePets(): Promise<PetSearchResult>;
   
-  // 圖片管理
-  uploadPetImage(petId: string, file: File): Promise<string>;
-  deletePetImage(petId: string, imageUrl: string): Promise<void>;
-  
-  // 統計與分析
+  // 統計與互動
   incrementViewCount(petId: string): Promise<void>;
   incrementShareCount(petId: string): Promise<void>;
-  getSearchAnalytics(timeRange?: string): Promise<SearchAnalytics>;
-  
-  // 系統功能
   reportPet(petId: string, reason: string): Promise<void>;
+  
+  // 委託方法 - 提供統一介面但實際由其他服務處理
+  searchPets(query: string, filters?: Omit<SearchFilters, 'q'>): Promise<PetSearchResult>;
+  advancedSearch(query: string, filters?: SearchFilters): Promise<AdvancedSearchResponse<Pet>>;
+  getSearchSuggestions(query: string): Promise<string[]>;
+  getSearchAnalytics(timeRange?: string): Promise<SearchAnalytics>;
   checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }>;
+  uploadPetImage(petId: string, file: File): Promise<string>;
+  deletePetImage(petId: string, imageUrl: string): Promise<void>;
 }
 
 class PetService implements PetServiceMethods {
@@ -196,120 +195,44 @@ class PetService implements PetServiceMethods {
     });
   }
 
+  // 委託給 searchService 的搜尋方法
   async searchPets(
     query: string,
     filters: Omit<SearchFilters, 'q'> = {}
   ): Promise<PetSearchResult> {
-    try {
-      const params = new URLSearchParams();
-      params.append('q', query);
-
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-          params.append(key, value.toString());
-        }
-      });
-
-      return this.makeRequest<PetSearchResult>(
-        `/pets/search?${params.toString()}`,
-        {},
-        'searchPets'
-      );
-    } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.UNKNOWN_ERROR,
-        '搜尋寵物失敗',
-        { query, filters, originalError: error }
-      );
-    }
+    return searchService.searchPets(query, filters);
   }
 
-  // Elasticsearch 進階搜尋
   async advancedSearch(
     query: string,
     filters: SearchFilters = {}
   ): Promise<AdvancedSearchResponse<Pet>> {
-    try {
-      const searchData = {
-        q: query,
-        ...filters
-      };
-
-      return this.makeRequest('/advanced-search/pets', {
-        method: 'POST',
-        body: JSON.stringify(searchData),
-      }, 'advancedSearch');
-    } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.UNKNOWN_ERROR,
-        '進階搜尋失敗',
-        { query, filters, originalError: error }
-      );
-    }
+    return searchService.advancedSearch(query, filters);
   }
 
-  // 獲取搜尋建議
   async getSearchSuggestions(query: string): Promise<string[]> {
-    const params = new URLSearchParams();
-    params.append('q', query);
-    
-    const response = await this.makeRequest(`/advanced-search/suggestions?${params.toString()}`);
-    return response.suggestions || [];
+    return searchService.getSearchSuggestions(query);
   }
 
-  // 獲取搜尋分析數據
   async getSearchAnalytics(timeRange: string = '7d'): Promise<SearchAnalytics> {
-    const params = new URLSearchParams();
-    params.append('timeRange', timeRange);
-    
-    const response = await this.makeRequest(`/advanced-search/analytics?${params.toString()}`);
-    return response.data || response;
+    return searchService.getSearchAnalytics(timeRange);
   }
 
-  // 檢查 Elasticsearch 服務健康狀態
   async checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }> {
-    return this.makeRequest('/advanced-search/health');
+    return searchService.checkSearchHealth();
   }
 
   async getMyPets(): Promise<PetSearchResult> {
     return this.makeRequest('/pets/my');
   }
 
+  // 委託給 imageService 的圖片處理方法
   async uploadPetImage(petId: string, file: File): Promise<string> {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const token = authService.getToken();
-    const headers: HeadersInit = {};
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${this.baseUrl}/pets/${petId}/images`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        authService.removeToken();
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.imageUrl;
+    return imageService.uploadPetImage(petId, file);
   }
 
   async deletePetImage(petId: string, imageUrl: string): Promise<void> {
-    await this.makeRequest(`/pets/${petId}/images`, {
-      method: 'DELETE',
-      body: JSON.stringify({ imageUrl }),
-    });
+    return imageService.deletePetImage(petId, imageUrl);
   }
 
   async incrementViewCount(petId: string): Promise<void> {
