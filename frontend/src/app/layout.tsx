@@ -3,6 +3,7 @@ import { Inter, Noto_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/toaster';
+import DifyChatbotLoader from '@/components/DifyChatbotLoader';
 
 const inter = Inter({ subsets: ['latin'] });
 const notoSansTC = Noto_Sans({ 
@@ -81,7 +82,24 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </div>
           </div>
           <Toaster />
+          <DifyChatbotLoader />
         </Providers>
+        
+        {/* Dify 聊天機器人腳本 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.difyChatbotConfig = {
+                token: 'FKpA4O7UI8g4LQaf'
+              }
+            `
+          }}
+        />
+        <script
+          src="https://udify.app/embed.min.js"
+          id="FKpA4O7UI8g4LQaf"
+          defer
+        />
       </body>
     </html>
   );

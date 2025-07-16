@@ -60,6 +60,10 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
+          {
+            key: 'Content-Security-Policy',
+            value: "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.dify.ai udify.app *.udify.app; object-src 'none'; base-uri 'self';",
+          },
         ],
       },
     ];

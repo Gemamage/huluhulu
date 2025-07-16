@@ -4,6 +4,27 @@
 import { CreatePetData } from '@/types/pet';
 import { SearchFilters } from '@/types/search';
 
+// 驗證結果介面
+export interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
+}
+
+// 驗證錯誤介面
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+// 用戶註冊資料介面
+export interface UserRegistrationData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+  phone?: string;
+}
+
 /**
  * 驗證電子郵件格式
  */
@@ -110,6 +131,57 @@ export const validatePetData = (data: CreatePetData): { isValid: boolean; errors
     isValid: errors.length === 0,
     errors
   };
+};
+
+/**
+ * 驗證用戶註冊資料
+ */
+export const validateUserRegistration = (data: UserRegistrationData): ValidationResult => {
+  const errors: ValidationError[] = [];
+  
+  // 驗證姓名
+  if (!validateRequired(data.name)) {
+    errors.push({ field: 'name', message: '請輸入姓名' });
+  } else if (data.name.trim().length < 2) {
+    errors.push({ field: 'name', message: '姓名至少需要2個字符' });
+  }
+  
+  // 驗證電子郵件
+  if (!validateRequired(data.email)) {
+    errors.push({ field: 'email', message: '請輸入電子郵件' });
+  } else if (!validateEmail(data.email)) {
+    errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
+  }
+  
+  // 驗證密碼
+  if (!validateRequired(data.password)) {
+    errors.push({ field: 'password', message: '請輸入密碼' });
+  } else if (data.password.length < 8) {
+    errors.push({ field: 'password', message: '密碼至少需要8個字符' });
+  }
+  
+  // 驗證手機號碼（選填）
+  if (data.phone && data.phone.trim() && !validatePhone(data.phone)) {
+    errors.push({ field: 'phone', message: '請輸入有效的手機號碼' });
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * 將驗證錯誤轉換為表單錯誤格式
+ */
+export const convertValidationErrors = (errors: ValidationError[]): Record<string, string> => {
+  const formErrors: Record<string, string> = {};
+  
+  errors.forEach(error => {
+    formErrors[error.field] = error.message;
+  });
+  
+  return formErrors;
 };
 
 /**

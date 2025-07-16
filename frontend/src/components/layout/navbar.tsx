@@ -27,6 +27,8 @@ import {
   ShoppingCart,
   HelpCircle,
   Bell,
+  MessageCircle,
+  Users,
 } from 'lucide-react';
 
 export function Navbar() {
@@ -75,6 +77,12 @@ export function Navbar() {
             className="text-lg font-medium text-zinc-700 transition-colors duration-300 hover:text-amber-600"
           >
             走失尋找
+          </Link>
+          <Link
+            href="/community"
+            className="text-lg font-medium text-zinc-700 transition-colors duration-300 hover:text-amber-600"
+          >
+            社群互動
           </Link>
           <Link
             href="/about"
@@ -137,6 +145,12 @@ export function Navbar() {
                   <Link href="/pets/my" className="flex items-center">
                     <Heart className="mr-2 h-4 w-4" />
                     <span>我的協尋</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/community" className="flex items-center">
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>社群互動</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

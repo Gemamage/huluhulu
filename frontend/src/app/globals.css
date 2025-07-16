@@ -190,31 +190,33 @@
   }
 }
 
-/* Dify Chatbot Custom Styles - V2 */
+/* Dify Chatbot Custom Styles - V5 (Final) */
 
 /* 聊天氣泡按鈕 */
 #dify-chatbot-bubble-button {
   background-color: #FF8C69 !important; /* 品牌主色 */
 }
 
-/* 聊天視窗 */
-#dify-chatbot-bubble-window {
-  width: 24rem !important;
-  height: 40rem !important;
-}
-
-/* 聊天視窗頂部標題列 */
-#dify-chatbot-bubble-window div[class*="chatbot-header"] {
-    background-color: #FF8C69 !important; /* 將頂部也改為品牌主色 */
+/* 聊天視窗頂部標題列 - 使用多種可能的選擇器 */
+div[class*="header"],
+div[class*="chat-header"],
+div[class*="dify-header"],
+div[class*="title-bar"],
+div[class*="top-bar"],
+#dify-chatbot-bubble-window > div:first-child,
+#dify-chatbot-bubble-window [class*="header"],
+#dify-chatbot-bubble-window [class*="title"],
+#dify-chatbot-bubble-window [class*="top"] {
+    background-color: #FF8C69 !important;
 }
 
 /* 發送按鈕 */
 #dify-chatbot-bubble-window button[class*="chat-send-button"] {
-    background-color: #FF8C69 !important; /* 將發送按鈕也改為品牌主色 */
+    background-color: #FF8C69 !important;
 }
 
 /* AI 回應的對話框背景 */
 #dify-chatbot-bubble-window div[class*="bot-message-bubble"] {
-    background-color: #FFF0E5 !important; /* 使用品牌的輔助米白色 */
-    color: #333333 !important; /* 確保文字清晰 */
+    background-color: #FFF0E5 !important;
+    color: #333333 !important;
 }
