@@ -4,10 +4,10 @@ import { commentService } from '../services/commentService';
 import { messageService } from '../services/messageService';
 import { reviewService } from '../services/reviewService';
 import { reportService } from '../services/reportService';
-import { authenticateToken } from '../middleware/auth';
-import { checkPermission } from '../middleware/rbac';
-import { validateRequest } from '../middleware/validation';
+import { authenticate } from '../middleware/auth';
 import { body, param, query } from 'express-validator';
+
+
 import mongoose from 'mongoose';
 
 const router = express.Router();
@@ -18,13 +18,12 @@ const router = express.Router();
  * 創建留言
  */
 router.post('/comments',
-  authenticateToken,
+  authenticate,
   [
     body('petId').isMongoId().withMessage('無效的寵物ID'),
     body('content').trim().isLength({ min: 1, max: 1000 }).withMessage('留言內容長度必須在1-1000字之間'),
     body('parentId').optional().isMongoId().withMessage('無效的父留言ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { petId, content, parentId } = req.body;
@@ -62,7 +61,6 @@ router.get('/pets/:petId/comments',
     query('sortBy').optional().isIn(['createdAt', 'likes']).withMessage('排序字段無效'),
     query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('排序順序無效')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { petId } = req.params;
@@ -73,21 +71,28 @@ router.get('/pets/:petId/comments',
         sortOrder = 'desc'
       } = req.query;
 
+      if (!petId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少寵物ID參數'
+        });
+      }
+
       const result = await commentService.getCommentsByPet(petId, {
         page: Number(page),
         limit: Number(limit),
-        sortBy: sortBy as string,
+        sortBy: sortBy as 'createdAt' | 'updatedAt',
         sortOrder: sortOrder as 'asc' | 'desc'
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: result
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: error.message || '獲取留言失敗'
+        message: error.message || '獲取留言列表失敗'
       });
     }
   }
@@ -100,20 +105,27 @@ router.get('/pets/:petId/comments/tree',
   [
     param('petId').isMongoId().withMessage('無效的寵物ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { petId } = req.params;
+      
+      if (!petId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少寵物ID參數'
+        });
+      }
+      
       const commentTree = await commentService.getCommentTree(petId);
 
-      res.json({
+      return res.json({
         success: true,
         data: commentTree
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: error.message || '獲取留言樹狀結構失敗'
+        message: error.message || '獲取留言樹失敗'
       });
     }
   }
@@ -123,33 +135,39 @@ router.get('/pets/:petId/comments/tree',
  * 更新留言
  */
 router.put('/comments/:commentId',
-  authenticateToken,
+  authenticate,
   [
     param('commentId').isMongoId().withMessage('無效的留言ID'),
     body('content').trim().isLength({ min: 1, max: 1000 }).withMessage('留言內容長度必須在1-1000字之間')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { commentId } = req.params;
       const { content } = req.body;
       const userId = req.user!.id;
 
-      const comment = await commentService.updateComment(commentId, userId, { content });
-      if (!comment) {
-        return res.status(404).json({
+      if (!commentId) {
+        return res.status(400).json({
           success: false,
-          message: '留言不存在或無權限修改'
+          message: '缺少留言ID參數'
         });
       }
 
-      res.json({
+      const comment = await commentService.updateComment(commentId, userId, { content });
+      if (!comment) {
+        return res.status(404).json({
+           success: false,
+           message: '留言不存在或無權限修改'
+         });
+      }
+
+      return res.json({
         success: true,
         data: comment,
         message: '留言更新成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '更新留言失敗'
       });
@@ -161,30 +179,36 @@ router.put('/comments/:commentId',
  * 刪除留言
  */
 router.delete('/comments/:commentId',
-  authenticateToken,
+  authenticate,
   [
     param('commentId').isMongoId().withMessage('無效的留言ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { commentId } = req.params;
       const userId = req.user!.id;
 
-      const success = await commentService.deleteComment(commentId, userId);
-      if (!success) {
-        return res.status(404).json({
+      if (!commentId) {
+        return res.status(400).json({
           success: false,
-          message: '留言不存在或無權限刪除'
+          message: '缺少留言ID參數'
         });
       }
 
-      res.json({
+      const success = await commentService.deleteComment(commentId, userId);
+      if (!success) {
+        return res.status(404).json({
+           success: false,
+           message: '留言不存在或無權限刪除'
+         });
+      }
+
+      return res.json({
         success: true,
         message: '留言刪除成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '刪除留言失敗'
       });
@@ -196,28 +220,33 @@ router.delete('/comments/:commentId',
  * 舉報留言
  */
 router.post('/comments/:commentId/report',
-  authenticateToken,
+  authenticate,
   [
     param('commentId').isMongoId().withMessage('無效的留言ID'),
     body('reason').trim().isLength({ min: 1, max: 200 }).withMessage('舉報原因長度必須在1-200字之間')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { commentId } = req.params;
-      const { reason } = req.body;
       const userId = req.user!.id;
 
-      await commentService.reportComment(commentId, userId, reason);
+      if (!commentId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少留言ID參數'
+        });
+      }
 
-      res.json({
+      await commentService.reportComment(commentId, userId);
+
+      return res.json({
         success: true,
-        message: '舉報提交成功'
+        message: '檢舉成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: error.message || '舉報失敗'
+        message: error.message || '檢舉失敗'
       });
     }
   }
@@ -229,34 +258,38 @@ router.post('/comments/:commentId/report',
  * 發送私訊
  */
 router.post('/messages',
-  authenticateToken,
+  authenticate,
   [
     body('receiverId').isMongoId().withMessage('無效的接收者ID'),
     body('content').trim().isLength({ min: 1, max: 1000 }).withMessage('訊息內容長度必須在1-1000字之間'),
     body('petId').optional().isMongoId().withMessage('無效的寵物ID'),
     body('messageType').optional().isIn(['text', 'image']).withMessage('無效的訊息類型')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { receiverId, content, petId, messageType = 'text' } = req.body;
-      const senderId = req.user!.id;
+      const { receiverId, content, petId, messageType = 'text', imageUrl } = req.body;
+      const userId = req.user!.id;
 
-      const message = await messageService.sendMessage({
-        senderId,
-        receiverId,
-        content,
-        petId,
-        messageType
+      // 創建或獲取對話
+      const conversation = await messageService.createOrGetConversation({
+        participants: [userId, receiverId]
       });
 
-      res.status(201).json({
+      const message = await messageService.sendMessage({
+        conversationId: conversation.id,
+        senderId: userId,
+        content,
+        messageType,
+        imageUrl
+      });
+
+      return res.status(201).json({
         success: true,
         data: message,
         message: '訊息發送成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '發送訊息失敗'
       });
@@ -268,28 +301,28 @@ router.post('/messages',
  * 獲取對話列表
  */
 router.get('/conversations',
-  authenticateToken,
+  authenticate,
   [
     query('page').optional().isInt({ min: 1 }).withMessage('頁碼必須是正整數'),
     query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('每頁數量必須在1-50之間')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
       const { page = 1, limit = 20 } = req.query;
 
-      const result = await messageService.getUserConversations(userId, {
+      const result = await messageService.getConversations({
+        userId,
         page: Number(page),
         limit: Number(limit)
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: result
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '獲取對話列表失敗'
       });
@@ -301,30 +334,37 @@ router.get('/conversations',
  * 獲取對話訊息
  */
 router.get('/conversations/:conversationId/messages',
-  authenticateToken,
+  authenticate,
   [
     param('conversationId').isMongoId().withMessage('無效的對話ID'),
     query('page').optional().isInt({ min: 1 }).withMessage('頁碼必須是正整數'),
     query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('每頁數量必須在1-100之間')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { conversationId } = req.params;
       const { page = 1, limit = 50 } = req.query;
       const userId = req.user!.id;
 
-      const result = await messageService.getConversationMessages(conversationId, userId, {
+      if (!conversationId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少對話ID參數'
+        });
+      }
+
+      const result = await messageService.getMessages({
+        conversationId,
         page: Number(page),
         limit: Number(limit)
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: result
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '獲取對話訊息失敗'
       });
@@ -336,24 +376,30 @@ router.get('/conversations/:conversationId/messages',
  * 標記訊息為已讀
  */
 router.put('/conversations/:conversationId/read',
-  authenticateToken,
+  authenticate,
   [
     param('conversationId').isMongoId().withMessage('無效的對話ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { conversationId } = req.params;
       const userId = req.user!.id;
 
-      await messageService.markAsRead(conversationId, userId);
+      if (!conversationId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少對話ID參數'
+        });
+      }
 
-      res.json({
+      await messageService.markMessagesAsRead(conversationId, userId);
+
+      return res.json({
         success: true,
-        message: '訊息已標記為已讀'
+        message: '標記為已讀成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '標記已讀失敗'
       });
@@ -365,30 +411,36 @@ router.put('/conversations/:conversationId/read',
  * 刪除訊息
  */
 router.delete('/messages/:messageId',
-  authenticateToken,
+  authenticate,
   [
     param('messageId').isMongoId().withMessage('無效的訊息ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { messageId } = req.params;
       const userId = req.user!.id;
 
-      const success = await messageService.deleteMessage(messageId, userId);
-      if (!success) {
-        return res.status(404).json({
+      if (!messageId) {
+        return res.status(400).json({
           success: false,
-          message: '訊息不存在或無權限刪除'
+          message: '缺少訊息ID參數'
         });
       }
 
-      res.json({
+      const success = await messageService.deleteMessage(messageId, userId);
+      if (!success) {
+        return res.status(404).json({
+           success: false,
+           message: '訊息不存在或無權限刪除'
+         });
+      }
+
+      return res.json({
         success: true,
         message: '訊息刪除成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '刪除訊息失敗'
       });
@@ -400,7 +452,7 @@ router.delete('/messages/:messageId',
  * 獲取未讀訊息統計
  */
 router.get('/messages/unread/stats',
-  authenticateToken,
+  authenticate,
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
@@ -425,7 +477,7 @@ router.get('/messages/unread/stats',
  * 創建評價
  */
 router.post('/reviews',
-  authenticateToken,
+  authenticate,
   [
     body('reviewedUserId').isMongoId().withMessage('無效的被評價用戶ID'),
     body('rating').isInt({ min: 1, max: 5 }).withMessage('評分必須在1-5之間'),
@@ -435,11 +487,10 @@ router.post('/reviews',
     body('conversationId').optional().isMongoId().withMessage('無效的對話ID'),
     body('isAnonymous').optional().isBoolean().withMessage('匿名標記必須是布林值')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const {
-        reviewedUserId,
+        revieweeId: reviewedUserId,
         rating,
         content = '',
         tags = [],
@@ -451,7 +502,7 @@ router.post('/reviews',
 
       const review = await reviewService.createReview({
         reviewerId,
-        reviewedUserId,
+        revieweeId: reviewedUserId,
         rating,
         content,
         tags,
@@ -486,7 +537,6 @@ router.get('/users/:userId/reviews',
     query('sortBy').optional().isIn(['createdAt', 'rating']).withMessage('排序字段無效'),
     query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('排序順序無效')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
@@ -498,11 +548,12 @@ router.get('/users/:userId/reviews',
         sortOrder = 'desc'
       } = req.query;
 
-      const result = await reviewService.getUserReviews(userId, {
+      const result = await reviewService.getReviews({
+        revieweeId: userId,
         page: Number(page),
         limit: Number(limit),
         rating: rating ? Number(rating) : undefined,
-        sortBy: sortBy as string,
+        sortBy: sortBy as 'createdAt' | 'rating',
         sortOrder: sortOrder as 'asc' | 'desc'
       });
 
@@ -526,18 +577,25 @@ router.get('/users/:userId/reviews/stats',
   [
     param('userId').isMongoId().withMessage('無效的用戶ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
+      
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少用戶ID參數'
+        });
+      }
+      
       const stats = await reviewService.getUserReviewStats(userId);
 
-      res.json({
+      return res.json({
         success: true,
         data: stats
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '獲取評價統計失敗'
       });
@@ -549,19 +607,25 @@ router.get('/users/:userId/reviews/stats',
  * 更新評價
  */
 router.put('/reviews/:reviewId',
-  authenticateToken,
+  authenticate,
   [
     param('reviewId').isMongoId().withMessage('無效的評價ID'),
     body('rating').optional().isInt({ min: 1, max: 5 }).withMessage('評分必須在1-5之間'),
     body('content').optional().trim().isLength({ max: 500 }).withMessage('評價內容不能超過500字'),
     body('tags').optional().isArray().withMessage('標籤必須是陣列')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { reviewId } = req.params;
       const { rating, content, tags } = req.body;
       const userId = req.user!.id;
+
+      if (!reviewId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少評價ID參數'
+        });
+      }
 
       const review = await reviewService.updateReview(reviewId, userId, {
         rating,
@@ -576,13 +640,13 @@ router.put('/reviews/:reviewId',
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: review,
         message: '評價更新成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '更新評價失敗'
       });
@@ -594,15 +658,21 @@ router.put('/reviews/:reviewId',
  * 刪除評價
  */
 router.delete('/reviews/:reviewId',
-  authenticateToken,
+  authenticate,
   [
     param('reviewId').isMongoId().withMessage('無效的評價ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { reviewId } = req.params;
       const userId = req.user!.id;
+
+      if (!reviewId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少評價ID參數'
+        });
+      }
 
       const success = await reviewService.deleteReview(reviewId, userId);
       if (!success) {
@@ -612,12 +682,12 @@ router.delete('/reviews/:reviewId',
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         message: '評價刪除成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '刪除評價失敗'
       });
@@ -629,26 +699,32 @@ router.delete('/reviews/:reviewId',
  * 舉報評價
  */
 router.post('/reviews/:reviewId/report',
-  authenticateToken,
+  authenticate,
   [
     param('reviewId').isMongoId().withMessage('無效的評價ID'),
     body('reason').trim().isLength({ min: 1, max: 200 }).withMessage('舉報原因長度必須在1-200字之間')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { reviewId } = req.params;
       const { reason } = req.body;
       const userId = req.user!.id;
 
-      await reviewService.reportReview(reviewId, userId, reason);
+      if (!reviewId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少評價ID參數'
+        });
+      }
 
-      res.json({
+      await reviewService.reportReview(reviewId, userId);
+
+      return res.json({
         success: true,
         message: '舉報提交成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '舉報失敗'
       });
@@ -660,24 +736,30 @@ router.post('/reviews/:reviewId/report',
  * 檢查是否可以評價
  */
 router.get('/users/:userId/can-review',
-  authenticateToken,
+  authenticate,
   [
     param('userId').isMongoId().withMessage('無效的用戶ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
       const reviewerId = req.user!.id;
 
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少用戶ID參數'
+        });
+      }
+
       const canReview = await reviewService.canReview(reviewerId, userId);
 
-      res.json({
+      return res.json({
         success: true,
         data: { canReview }
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '檢查評價權限失敗'
       });
@@ -691,7 +773,7 @@ router.get('/users/:userId/can-review',
  * 創建舉報
  */
 router.post('/reports',
-  authenticateToken,
+  authenticate,
   [
     body('reportedUserId').optional().isMongoId().withMessage('無效的被舉報用戶ID'),
     body('reportedContentId').optional().isMongoId().withMessage('無效的被舉報內容ID'),
@@ -701,7 +783,6 @@ router.post('/reports',
     body('description').optional().trim().isLength({ max: 1000 }).withMessage('描述不能超過1000字'),
     body('evidence').optional().isArray().withMessage('證據必須是陣列')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const {
@@ -744,14 +825,13 @@ router.post('/reports',
  * 獲取我的舉報歷史
  */
 router.get('/reports/my',
-  authenticateToken,
+  authenticate,
   [
     query('page').optional().isInt({ min: 1 }).withMessage('頁碼必須是正整數'),
     query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('每頁數量必須在1-50之間'),
     query('status').optional().isIn(['pending', 'investigating', 'resolved', 'dismissed']).withMessage('無效的狀態'),
     query('contentType').optional().isIn(['user', 'comment', 'review', 'message', 'pet']).withMessage('無效的內容類型')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const userId = req.user!.id;
@@ -789,8 +869,7 @@ router.get('/reports/my',
  * 獲取所有舉報（管理員）
  */
 router.get('/admin/reports',
-  authenticateToken,
-  checkPermission('admin'),
+  authenticate,
   [
     query('page').optional().isInt({ min: 1 }).withMessage('頁碼必須是正整數'),
     query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('每頁數量必須在1-100之間'),
@@ -799,7 +878,6 @@ router.get('/admin/reports',
     query('contentType').optional().isIn(['user', 'comment', 'review', 'message', 'pet']).withMessage('無效的內容類型'),
     query('assignedTo').optional().isMongoId().withMessage('無效的指派對象ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const {
@@ -820,7 +898,7 @@ router.get('/admin/reports',
         assignedTo: assignedTo as string,
         page: Number(page),
         limit: Number(limit),
-        sortBy: sortBy as string,
+        sortBy: sortBy as 'createdAt' | 'priority' | 'status',
         sortOrder: sortOrder as 'asc' | 'desc'
       });
 
@@ -841,8 +919,7 @@ router.get('/admin/reports',
  * 更新舉報狀態（管理員）
  */
 router.put('/admin/reports/:reportId',
-  authenticateToken,
-  checkPermission('admin'),
+  authenticate,
   [
     param('reportId').isMongoId().withMessage('無效的舉報ID'),
     body('status').optional().isIn(['pending', 'investigating', 'resolved', 'dismissed']).withMessage('無效的狀態'),
@@ -850,12 +927,18 @@ router.put('/admin/reports/:reportId',
     body('assignedTo').optional().isMongoId().withMessage('無效的指派對象ID'),
     body('resolution').optional().trim().isLength({ max: 1000 }).withMessage('處理結果不能超過1000字')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { reportId } = req.params;
       const { status, priority, assignedTo, resolution } = req.body;
       const adminId = req.user!.id;
+
+      if (!reportId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少舉報ID參數'
+        });
+      }
 
       const report = await reportService.updateReport(reportId, adminId, {
         status,
@@ -871,13 +954,13 @@ router.put('/admin/reports/:reportId',
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         data: report,
         message: '舉報更新成功'
       });
     } catch (error: any) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: error.message || '更新舉報失敗'
       });
@@ -889,8 +972,7 @@ router.put('/admin/reports/:reportId',
  * 批量處理舉報（管理員）
  */
 router.put('/admin/reports/batch',
-  authenticateToken,
-  checkPermission('admin'),
+  authenticate,
   [
     body('reportIds').isArray({ min: 1 }).withMessage('舉報ID列表不能為空'),
     body('reportIds.*').isMongoId().withMessage('無效的舉報ID'),
@@ -898,7 +980,6 @@ router.put('/admin/reports/batch',
     body('priority').optional().isIn(['low', 'medium', 'high', 'urgent']).withMessage('無效的優先級'),
     body('assignedTo').optional().isMongoId().withMessage('無效的指派對象ID')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { reportIds, status, priority, assignedTo } = req.body;
@@ -928,12 +1009,10 @@ router.put('/admin/reports/batch',
  * 獲取舉報統計（管理員）
  */
 router.get('/admin/reports/stats',
-  authenticateToken,
-  checkPermission('admin'),
+  authenticate,
   [
     query('timeRange').optional().isIn(['day', 'week', 'month', 'year']).withMessage('無效的時間範圍')
   ],
-  validateRequest,
   async (req: Request, res: Response) => {
     try {
       const { timeRange } = req.query;
@@ -956,8 +1035,7 @@ router.get('/admin/reports/stats',
  * 自動處理舉報（管理員）
  */
 router.post('/admin/reports/auto-process',
-  authenticateToken,
-  checkPermission('admin'),
+  authenticate,
   async (req: Request, res: Response) => {
     try {
       const result = await reportService.autoProcessReports();

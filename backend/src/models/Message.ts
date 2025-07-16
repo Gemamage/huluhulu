@@ -94,8 +94,8 @@ const messageSchema = new Schema<IMessage>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -134,8 +134,8 @@ const conversationSchema = new Schema<IConversation>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -151,13 +151,7 @@ conversationSchema.index({ petId: 1, isActive: 1 });
 // 確保參與者數組唯一性
 conversationSchema.index({ participants: 1 }, { unique: true });
 
-// 軟刪除中介軟體
-messageSchema.pre(/^find/, function(next) {
-  if (!this.getQuery().includeDeleted) {
-    this.find({ isDeleted: false });
-  }
-  next();
-});
+// 注意：查詢時需要手動添加 { isDeleted: false } 條件
 
 export const Message = mongoose.model<IMessage>('Message', messageSchema);
 export const Conversation = mongoose.model<IConversation>('Conversation', conversationSchema);

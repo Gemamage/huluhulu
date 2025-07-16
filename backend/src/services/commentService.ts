@@ -3,6 +3,7 @@ import { Comment, IComment } from '../models/Comment';
 import { Pet } from '../models/Pet';
 import { User } from '../models/User';
 import { NotificationService } from './notificationService';
+import { NotificationType } from '../models/Notification';
 
 export interface CreateCommentData {
   petId: string;
@@ -75,7 +76,11 @@ export class CommentService {
     // 發送通知
     await this.sendCommentNotification(comment, pet);
 
-    return await this.getCommentById(comment._id.toString());
+    const createdComment = await this.getCommentById(comment._id.toString());
+    if (!createdComment) {
+      throw new Error('創建留言後無法獲取留言詳情');
+    }
+    return createdComment;
   }
 
   /**
@@ -90,6 +95,31 @@ export class CommentService {
       .populate('userId', 'username avatar email')
       .populate('petId', 'name images')
       .lean();
+  }
+
+  /**
+   * 獲取特定寵物的留言列表
+   */
+  async getCommentsByPet(petId: string, options: {
+    page?: number;
+    limit?: number;
+    sortBy?: 'createdAt' | 'updatedAt';
+    sortOrder?: 'asc' | 'desc';
+  } = {}): Promise<{
+    comments: IComment[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const { page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = options;
+    
+    return await this.getComments({
+      petId,
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    });
   }
 
   /**
@@ -353,9 +383,9 @@ export class CommentService {
     try {
       // 通知寵物主人
       if (pet.userId.toString() !== comment.userId.toString()) {
-        await this.notificationService.createNotification({
+        await NotificationService.sendNotification({
           userId: pet.userId.toString(),
-          type: 'comment',
+          type: NotificationType.COMMENT,
           title: '新留言通知',
           message: `有人在您的寵物「${pet.name}」頁面留言了`,
           data: {
@@ -370,9 +400,9 @@ export class CommentService {
       if (comment.parentId) {
         const parentComment = await Comment.findById(comment.parentId);
         if (parentComment && parentComment.userId.toString() !== comment.userId.toString()) {
-          await this.notificationService.createNotification({
+          await NotificationService.sendNotification({
             userId: parentComment.userId.toString(),
-            type: 'reply',
+            type: NotificationType.REPLY,
             title: '留言回覆通知',
             message: `有人回覆了您的留言`,
             data: {

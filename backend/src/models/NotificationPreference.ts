@@ -76,6 +76,36 @@ const defaultPreferences = {
     email: false,
     inApp: true,
   },
+  [NotificationType.MESSAGE]: {
+    push: true,
+    email: false,
+    inApp: true,
+  },
+  [NotificationType.COMMENT]: {
+    push: true,
+    email: false,
+    inApp: true,
+  },
+  [NotificationType.REPLY]: {
+    push: true,
+    email: false,
+    inApp: true,
+  },
+  [NotificationType.REVIEW]: {
+    push: true,
+    email: false,
+    inApp: true,
+  },
+  [NotificationType.REPORT]: {
+    push: false,
+    email: true,
+    inApp: true,
+  },
+  [NotificationType.REPORT_RESOLVED]: {
+    push: true,
+    email: false,
+    inApp: true,
+  },
   [NotificationType.SYSTEM_UPDATE]: {
     push: false,
     email: false,

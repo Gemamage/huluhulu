@@ -3,6 +3,7 @@ import { Message, Conversation, IMessage, IConversation } from '../models/Messag
 import { User } from '../models/User';
 import { Pet } from '../models/Pet';
 import { NotificationService } from './notificationService';
+import { NotificationType } from '../models/Notification';
 import { SocketService } from './socketService';
 
 export interface CreateConversationData {
@@ -436,16 +437,16 @@ export class MessageService {
    */
   private async sendMessageNotification(message: IMessage): Promise<void> {
     try {
-      const sender = await User.findById(message.senderId).select('username');
-      const receiver = await User.findById(message.receiverId).select('username');
+      const sender = await User.findById(message.senderId).lean();
+      const receiver = await User.findById(message.receiverId).lean();
       
       if (!sender || !receiver) return;
 
       // 發送推播通知
-      await this.notificationService.createNotification({
+      await NotificationService.sendNotification({
         userId: message.receiverId.toString(),
-        type: 'message',
-        title: `來自 ${sender.username} 的訊息`,
+        type: NotificationType.MESSAGE,
+        title: `來自 ${(sender as any)?.username || '用戶'} 的訊息`,
         message: message.messageType === 'text' 
           ? message.content.substring(0, 50) + (message.content.length > 50 ? '...' : '')
           : '發送了一張圖片',
@@ -456,13 +457,15 @@ export class MessageService {
         }
       });
 
-      // 發送即時 Socket 通知
-      this.socketService.sendToUser(message.receiverId.toString(), 'new_message', {
-        message: {
-          ...message.toObject(),
-          sender: { username: sender.username }
-        }
-      });
+      // 發送即時 Socket 通知（如果 SocketService 有 sendToUser 方法）
+      if (typeof (this.socketService as any).sendToUser === 'function') {
+        (this.socketService as any).sendToUser(message.receiverId.toString(), 'new_message', {
+          message: {
+            ...message.toObject(),
+            sender: { username: (sender as any)?.username || '用戶' }
+          }
+        });
+      }
 
     } catch (error) {
       console.error('發送訊息通知失敗:', error);

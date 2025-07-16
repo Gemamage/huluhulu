@@ -151,8 +151,8 @@ const reportSchema = new Schema<IReport>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -213,8 +213,8 @@ const reportStatsSchema = new Schema<IReportStats>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -240,13 +240,7 @@ reportSchema.index({
   }
 });
 
-// 軟刪除中介軟體
-reportSchema.pre(/^find/, function(next) {
-  if (!this.getQuery().includeDeleted) {
-    this.find({ isDeleted: false });
-  }
-  next();
-});
+// 注意：查詢時需要手動添加 { isDeleted: false } 條件
 
 // 自動設置優先級的中介軟體
 reportSchema.pre('save', function(next) {

@@ -6,6 +6,7 @@ import { Review } from '../models/Review';
 import { Message } from '../models/Message';
 import { Pet } from '../models/Pet';
 import { NotificationService } from './notificationService';
+import { NotificationType } from '../models/Notification';
 
 export interface CreateReportData {
   reporterId: string;
@@ -113,13 +114,17 @@ export class ReportService {
 
     await report.save();
 
-    // 發送通知給管理員
+    // 通知管理員
     await this.notifyAdmins(report);
 
     // 更新統計
     await this.updateReportStats(report);
 
-    return await this.getReportById(report._id.toString());
+    const createdReport = await this.getReportById(report._id.toString());
+    if (!createdReport) {
+      throw new Error('創建舉報後無法獲取舉報詳情');
+    }
+    return createdReport;
   }
 
   /**
@@ -476,9 +481,9 @@ export class ReportService {
       const admins = await User.find({ role: 'admin' }).select('_id');
       
       for (const admin of admins) {
-        await this.notificationService.createNotification({
+        await NotificationService.sendNotification({
           userId: admin._id.toString(),
-          type: 'report',
+          type: NotificationType.REPORT,
           title: '新舉報通知',
           message: `收到新的${report.contentType}舉報：${report.reportType}`,
           data: {
@@ -499,9 +504,9 @@ export class ReportService {
    */
   private async notifyReporter(report: IReport): Promise<void> {
     try {
-      await this.notificationService.createNotification({
+      await NotificationService.sendNotification({
         userId: report.reporterId.toString(),
-        type: 'report_resolved',
+        type: NotificationType.REPORT_RESOLVED,
         title: '舉報處理完成',
         message: `您的舉報已處理完成`,
         data: {

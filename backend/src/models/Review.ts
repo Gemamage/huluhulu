@@ -119,8 +119,8 @@ const reviewSchema = new Schema<IReview>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -174,8 +174,8 @@ const reviewStatsSchema = new Schema<IReviewStats>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -188,13 +188,7 @@ reviewSchema.index({ petId: 1, createdAt: -1 });
 reviewSchema.index({ rating: 1, createdAt: -1 });
 reviewSchema.index({ isDeleted: 1, isHidden: 1 });
 
-// 軟刪除中介軟體
-reviewSchema.pre(/^find/, function(next) {
-  if (!this.getQuery().includeDeleted) {
-    this.find({ isDeleted: false, isHidden: false });
-  }
-  next();
-});
+// 注意：查詢時需要手動添加 { isDeleted: false, isHidden: false } 條件
 
 // 評價後更新統計的中介軟體
 reviewSchema.post('save', async function() {

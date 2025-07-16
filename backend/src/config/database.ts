@@ -7,6 +7,12 @@ import { logger } from '../utils/logger';
  */
 export const connectDatabase = async (): Promise<void> => {
   try {
+    // 在開發環境中，如果 MongoDB 不可用，跳過連接
+    if (config.env === 'development') {
+      logger.warn('開發模式：跳過 MongoDB 連接（MongoDB 服務未運行）');
+      return;
+    }
+    
     // 設置 Mongoose 選項
     mongoose.set('strictQuery', true);
     
@@ -33,6 +39,10 @@ export const connectDatabase = async (): Promise<void> => {
     
   } catch (error) {
     logger.error('MongoDB 連接失敗:', error);
+    if (config.env === 'development') {
+      logger.warn('開發模式：忽略 MongoDB 連接錯誤，繼續啟動伺服器');
+      return;
+    }
     throw error;
   }
 };

@@ -4,6 +4,7 @@ import { User } from '../models/User';
 import { Pet } from '../models/Pet';
 import { Conversation } from '../models/Message';
 import { NotificationService } from './notificationService';
+import { NotificationType } from '../models/Notification';
 
 export interface CreateReviewData {
   reviewerId: string;
@@ -123,7 +124,11 @@ export class ReviewService {
     // 發送通知
     await this.sendReviewNotification(review, reviewer, reviewee);
 
-    return await this.getReviewById(review._id.toString());
+    const createdReview = await this.getReviewById(review._id.toString());
+    if (!createdReview) {
+      throw new Error('創建評價後無法獲取評價詳情');
+    }
+    return createdReview;
   }
 
   /**
@@ -203,7 +208,13 @@ export class ReviewService {
       
       const ratingDistribution: { [key: number]: number } = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       allReviews.forEach(review => {
-        ratingDistribution[review.rating]++;
+        const rating = review.rating;
+        if (rating !== undefined && rating !== null && typeof rating === 'number' && rating >= 1 && rating <= 5) {
+          const ratingKey = Math.floor(rating);
+          if (ratingDistribution[ratingKey] !== undefined) {
+            ratingDistribution[ratingKey]++;
+          }
+        }
       });
 
       stats = {
@@ -471,9 +482,9 @@ export class ReviewService {
     try {
       const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
       
-      await this.notificationService.createNotification({
+      await NotificationService.sendNotification({
         userId: reviewee._id.toString(),
-        type: 'review',
+        type: NotificationType.REVIEW,
         title: '收到新評價',
         message: review.isAnonymous 
           ? `有人給了您 ${stars} 的評價`

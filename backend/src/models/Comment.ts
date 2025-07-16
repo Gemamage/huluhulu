@@ -72,8 +72,8 @@ const commentSchema = new Schema<IComment>({
   toJSON: {
     transform: function(doc, ret) {
       ret.id = ret._id;
-      delete ret._id;
-      delete ret.__v;
+      delete (ret as any)._id;
+      delete (ret as any).__v;
       return ret;
     },
   },
@@ -85,13 +85,6 @@ commentSchema.index({ userId: 1, createdAt: -1 });
 commentSchema.index({ parentId: 1, createdAt: 1 });
 commentSchema.index({ isDeleted: 1, isHidden: 1 });
 
-// 軟刪除中介軟體
-commentSchema.pre(/^find/, function(next) {
-  // 預設不顯示已刪除和被隱藏的留言
-  if (!this.getQuery().includeDeleted) {
-    this.find({ isDeleted: false, isHidden: false });
-  }
-  next();
-});
+// 注意：查詢時需要手動添加 { isDeleted: false, isHidden: false } 條件
 
 export const Comment = mongoose.model<IComment>('Comment', commentSchema);

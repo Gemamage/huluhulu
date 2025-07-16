@@ -8,6 +8,12 @@ export enum NotificationType {
   PET_MISSING = 'pet_missing',       // 新的走失寵物
   MATCH_FOUND = 'match_found',       // 找到可能的匹配
   MESSAGE_RECEIVED = 'message_received', // 收到訊息
+  MESSAGE = 'message',               // 訊息通知
+  COMMENT = 'comment',               // 評論通知
+  REPLY = 'reply',                   // 回覆通知
+  REVIEW = 'review',                 // 評價通知
+  REPORT = 'report',                 // 舉報通知
+  REPORT_RESOLVED = 'report_resolved', // 舉報處理完成
   SYSTEM_UPDATE = 'system_update',   // 系統更新
   ACCOUNT_SECURITY = 'account_security', // 帳號安全
 }
@@ -185,7 +191,6 @@ const notificationSchema = new Schema<INotification>(
     },
     expiresAt: {
       type: Date,
-      index: true,
     },
   },
   {
