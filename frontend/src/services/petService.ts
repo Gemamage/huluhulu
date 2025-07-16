@@ -5,7 +5,42 @@ import { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet'
 import { SearchFilters, AdvancedSearchResponse, SearchAnalytics, ElasticsearchHealth } from '@/types/search';
 import { authService } from './authService';
 
-class PetService {
+// PetService 介面定義 - 提升類型安全性
+interface PetServiceMethods {
+  // 基本 CRUD 操作
+  getPets(filters?: SearchFilters): Promise<PetSearchResult>;
+  getAllPets(filters?: SearchFilters): Promise<PetSearchResult>;
+  getPetById(id: string): Promise<Pet>;
+  createPet(data: CreatePetData): Promise<Pet>;
+  updatePet(id: string, data: UpdatePetData): Promise<Pet>;
+  deletePet(id: string): Promise<void>;
+  
+  // 搜尋功能
+  searchPets(query: string, filters?: Omit<SearchFilters, 'q'>): Promise<PetSearchResult>;
+  advancedSearch(query: string, filters?: SearchFilters): Promise<AdvancedSearchResponse<Pet>>;
+  getSearchSuggestions(query: string): Promise<string[]>;
+  
+  // 用戶相關
+  getMyPets(): Promise<PetSearchResult>;
+  favoritePet(petId: string): Promise<void>;
+  unfavoritePet(petId: string): Promise<void>;
+  getFavoritePets(): Promise<PetSearchResult>;
+  
+  // 圖片管理
+  uploadPetImage(petId: string, file: File): Promise<string>;
+  deletePetImage(petId: string, imageUrl: string): Promise<void>;
+  
+  // 統計與分析
+  incrementViewCount(petId: string): Promise<void>;
+  incrementShareCount(petId: string): Promise<void>;
+  getSearchAnalytics(timeRange?: string): Promise<SearchAnalytics>;
+  
+  // 系統功能
+  reportPet(petId: string, reason: string): Promise<void>;
+  checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }>;
+}
+
+class PetService implements PetServiceMethods {
   private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
   private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
