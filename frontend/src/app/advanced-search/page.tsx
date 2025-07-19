@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -31,16 +31,17 @@ interface SearchState {
 }
 
 export default function AdvancedSearchPage() {
+  const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   
   const [state, setState] = useState<SearchState>({
-    query: searchParams.get('q') || '',
+    query: searchParams?.get('q') || '',
     filters: {
-      type: searchParams.get('type') || undefined,
-      status: searchParams.get('status') || undefined,
-      breed: searchParams.get('breed') || undefined,
-      location: searchParams.get('location') || undefined,
+      ...(searchParams?.get('type') && { type: searchParams.get('type')! }),
+      ...(searchParams?.get('status') && { status: searchParams.get('status')! }),
+      ...(searchParams?.get('breed') && { breed: searchParams.get('breed')! }),
+      ...(searchParams?.get('location') && { location: searchParams.get('location')! }),
     },
     results: [],
     total: 0,
@@ -81,7 +82,7 @@ export default function AdvancedSearchPage() {
       setState(prev => ({ 
         ...prev, 
         health: healthData.data.elasticsearch,
-        isMockService: healthData.data.elasticsearch.mock || false
+        isMockService: false
       }));
     } catch (error) {
       console.error('健康檢查失敗:', error);
@@ -92,9 +93,14 @@ export default function AdvancedSearchPage() {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
+      const searchParams = {
+        ...state.filters,
+        page: state.page,
+        limit: 12
+      };
       const response: AdvancedSearchResponse<Pet> = await petService.advancedSearch(
         state.query,
-        { ...state.filters, page: state.page, limit: 12 }
+        searchParams
       );
       
       setState(prev => ({
@@ -183,10 +189,10 @@ export default function AdvancedSearchPage() {
         {state.health && (
           <div className="flex items-center gap-2 mb-4">
             <Badge 
-              variant={state.health.connected ? 'default' : 'destructive'}
+              variant={state.health.status === 'green' ? 'default' : 'destructive'}
               className="flex items-center gap-1"
             >
-              {state.health.connected ? (
+              {state.health.status === 'green' ? (
                 <>
                   <Zap className="h-3 w-3" />
                   {state.isMockService ? '模擬服務' : 'Elasticsearch'} 運行中
@@ -293,7 +299,7 @@ export default function AdvancedSearchPage() {
                 )}
               </div>
               
-              <Separator className="mt-4" />
+              <Separator />
             </div>
           )}
 
@@ -311,7 +317,7 @@ export default function AdvancedSearchPage() {
           {!state.loading && state.results.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {state.results.map((pet) => (
-                <PetCard key={pet._id} pet={pet} />
+                <PetCard key={pet._id} pet={pet} currentUserId={user?.id} />
               ))}
             </div>
           )}

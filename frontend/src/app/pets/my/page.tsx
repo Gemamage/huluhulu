@@ -131,21 +131,21 @@ function PetCard({ pet, onEdit, onDelete }: {
             className="flex-1"
             asChild
           >
-            <Link href={`/pets/${pet.id}`}>
+            <Link href={`/pets/${pet._id}`}>
               查看詳情
             </Link>
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onEdit(pet.id)}
+            onClick={() => onEdit(pet._id)}
           >
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onDelete(pet.id)}
+            onClick={() => onDelete(pet._id)}
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />
@@ -223,7 +223,7 @@ export default function MyPetsPage() {
     try {
       setDeleting(id);
       await petService.deletePet(id);
-      setPets(pets.filter(pet => pet.id !== id));
+      setPets(pets.filter(pet => pet._id !== id));
       toast({
         title: '成功',
         description: '協尋案例已刪除',
@@ -286,7 +286,7 @@ export default function MyPetsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pets.map((pet) => (
             <PetCard
-              key={pet.id}
+              key={pet._id}
               pet={pet}
               onEdit={handleEdit}
               onDelete={handleDelete}

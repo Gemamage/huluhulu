@@ -20,7 +20,7 @@ import {
   Award
 } from 'lucide-react';
 import { CommentSection } from '@/components/community/CommentSection';
-import { MessageCenter } from '@/components/community/MessageCenter';
+import MessageCenter from '@/components/community/MessageCenter';
 import ReviewSection from '@/components/community/ReviewSection';
 import ReportCenter from '@/components/community/ReportCenter';
 

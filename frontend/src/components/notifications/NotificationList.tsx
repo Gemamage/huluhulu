@@ -1,3 +1,4 @@
+'use client';
 // 通知列表組件
 import React from 'react';
 import { Bell, Check, CheckCheck, Trash2, Settings } from 'lucide-react';

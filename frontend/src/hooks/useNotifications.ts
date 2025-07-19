@@ -1,3 +1,4 @@
+'use client';
 // 通知相關的 React Hook
 import { useState, useEffect, useCallback } from 'react';
 import { 

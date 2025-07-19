@@ -1,3 +1,4 @@
+'use client';
 // 通知彈出組件
 import React, { useState } from 'react';
 import { Bell, Settings } from 'lucide-react';

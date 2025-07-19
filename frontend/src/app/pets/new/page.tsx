@@ -60,7 +60,7 @@ export default function NewPetPage() {
         });
         
         // 跳轉到新建立的寵物詳情頁面
-        router.push(`/pets/${response.data.pet.id}`);
+        router.push(`/pets/${response.data.pet._id}`);
       }
     } catch (error) {
       console.error('發布拾獲通報失敗:', error);

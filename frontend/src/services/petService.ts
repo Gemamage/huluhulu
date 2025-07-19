@@ -272,3 +272,4 @@ class PetService implements PetServiceMethods {
 }
 
 export const petService = new PetService();
+export { PetService };

@@ -10,6 +10,7 @@ const nextConfig = {
       'amazonaws.com'
     ],
     formats: ['image/webp', 'image/avif'],
+    unoptimized: false, // Netlify 支援圖片優化
   },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY || 'default-value',
@@ -20,18 +21,19 @@ const nextConfig = {
   swcMinify: true,
   // 編譯時的 ESLint 檢查
   eslint: {
-    dirs: ['src'],
+    ignoreDuringBuilds: false,
   },
   // TypeScript 錯誤處理
   typescript: {
     ignoreBuildErrors: false,
   },
-  // 輸出設定
-  output: 'standalone',
+  // Netlify 支援 SSR，不需要靜態導出
+  trailingSlash: false,
   // 壓縮設定
   compress: true,
   // 效能優化
   poweredByHeader: false,
+  generateEtags: false,
   // 重定向設定
   async redirects() {
     return [

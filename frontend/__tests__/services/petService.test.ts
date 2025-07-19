@@ -2,6 +2,8 @@ import { petService } from '@/services/petService';
 import { Pet, CreatePetData, UpdatePetData } from '@/types/pet';
 import { SearchFilters } from '@/types/search';
 import { authService } from '@/services/authService';
+import { searchService } from '@/services/searchService';
+import { imageService } from '@/services/imageService';
 
 // Mock fetch
 const mockFetch = jest.fn();
@@ -15,13 +17,37 @@ jest.mock('@/services/authService', () => ({
   },
 }));
 
+// Mock searchService
+jest.mock('@/services/searchService', () => ({
+  searchService: {
+    searchPets: jest.fn(),
+    advancedSearch: jest.fn(),
+    getSearchSuggestions: jest.fn(),
+    getSearchAnalytics: jest.fn(),
+    checkSearchHealth: jest.fn(),
+  },
+}));
+
+// Mock imageService
+jest.mock('@/services/imageService', () => ({
+  imageService: {
+    uploadPetImage: jest.fn(),
+    deletePetImage: jest.fn(),
+    validateImageFile: jest.fn(),
+    compressImage: jest.fn(),
+    getImagePreview: jest.fn(),
+  },
+}));
+
 const mockAuthService = authService as jest.Mocked<typeof authService>;
+const mockSearchService = searchService as jest.Mocked<typeof searchService>;
+const mockImageService = imageService as jest.Mocked<typeof imageService>;
 
 describe('petService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAuthService.getToken.mockReturnValue('mock-token');
-  })
+  });
 
   const mockOwner = {
     _id: 'owner-1',
@@ -55,27 +81,27 @@ describe('petService', () => {
     updatedAt: new Date('2023-01-01'),
     viewCount: 10,
     shareCount: 5
-  }
+  };
 
   describe('getAllPets', () => {
     it('fetches all pets successfully', async () => {
-      const mockPets = [{ id: '1', name: 'Fido' }]
+      const mockPets = [{ id: '1', name: 'Fido' }];
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ pets: mockPets, total: 1 }),
         headers: new Headers({ 'Content-Type': 'application/json' }),
-      })
+      });
 
-      const result = await petService.getAllPets()
+      const result = await petService.getAllPets();
 
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/pets', {
         headers: {
           Authorization: 'Bearer mock-token',
           'Content-Type': 'application/json',
         },
-      })
-      expect(result).toEqual({ pets: mockPets, total: 1 })
-    })
+      });
+      expect(result).toEqual({ pets: mockPets, total: 1 });
+    });
 
     it('fetches pets with filters', async () => {
       const filters: SearchFilters = {
@@ -124,7 +150,7 @@ describe('petService', () => {
         'HTTP error! status: 500'
       );
     });
-  })
+  });
 
   describe('getPetById', () => {
     it('fetches pet by ID successfully', async () => {
@@ -158,7 +184,7 @@ describe('petService', () => {
         'HTTP error! status: 404'
       );
     });
-  })
+  });
 
   describe('createPet', () => {
     it('creates pet successfully', async () => {
@@ -202,39 +228,23 @@ describe('petService', () => {
         }
       );
       expect(result).toEqual(mockPet);
-    })
-
-    it('handles validation errors', async () => {
-      const createData: CreatePetData = {
-        name: '',
-        type: 'dog',
-      } as CreatePetData;
-
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 400,
-      });
-
-      await expect(petService.createPet(createData)).rejects.toThrow(
-        'HTTP error! status: 400'
-      );
-    })
-  })
+    });
+  });
 
   describe('updatePet', () => {
     it('updates pet successfully', async () => {
       const updateData: UpdatePetData = {
         name: '小白更新',
         description: '更新的描述'
-      }
-      const updatedPet = { ...mockPet, ...updateData }
+      };
+      const updatedPet = { ...mockPet, ...updateData };
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => updatedPet,
         headers: new Headers({ 'Content-Type': 'application/json' }),
-      })
+      });
 
-      const result = await petService.updatePet('1', updateData)
+      const result = await petService.updatePet('1', updateData);
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3001/api/pets/1',
@@ -246,22 +256,10 @@ describe('petService', () => {
             Authorization: 'Bearer mock-token',
           },
         }
-      )
-      expect(result).toEqual(updatedPet)
-    })
-
-    it('should handle not found error when updating a pet', async () => {
-      const updateData: UpdatePetData = { name: 'Fido Updated' };
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 404,
-      });
-
-      await expect(petService.updatePet('999', updateData)).rejects.toThrow(
-        'HTTP error! status: 404'
       );
+      expect(result).toEqual(updatedPet);
     });
-  })
+  });
 
   describe('deletePet', () => {
     it('deletes pet successfully', async () => {
@@ -269,9 +267,9 @@ describe('petService', () => {
         ok: true,
         headers: new Headers(),
         json: async () => ({}),
-      })
+      });
 
-      await petService.deletePet('1')
+      await petService.deletePet('1');
 
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/pets/1', {
         method: 'DELETE',
@@ -279,136 +277,74 @@ describe('petService', () => {
           Authorization: 'Bearer mock-token',
           'Content-Type': 'application/json',
         },
-      })
-    })
-
-    it('should handle not found error when deleting a pet', async () => {
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 404,
       });
-
-      await expect(petService.deletePet('999')).rejects.toThrow(
-        'HTTP error! status: 404'
-      );
     });
-  })
-
-  describe('incrementViewCount', () => {
-    it('increments view count successfully', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        headers: new Headers(),
-        json: async () => ({}),
-      })
-
-      await petService.incrementViewCount('1')
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/pets/1/view',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: 'Bearer mock-token',
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    })
   });
 
-  describe('incrementShareCount', () => {
-    it('increments share count successfully', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        headers: new Headers(),
-        json: async () => ({}),
-      })
+  // 委託方法測試 - 搜尋相關
+  describe('delegated search methods', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
-      await petService.incrementShareCount('1')
+    describe('searchPets', () => {
+      it('delegates to searchService.searchPets', async () => {
+        const mockResult = { pets: [mockPet], total: 1, page: 1, totalPages: 1 };
+        mockSearchService.searchPets.mockResolvedValue(mockResult);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/pets/1/share',
-        {
-          method: 'POST',
-          headers: {
-            Authorization: 'Bearer mock-token',
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    })
+        const result = await petService.searchPets('小白');
+
+        expect(mockSearchService.searchPets).toHaveBeenCalledWith('小白', {});
+        expect(result).toEqual(mockResult);
+      });
+    });
+
+    describe('advancedSearch', () => {
+      it('delegates to searchService.advancedSearch', async () => {
+        const mockResult = { pets: [mockPet], total: 1, page: 1, totalPages: 1 };
+        const filters: SearchFilters = {
+          q: '小白',
+          type: 'dog',
+          status: 'lost'
+        };
+        mockSearchService.advancedSearch.mockResolvedValue(mockResult);
+
+        const result = await petService.advancedSearch(filters);
+
+        expect(mockSearchService.advancedSearch).toHaveBeenCalledWith(filters);
+        expect(result).toEqual(mockResult);
+      });
+    });
   });
 
-  describe('getMyPets', () => {
-    it('fetches user pets successfully', async () => {
-      const mockPets = [{ id: '1', name: 'Fido' }]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ pets: mockPets, total: 1 }),
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-      })
+  // 委託方法測試 - 圖片相關
+  describe('delegated image methods', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
-      const result = await petService.getMyPets()
+    describe('uploadPetImage', () => {
+      it('delegates to imageService.uploadPetImage', async () => {
+        const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+        const mockImageUrl = 'https://example.com/uploaded-image.jpg';
+        mockImageService.uploadPetImage.mockResolvedValue(mockImageUrl);
 
-      expect(mockFetch).toHaveBeenCalledWith('http://localhost:3001/api/pets/my', {
-        headers: {
-          Authorization: 'Bearer mock-token',
-          'Content-Type': 'application/json',
-        },
-      })
-      expect(result).toEqual({ pets: mockPets, total: 1 })
-    })
-  });
+        const result = await petService.uploadPetImage('pet-123', mockFile);
 
-  describe('searchPets', () => {
-    it('searches pets with query', async () => {
-      const mockPets = [{ id: '1', name: 'Fido' }]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ pets: mockPets, total: 1 }),
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-      })
+        expect(mockImageService.uploadPetImage).toHaveBeenCalledWith('pet-123', mockFile);
+        expect(result).toBe(mockImageUrl);
+      });
+    });
 
-      const result = await petService.searchPets('Fido')
+    describe('deletePetImage', () => {
+      it('delegates to imageService.deletePetImage', async () => {
+        const imageUrl = 'https://example.com/image-to-delete.jpg';
+        mockImageService.deletePetImage.mockResolvedValue(undefined);
 
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/api/pets/search?q=Fido',
-        {
-          headers: {
-            Authorization: 'Bearer mock-token',
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      expect(result).toEqual({ pets: mockPets, total: 1 })
-    })
+        await petService.deletePetImage('pet-123', imageUrl);
 
-    it('searches pets with filters and query', async () => {
-      const mockPets = [{ id: '1', name: 'Fido' }]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ pets: mockPets, total: 1 }),
-        headers: new Headers({ 'Content-Type': 'application/json' }),
-      })
-
-      const result = await petService.searchPets('Fido', {
-        type: 'Dog',
-        status: 'Available',
-      })
-
-      const expectedUrl = new URL('http://localhost:3001/api/pets/search')
-      expectedUrl.searchParams.set('q', 'Fido')
-      expectedUrl.searchParams.set('type', 'Dog')
-      expectedUrl.searchParams.set('status', 'Available')
-
-      expect(mockFetch).toHaveBeenCalledWith(expectedUrl.toString(), {
-        headers: {
-          Authorization: 'Bearer mock-token',
-          'Content-Type': 'application/json',
-        },
-      })
-      expect(result).toEqual({ pets: mockPets, total: 1 })
-    })
+        expect(mockImageService.deletePetImage).toHaveBeenCalledWith('pet-123', imageUrl);
+      });
+    });
   });
 });

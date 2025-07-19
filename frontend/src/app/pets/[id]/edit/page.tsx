@@ -85,7 +85,7 @@ export default function EditPetPage() {
   const fetchPet = async () => {
     try {
       setLoading(true);
-      const response = await petService.getPet(petId);
+      const response = await petService.getPetById(petId);
       const petData = response.data;
       
       // 檢查是否為當前用戶的寵物
@@ -144,11 +144,11 @@ export default function EditPetPage() {
       };
       
       // 更新寵物資訊
-      await petService.updatePet(pet.id, updateData);
+      await petService.updatePet(pet._id, updateData);
       
       // 如果有新圖片，上傳圖片
       if (formData.images && formData.images.length > 0) {
-        await petService.uploadPetImages(pet.id, formData.images);
+        await petService.uploadPetImages(pet._id, formData.images);
       }
       
       toast({
@@ -157,7 +157,7 @@ export default function EditPetPage() {
       });
       
       // 跳轉到寵物詳情頁面
-      router.push(`/pets/${pet.id}`);
+      router.push(`/pets/${pet._id}`);
     } catch (error) {
       console.error('更新寵物資訊失敗:', error);
       toast({
@@ -264,7 +264,7 @@ export default function EditPetPage() {
         {/* 返回按鈕和標題 */}
         <div className="flex items-center space-x-4 mb-8">
           <Button variant="outline" size="icon" asChild>
-            <Link href={`/pets/${pet.id}`}>
+            <Link href={`/pets/${pet._id}`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>

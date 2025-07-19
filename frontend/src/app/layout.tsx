@@ -87,15 +87,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         
         {/* Dify 聊天機器人腳本 */}
         <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.difyChatbotConfig = {
-                token: 'FKpA4O7UI8g4LQaf'
-              }
-            `
-          }}
-        />
-        <script
           src="https://udify.app/embed.min.js"
           id="FKpA4O7UI8g4LQaf"
           defer

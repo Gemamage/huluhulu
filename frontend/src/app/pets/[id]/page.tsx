@@ -37,7 +37,7 @@ import {
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
-import { PetCard } from '@/components/pets/pet-card';
+import PetCard from '@/components/PetCard';
 
 interface PetDetailPageProps {
   params: {
@@ -116,7 +116,7 @@ export default function PetDetailPage() {
       const response = await petService.searchSimilarPets({
         type: currentPet.type,
         location: currentPet.lastSeenLocation.address,
-        excludeId: currentPet.id
+        excludeId: currentPet._id
       });
       
       if (response.success && response.data) {
@@ -132,7 +132,7 @@ export default function PetDetailPage() {
   const loadPetDetail = async (id: string) => {
     try {
       setLoading(true);
-      const response = await petService.getPet(id);
+      const response = await petService.getPetById(id);
       
       if (response.success && response.data) {
         setPet(response.data.pet);
@@ -163,7 +163,7 @@ export default function PetDetailPage() {
     
     try {
       setSharing(true);
-      const response = await petService.sharePet(pet.id, platform);
+      const response = await petService.sharePet(pet._id, platform);
       
       if (response.success && response.data) {
         // 複製分享連結到剪貼板
@@ -193,7 +193,7 @@ export default function PetDetailPage() {
     
     try {
       setDeleting(true);
-      const response = await petService.deletePet(pet.id);
+      const response = await petService.deletePet(pet._id);
       
       if (response.success) {
         toast({
@@ -299,7 +299,7 @@ export default function PetDetailPage() {
         {isOwner && (
           <div className="flex gap-2">
             <Button variant="outline" asChild>
-              <Link href={`/pets/${pet.id}/edit`} className="flex items-center gap-2">
+              <Link href={`/pets/${pet._id}/edit`} className="flex items-center gap-2">
                 <Edit className="h-4 w-4" />
                 編輯
               </Link>
@@ -378,7 +378,7 @@ export default function PetDetailPage() {
                   {pet.images.length > 1 && (
                     <div className="grid grid-cols-4 gap-2">
                       {pet.images.slice(1, 5).map((image, index) => (
-                        <div key={index} className="aspect-square bg-gray-100 rounded-md overflow-hidden">
+                        <div key={`${pet._id}-image-${index + 1}`} className="aspect-square bg-gray-100 rounded-md overflow-hidden">
                           <img
                             src={image}
                             alt={`${pet.name} ${index + 2}`}
@@ -627,7 +627,7 @@ export default function PetDetailPage() {
                 ) : (
                   <div className="space-y-3">
                     {similarPets.map((similarPet) => (
-                      <Link key={similarPet.id} href={`/pets/${similarPet.id}`}>
+                      <Link key={similarPet._id} href={`/pets/${similarPet._id}`}>
                         <div className="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                           <div className="flex gap-3">
                             {similarPet.images && similarPet.images[0] && (

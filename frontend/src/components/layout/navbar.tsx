@@ -1,4 +1,4 @@
-'use client';
+'use client';import Image from 'next/image';
 
 import React from 'react';
 import Link from 'next/link';
@@ -59,7 +59,13 @@ export function Navbar() {
         {/* Logo - 左邊 */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <Heart className="h-6 w-6" style={{color: '#FF8C69'}} />
+            <Image 
+              src="/images/logo.png" 
+              alt="呼嚕 Logo" 
+              width={40} 
+              height={40} 
+              className="h-10 w-10 rounded-full"
+            />
             <span className="text-xl font-bold" style={{color: '#333333'}}>呼嚕</span>
           </Link>
         </div>

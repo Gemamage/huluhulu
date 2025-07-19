@@ -224,3 +224,136 @@ export const validateSearchFilters = (filters: SearchFilters): { isValid: boolea
     errors
   };
 };
+
+/**
+ * 驗證用戶登入資料
+ */
+export const validateUserLogin = (data: { email: string; password: string }): ValidationResult => {
+  const errors: ValidationError[] = [];
+  
+  // 驗證電子郵件
+  if (!validateRequired(data.email)) {
+    errors.push({ field: 'email', message: '電子郵件為必填項目' });
+  } else if (!validateEmail(data.email)) {
+    errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
+  }
+  
+  // 驗證密碼
+  if (!validateRequired(data.password)) {
+    errors.push({ field: 'password', message: '密碼為必填項目' });
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * 驗證密碼重設資料
+ */
+export const validatePasswordReset = (data: { email: string }): ValidationResult => {
+  const errors: ValidationError[] = [];
+  
+  // 驗證電子郵件
+  if (!validateRequired(data.email)) {
+    errors.push({ field: 'email', message: '電子郵件為必填項目' });
+  } else if (!validateEmail(data.email)) {
+    errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * 驗證寵物表單資料
+ */
+export const validatePetForm = (data: CreatePetData): ValidationResult => {
+  const errors: ValidationError[] = [];
+  
+  // 驗證寵物名稱
+  if (!validateRequired(data.name)) {
+    errors.push({ field: 'name', message: '寵物名稱為必填項目' });
+  }
+  
+  // 驗證寵物類型
+  if (!validateRequired(data.type)) {
+    errors.push({ field: 'type', message: '寵物類型為必填項目' });
+  }
+  
+  // 驗證寵物性別
+  if (!validateRequired(data.gender)) {
+    errors.push({ field: 'gender', message: '寵物性別為必填項目' });
+  }
+  
+  // 驗證寵物體型
+  if (!validateRequired(data.size)) {
+    errors.push({ field: 'size', message: '寵物體型為必填項目' });
+  }
+  
+  // 驗證寵物狀態
+  if (!validateRequired(data.status)) {
+    errors.push({ field: 'status', message: '寵物狀態為必填項目' });
+  }
+  
+  // 驗證年齡
+  if (data.age !== undefined && (typeof data.age !== 'number' || data.age < 0)) {
+    errors.push({ field: 'age', message: '寵物年齡必須為正數' });
+  }
+
+  // 驗證位置資訊
+  if (data.lastSeenLocation) {
+    if (!validateRequired(data.lastSeenLocation.address)) {
+      errors.push({ field: 'lastSeenLocation.address', message: '最後出現地點為必填項目' });
+    }
+  } else {
+    errors.push({ field: 'lastSeenLocation', message: '最後出現地點為必填項目' });
+  }
+  
+  // 驗證聯絡資訊
+  if (data.contactInfo) {
+    if (data.contactInfo.email && !validateEmail(data.contactInfo.email)) {
+      errors.push({ field: 'contactInfo.email', message: '請輸入有效的電子郵件地址' });
+    }
+    
+    if (data.contactInfo.phone && !validatePhone(data.contactInfo.phone)) {
+      errors.push({ field: 'contactInfo.phone', message: '請輸入有效的電話號碼' });
+    }
+    
+    if (!data.contactInfo.phone && !data.contactInfo.email) {
+      errors.push({ field: 'contactInfo', message: '至少需要提供一種聯絡方式' });
+    }
+  } else {
+    errors.push({ field: 'contactInfo', message: '聯絡資訊為必填項目' });
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+/**
+ * 驗證規則物件 - 提供正則表達式和錯誤訊息
+ */
+export const ValidationRules = {
+  email: {
+    test: (value: string) => validateEmail(value),
+    message: '請輸入有效的電子郵件格式'
+  },
+  password: {
+    test: (value: string) => validatePassword(value),
+    message: '密碼至少需要8個字符，包含大小寫字母、數字和特殊字符'
+  },
+  phone: {
+    test: (value: string) => validatePhone(value),
+    message: '請輸入有效的電話號碼'
+  },
+  name: {
+    test: (value: string) => value && value.trim().length >= 2,
+    message: '姓名至少需要2個字符'
+  }
+};
