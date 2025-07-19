@@ -1,0 +1,182 @@
+{
+  "timestamp": "2025-07-19T06:41:36.542Z",
+  "qualityScore": 0,
+  "qualityGrade": "F",
+  "codeQuality": {
+    "totalFiles": 287,
+    "totalLines": 69326,
+    "issues": {
+      "oversized": [
+        {
+          "file": "backend\\src\\routes\\community.ts",
+          "lines": 1057
+        },
+        {
+          "file": "backend\\src\\routes\\pets.ts",
+          "lines": 728
+        },
+        {
+          "file": "backend\\src\\routes\\users.ts",
+          "lines": 670
+        },
+        {
+          "file": "backend\\src\\services\\notificationService.ts",
+          "lines": 685
+        },
+        {
+          "file": "backend\\src\\services\\petSearchService.ts",
+          "lines": 674
+        },
+        {
+          "file": "backend\\src\\services\\reportService.ts",
+          "lines": 685
+        },
+        {
+          "file": "backend\\src\\services\\smartNotificationService.ts",
+          "lines": 752
+        },
+        {
+          "file": "backend\\src\\services\\userService.ts",
+          "lines": 693
+        },
+        {
+          "file": "backend\\test\\routes\\admin.test.ts",
+          "lines": 753
+        },
+        {
+          "file": "backend\\test\\routes\\matches.test.ts",
+          "lines": 684
+        },
+        {
+          "file": "backend\\test\\routes\\notifications.test.ts",
+          "lines": 633
+        },
+        {
+          "file": "backend\\test\\routes\\upload.test.ts",
+          "lines": 723
+        },
+        {
+          "file": "backend\\test\\services\\matchingService.test.ts",
+          "lines": 618
+        },
+        {
+          "file": "frontend\\src\\app\\pets\\page.tsx",
+          "lines": 618
+        },
+        {
+          "file": "frontend\\src\\app\\pets\\[id]\\page.tsx",
+          "lines": 682
+        },
+        {
+          "file": "frontend\\src\\components\\community\\CommentSection.tsx",
+          "lines": 602
+        },
+        {
+          "file": "frontend\\src\\components\\community\\MessageCenter.tsx",
+          "lines": 672
+        },
+        {
+          "file": "frontend\\src\\components\\community\\ReportCenter.tsx",
+          "lines": 895
+        },
+        {
+          "file": "frontend\\src\\components\\pets\\lost-pet-form.tsx",
+          "lines": 664
+        }
+      ],
+      "warnings": [
+        {
+          "file": "backend\\src\\services\\aiService.ts",
+          "lines": 557
+        },
+        {
+          "file": "backend\\test\\routes\\privacy.test.ts",
+          "lines": 563
+        },
+        {
+          "file": "backend\\test\\routes\\search.test.ts",
+          "lines": 585
+        },
+        {
+          "file": "frontend\\src\\components\\community\\ReviewSection.tsx",
+          "lines": 571
+        }
+      ],
+      "todos": [
+        {
+          "file": "backend\\src\\routes\\auth.ts",
+          "count": 1
+        },
+        {
+          "file": "backend\\src\\routes\\pets.ts",
+          "count": 1
+        },
+        {
+          "file": "backend\\src\\services\\matchingService.ts",
+          "count": 2
+        },
+        {
+          "file": "backend\\src\\services\\smartNotificationService.ts",
+          "count": 1
+        },
+        {
+          "file": "backend\\src\\services\\userService.ts",
+          "count": 1
+        },
+        {
+          "file": "frontend\\src\\app\\sightings\\new\\page.tsx",
+          "count": 1
+        },
+        {
+          "file": "frontend\\src\\components\\sections\\hero.tsx",
+          "count": 1
+        },
+        {
+          "file": "scripts\\auto-refactor.js",
+          "count": 4
+        },
+        {
+          "file": "scripts\\code-quality-check.js",
+          "count": 1
+        }
+      ],
+      "fixmes": [],
+      "complex": []
+    },
+    "hasIssues": true
+  },
+  "gitStats": {
+    "totalCommits": 36,
+    "contributors": 0,
+    "lastCommit": "713fce7 - 完善 Netlify 配置：優化 next.config.js 設定 (11 minutes ago)",
+    "branch": "master"
+  },
+  "depStats": {
+    "frontend": {
+      "dependencies": 38,
+      "devDependencies": 28
+    },
+    "backend": {
+      "dependencies": 40,
+      "devDependencies": 31
+    },
+    "root": {
+      "dependencies": 1,
+      "devDependencies": 5
+    }
+  },
+  "testCoverage": {
+    "frontend": {
+      "lines": 0,
+      "functions": 0,
+      "branches": 0,
+      "statements": 0
+    },
+    "backend": {
+      "lines": 0,
+      "functions": 0,
+      "branches": 0,
+      "statements": 0
+    }
+  }
+}

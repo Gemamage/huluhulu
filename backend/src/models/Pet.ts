@@ -49,6 +49,7 @@ export interface IPet extends Document {
   personality?: string[] | null;
   viewCount: number;
   shareCount: number;
+  favoritedBy: mongoose.Types.ObjectId[];
   userId: mongoose.Types.ObjectId;
   // AI 相關字段
   aiFeatures?: IImageFeatures[];
@@ -253,6 +254,11 @@ const petSchema = new Schema<IPet>({
     type: Number,
     default: 0,
     min: [0, '分享次數不能為負數'],
+  },
+  favoritedBy: {
+    type: [Schema.Types.ObjectId],
+    ref: 'User',
+    default: [],
   },
   userId: {
     type: Schema.Types.ObjectId,

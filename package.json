@@ -1,5 +1,5 @@
 {
-  "name": "pet-finder-app",
+  "name": "huluhulu",
   "version": "1.0.0",
   "description": "呼嚕寵物協尋網站 - 整合 AI 功能的寵物協尋平台",
   "private": true,
@@ -49,7 +49,22 @@
     "lint:frontend": "cd frontend && npm run lint",
     "format": "npm run format:backend && npm run format:frontend",
     "format:backend": "cd backend && npm run format",
-    "format:frontend": "cd frontend && npm run format"
+    "format:frontend": "cd frontend && npm run format",
+    "quality:check": "node scripts/code-quality-check.js",
+    "quality:report": "npm run quality:check && echo \"詳細報告已生成: code-quality-report.json\"",
+    "quality:fix": "npm run lint && npm run format",
+    "pre-commit": "npm run quality:check && npm run lint && npm run test",
+    "refactor:check": "npm run quality:check -- --strict",
+    "refactor:auto": "node scripts/auto-refactor.js",
+    "refactor:preview": "node scripts/auto-refactor.js --dry-run",
+    "hooks:setup": "node scripts/setup-git-hooks.js setup",
+    "hooks:remove": "node scripts/setup-git-hooks.js remove",
+    "hooks:check": "node scripts/setup-git-hooks.js check",
+    "hooks:test": "node scripts/setup-git-hooks.js test",
+    "dashboard": "node scripts/quality-dashboard.js",
+    "dashboard:trends": "node scripts/quality-dashboard.js trends",
+    "quality:full": "npm run quality:check && npm run dashboard",
+    "postinstall": "npm run hooks:setup"
   },
   "keywords": [
     "pet-finder",
@@ -82,12 +97,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/pet-finder-app.git"
+    "url": "https://github.com/your-username/huluhulu.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/pet-finder-app/issues"
+    "url": "https://github.com/your-username/huluhulu/issues"
   },
-  "homepage": "https://github.com/your-username/pet-finder-app#readme",
+  "homepage": "https://github.com/your-username/huluhulu#readme",
   "ai-features": {
     "google-vision-ai": "圖像內容分析和物件檢測",
     "breed-identification": "寵物品種智能識別",

@@ -136,7 +136,7 @@ npm install -D @axe-core/playwright jest-axe
 ## 📁 文件結構規劃
 
 ```
-pet-finder-app/
+huluhulu/
 ├── tests/
 │   ├── e2e/                    # E2E 測試
 │   │   ├── auth/

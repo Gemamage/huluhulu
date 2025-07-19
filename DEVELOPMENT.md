@@ -27,7 +27,7 @@
 ```bash
 # 克隆專案
 git clone <repository-url>
-cd pet-finder-app
+cd huluhulu
 
 # 啟動開發環境
 ./scripts/dev-setup.sh
@@ -116,7 +116,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ## 📁 專案結構
 
 ```
-pet-finder-app/
+huluhulu/
 ├── frontend/                 # Next.js 前端應用
 │   ├── src/
 │   │   ├── app/             # App Router 頁面

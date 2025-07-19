@@ -169,7 +169,7 @@ router.post('/pets', searchLimiter, async (req: Request, res: Response) => {
       code: 'SEARCH_ERROR'
     });
   }
-});}]}
+});
 
 /**
  * @route GET /api/advanced-search/suggestions

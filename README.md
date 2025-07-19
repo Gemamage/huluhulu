@@ -32,7 +32,7 @@
 ## 專案結構
 
 ```
-pet-finder-app/
+huluhulu/
 ├── frontend/          # Next.js 前端應用
 ├── backend/           # Express.js 後端 API
 ├── shared/            # 共用型別定義和工具

@@ -2,6 +2,12 @@ import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler';
 import { ValidationError, NotFoundError, ForbiddenError } from '../utils/errors';
 import { logger } from '../utils/logger';
+import { 
+  createCacheMiddleware, 
+  createCacheInvalidationMiddleware,
+  petCacheKeyGenerator,
+  conditionalCacheMiddleware
+} from '../middleware/cacheMiddleware';
 
 // 擴展 Express Request 介面
 declare global {
@@ -28,7 +34,14 @@ const router = Router();
  * @desc    取得寵物列表
  * @access  Public
  */
-router.get('/', validateQuery(petSearchSchema), asyncHandler(async (req, res) => {
+router.get('/', 
+  validateQuery(petSearchSchema),
+  conditionalCacheMiddleware({
+    ttl: 3 * 60 * 1000, // 3分鐘快取
+    keyGenerator: petCacheKeyGenerator,
+    userCondition: (req) => !req.user // 只對未登入用戶快取
+  }),
+  asyncHandler(async (req, res) => {
   const {
     page = 1,
     limit = 12,
@@ -201,7 +214,12 @@ router.get('/my', authenticate, requireActiveAccount, asyncHandler(async (req, r
  * @desc    獲取特定寵物資訊
  * @access  Public
  */
-router.get('/:id', asyncHandler(async (req, res) => {
+router.get('/:id', 
+  createCacheMiddleware({
+    ttl: 10 * 60 * 1000, // 10分鐘快取
+    keyGenerator: petCacheKeyGenerator
+  }),
+  asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -234,7 +252,14 @@ router.get('/:id', asyncHandler(async (req, res) => {
  * @desc    新增寵物協尋案例
  * @access  Private
  */
-router.post('/', authenticate, requireActiveAccount, validateRequest(petSchema), asyncHandler(async (req, res) => {
+router.post('/', 
+  authenticate, 
+  requireActiveAccount, 
+  validateRequest(petSchema),
+  createCacheInvalidationMiddleware({
+    patterns: ['pets:*'] // 清除所有寵物相關快取
+  }),
+  asyncHandler(async (req, res) => {
   const validatedData = req.validatedData;
   const userId = req.user!.id;
 
@@ -272,10 +297,17 @@ router.post('/', authenticate, requireActiveAccount, validateRequest(petSchema),
 
 /**
  * @route   PUT /api/pets/:id
- * @desc    更新寵物資訊
+ * @desc    更新寵物協尋案例
  * @access  Private
  */
-router.put('/:id', authenticate, requireActiveAccount, validateRequest(petUpdateSchema), asyncHandler(async (req, res) => {
+router.put('/:id', 
+  authenticate, 
+  requireActiveAccount, 
+  validateRequest(petSchema),
+  createCacheInvalidationMiddleware({
+    patterns: ['pets:*'] // 清除所有寵物相關快取
+  }),
+  asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updateData = req.validatedData;
   const userId = req.user!.id;
@@ -318,7 +350,13 @@ router.put('/:id', authenticate, requireActiveAccount, validateRequest(petUpdate
  * @desc    刪除寵物協尋案例
  * @access  Private
  */
-router.delete('/:id', authenticate, requireActiveAccount, asyncHandler(async (req, res) => {
+router.delete('/:id', 
+  authenticate, 
+  requireActiveAccount,
+  createCacheInvalidationMiddleware({
+    patterns: ['pets:*'] // 清除所有寵物相關快取
+  }),
+  asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user!.id;
 
@@ -426,7 +464,12 @@ router.post('/:id/share', asyncHandler(async (req, res) => {
  * @desc    獲取指定用戶的寵物協尋案例
  * @access  Public
  */
-router.get('/user/:userId', asyncHandler(async (req, res) => {
+router.get('/user/:userId', 
+  createCacheMiddleware({
+    ttl: 5 * 60 * 1000, // 5分鐘快取
+    keyGenerator: petCacheKeyGenerator
+  }),
+  asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const { page = 1, limit = 12, status } = req.query;
 
@@ -478,11 +521,163 @@ router.get('/user/:userId', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * @route   POST /api/pets/:id/favorite
+ * @desc    收藏寵物
+ * @access  Private
+ */
+router.post('/:id/favorite', 
+  authenticate, 
+  requireActiveAccount,
+  asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    throw new ValidationError('請提供有效的寵物 ID');
+  }
+
+  logger.info('收藏寵物請求', { petId: id, userId });
+
+  // 檢查寵物是否存在
+  const pet = await Pet.findById(id);
+  if (!pet) {
+    throw new NotFoundError('找不到指定的寵物資訊');
+  }
+
+  // 檢查是否已經收藏
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+  if (pet.favoritedBy && pet.favoritedBy.includes(userObjectId)) {
+    return res.json({
+      success: true,
+      message: '已經收藏過此寵物',
+      data: {
+        favoriteCount: pet.favoritedBy.length
+      }
+    });
+  }
+
+  // 添加到收藏列表
+  await Pet.findByIdAndUpdate(
+    id,
+    { $addToSet: { favoritedBy: userObjectId } },
+    { new: true }
+  );
+
+  // 重新獲取更新後的寵物資訊
+  const updatedPet = await Pet.findById(id);
+  
+  res.json({
+    success: true,
+    message: '收藏成功',
+    data: {
+      favoriteCount: updatedPet?.favoritedBy?.length || 0
+    }
+  });
+}));
+
+/**
+ * @route   DELETE /api/pets/:id/favorite
+ * @desc    取消收藏寵物
+ * @access  Private
+ */
+router.delete('/:id/favorite', 
+  authenticate, 
+  requireActiveAccount,
+  asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    throw new ValidationError('請提供有效的寵物 ID');
+  }
+
+  logger.info('取消收藏寵物請求', { petId: id, userId });
+
+  // 檢查寵物是否存在
+  const pet = await Pet.findById(id);
+  if (!pet) {
+    throw new NotFoundError('找不到指定的寵物資訊');
+  }
+
+  // 從收藏列表中移除
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+  await Pet.findByIdAndUpdate(
+    id,
+    { $pull: { favoritedBy: userObjectId } },
+    { new: true }
+  );
+
+  // 重新獲取更新後的寵物資訊
+  const updatedPet = await Pet.findById(id);
+  
+  res.json({
+    success: true,
+    message: '取消收藏成功',
+    data: {
+      favoriteCount: updatedPet?.favoritedBy?.length || 0
+    }
+  });
+}));
+
+/**
+ * @route   GET /api/pets/favorites
+ * @desc    獲取用戶收藏的寵物列表
+ * @access  Private
+ */
+router.get('/favorites', 
+  authenticate, 
+  requireActiveAccount,
+  asyncHandler(async (req, res) => {
+  const { page = 1, limit = 12 } = req.query;
+  const userId = req.user!.id;
+
+  logger.info('獲取用戶收藏寵物列表請求', { userId });
+
+  // 計算分頁
+  const skip = (Number(page) - 1) * Number(limit);
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+  
+  // 查詢收藏的寵物
+  const [pets, totalItems] = await Promise.all([
+    Pet.find({ favoritedBy: userObjectId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('userId', 'name email')
+      .lean(),
+    Pet.countDocuments({ favoritedBy: userObjectId })
+  ]);
+
+  // 計算分頁資訊
+  const totalPages = Math.ceil(totalItems / Number(limit));
+
+  res.json({
+    success: true,
+    data: {
+      pets,
+      pagination: {
+        currentPage: Number(page),
+        totalPages,
+        totalItems,
+        itemsPerPage: Number(limit),
+        hasNextPage: Number(page) < totalPages,
+        hasPrevPage: Number(page) > 1
+      },
+    },
+  });
+}));
+
+/**
  * @route   GET /api/pets/search/similar
  * @desc    搜尋相似寵物
  * @access  Public
  */
-router.get('/search/similar', asyncHandler(async (req, res) => {
+router.get('/search/similar', 
+  createCacheMiddleware({
+    ttl: 15 * 60 * 1000, // 15分鐘快取
+    keyGenerator: petCacheKeyGenerator
+  }),
+  asyncHandler(async (req, res) => {
   const { type, breed, color, location, excludeId } = req.query;
 
   logger.info('搜尋相似寵物請求', { type, breed, color, location, excludeId });
