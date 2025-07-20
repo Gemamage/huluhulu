@@ -27,7 +27,6 @@ describe('authService', () => {
 
   const mockUser: Omit<User, 'generateAuthToken' | 'generatePasswordResetToken'> = {
     _id: '1',
-    name: 'Test User',
     email: 'test@example.com',
     phone: '0912345678',
     role: 'user',
@@ -85,7 +84,6 @@ describe('authService', () => {
   describe('register', () => {
     it('registers user successfully', async () => {
       const registerData: RegisterData = {
-        name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
         phone: '0912345678'
@@ -114,7 +112,6 @@ describe('authService', () => {
 
     it('handles duplicate email', async () => {
       const registerData: RegisterData = {
-        name: 'Test User',
         email: 'existing@example.com',
         password: 'password123',
       };
@@ -223,7 +220,8 @@ describe('authService', () => {
     it('resets password successfully', async () => {
       const resetPasswordData = {
         token: 'reset-token',
-        password: 'newpassword123'
+        password: 'newpassword123',
+        confirmPassword: 'newpassword123'
       }
       mockFetch.mockResolvedValue({
         ok: true
@@ -243,7 +241,8 @@ describe('authService', () => {
     it('handles invalid or expired token', async () => {
       const resetPasswordData = {
         token: 'invalid-token',
-        password: 'newpassword123'
+        password: 'newpassword123',
+        confirmPassword: 'newpassword123'
       }
       mockFetch.mockResolvedValue({
         ok: false,
@@ -315,7 +314,8 @@ describe('authService', () => {
     it('changes password successfully', async () => {
       const passwordData = {
         currentPassword: 'oldpassword',
-        newPassword: 'newpassword123'
+        newPassword: 'newpassword123',
+        confirmPassword: 'newpassword123'
       }
       localStorageMock.getItem.mockReturnValue(mockToken)
       mockFetch.mockResolvedValue({
@@ -337,7 +337,8 @@ describe('authService', () => {
     it('handles incorrect current password', async () => {
       const passwordData = {
         currentPassword: 'wrongpassword',
-        newPassword: 'newpassword123'
+        newPassword: 'newpassword123',
+        confirmPassword: 'newpassword123'
       }
       localStorageMock.getItem.mockReturnValue(mockToken)
       mockFetch.mockResolvedValue({

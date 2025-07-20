@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import SearchForm from '@/components/SearchForm'
@@ -185,13 +185,12 @@ describe('SearchForm', () => {
   })
 
   it('validates required fields', async () => {
-    const user = userEvent.setup()
     renderWithQueryClient(
       <SearchForm onSearch={mockOnSearch} initialFilters={defaultFilters} required />
     )
 
     const submitButton = screen.getByRole('button', { name: /搜尋/i })
-    await user.click(submitButton)
+    fireEvent.click(submitButton)
 
     // Should show validation errors for required fields
     expect(await screen.findByText(/請選擇寵物類型/i)).toBeInTheDocument()

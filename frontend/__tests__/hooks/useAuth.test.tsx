@@ -28,7 +28,7 @@ const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      cacheTime: 0
+      gcTime: 0
     },
     mutations: {
       retry: false
@@ -66,7 +66,7 @@ describe('useAuth', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockAuthService.getCurrentUser.mockResolvedValue(null)
+    mockAuthService.getCurrentUser.mockResolvedValue(undefined as any)
     mockAuthService.isAuthenticated.mockReturnValue(false)
   })
 
@@ -246,20 +246,17 @@ describe('useAuth', () => {
   describe('forgotPassword', () => {
     it('sends forgot password email successfully', async () => {
       const email = 'test@example.com'
-      const response = { message: 'Password reset email sent' }
-      mockAuthService.forgotPassword.mockResolvedValue(response)
+      mockAuthService.forgotPassword.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
       })
 
-      let forgotPasswordResult
       await act(async () => {
-        forgotPasswordResult = await result.current.forgotPassword(email)
+        await result.current.forgotPassword(email)
       })
 
       expect(mockAuthService.forgotPassword).toHaveBeenCalledWith({ email })
-      expect(forgotPasswordResult).toEqual(response)
     })
   })
 
@@ -267,40 +264,35 @@ describe('useAuth', () => {
     it('resets password successfully', async () => {
       const token = 'reset-token'
       const newPassword = 'newpassword123'
-      const response = { message: 'Password reset successfully' }
-      mockAuthService.resetPassword.mockResolvedValue(response)
+      const confirmPassword = 'newpassword123'
+      mockAuthService.resetPassword.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
       })
 
-      let resetPasswordResult
       await act(async () => {
-        resetPasswordResult = await result.current.resetPassword(token, newPassword)
+        await result.current.resetPassword(token, newPassword, confirmPassword)
       })
 
-      expect(mockAuthService.resetPassword).toHaveBeenCalledWith({ token, newPassword })
-      expect(resetPasswordResult).toEqual(response)
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith({ token, password: newPassword, confirmPassword })
     })
   })
 
   describe('verifyEmail', () => {
     it('verifies email successfully', async () => {
       const token = 'verification-token'
-      const response = { message: 'Email verified successfully' }
-      mockAuthService.verifyEmail.mockResolvedValue(response)
+      mockAuthService.verifyEmail.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
       })
 
-      let verifyEmailResult
       await act(async () => {
-        verifyEmailResult = await result.current.verifyEmail(token)
+        await result.current.verifyEmail(token)
       })
 
       expect(mockAuthService.verifyEmail).toHaveBeenCalledWith(token)
-      expect(verifyEmailResult).toEqual(response)
     })
   })
 
@@ -338,22 +330,20 @@ describe('useAuth', () => {
     it('changes password successfully', async () => {
       const passwordData = {
         currentPassword: 'oldpassword',
-        newPassword: 'newpassword123'
+        newPassword: 'newpassword123',
+        confirmPassword: 'newpassword123'
       }
-      const response = { message: 'Password changed successfully' }
-      mockAuthService.changePassword.mockResolvedValue(response)
+      mockAuthService.changePassword.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()
       })
 
-      let changePasswordResult
       await act(async () => {
-        changePasswordResult = await result.current.changePassword(passwordData)
+        await result.current.changePassword(passwordData)
       })
 
       expect(mockAuthService.changePassword).toHaveBeenCalledWith(passwordData)
-      expect(changePasswordResult).toEqual(response)
     })
   })
 
@@ -366,10 +356,10 @@ describe('useAuth', () => {
       
       // Create a promise that we can control
       let resolveLogin: (value: any) => void
-      const loginPromise = new Promise((resolve) => {
+      const loginPromise = new Promise<any>((resolve) => {
         resolveLogin = resolve
       })
-      mockAuthService.login.mockReturnValue(loginPromise)
+      mockAuthService.login.mockReturnValue(loginPromise as Promise<any>)
 
       const { result } = renderHook(() => useAuth(), {
         wrapper: createWrapper()

@@ -33,13 +33,14 @@ const mockCreateElement = jest.fn((tagName) => {
     return mockCanvas;
   }
   if (tagName === 'img') {
-    return {
-      onload: null,
-      onerror: null,
+    const imgElement = {
+      onload: null as ((event: Event) => void) | null,
+      onerror: null as ((event: Event) => void) | null,
       src: '',
       width: 1200,
       height: 900,
     };
+    return imgElement;
   }
   return {};
 });
