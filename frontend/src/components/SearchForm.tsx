@@ -5,16 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, RotateCcw } from 'lucide-react';
 import { validateSearchFilters } from '@/utils/validation';
-
-// 搜尋篩選條件類型
-export interface SearchFilters {
-  type: string;
-  status: string;
-  breed: string;
-  location: string;
-  size: string;
-  gender: string;
-}
+import { SearchFilters } from '@/types/search';
 
 interface SearchFormProps {
   onSearch: (filters: SearchFilters) => void;
@@ -121,7 +112,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               <Label htmlFor='type'>寵物類型</Label>
               <select
                 id='type'
-                value={filters.type}
+                value={filters.type || ''}
                 onChange={e => handleInputChange('type', e.target.value)}
                 className='flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
@@ -145,7 +136,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               <Label htmlFor='status'>狀態</Label>
               <select
                 id='status'
-                value={filters.status}
+                value={filters.status || ''}
                 onChange={e => handleInputChange('status', e.target.value)}
                 className='flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
@@ -163,7 +154,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 id='breed'
                 type='text'
                 placeholder='輸入品種'
-                value={filters.breed}
+                value={filters.breed || ''}
                 onChange={e => handleInputChange('breed', e.target.value)}
               />
             </div>
@@ -175,7 +166,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 id='location'
                 type='text'
                 placeholder='輸入地點'
-                value={filters.location}
+                value={filters.location || ''}
                 onChange={e => handleInputChange('location', e.target.value)}
               />
             </div>
@@ -185,7 +176,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               <Label htmlFor='size'>體型</Label>
               <select
                 id='size'
-                value={filters.size}
+                value={filters.size || ''}
                 onChange={e => handleInputChange('size', e.target.value)}
                 className='flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >
@@ -203,7 +194,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               <Label htmlFor='gender'>性別</Label>
               <select
                 id='gender'
-                value={filters.gender}
+                value={filters.gender || ''}
                 onChange={e => handleInputChange('gender', e.target.value)}
                 className='flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
               >

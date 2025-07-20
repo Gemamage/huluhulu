@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-07-20T11:13:41.294Z",
+  "timestamp": "2025-07-20T11:44:03.791Z",
   "summary": {
     "totalFiles": 314,
-    "totalLines": 72132,
+    "totalLines": 72106,
     "averageLines": 230
   },
   "issues": {
@@ -29,11 +29,11 @@
       },
       {
         "file": "backend\\src\\services\\petSearchService-backup.ts",
-        "lines": 674
+        "lines": 670
       },
       {
         "file": "backend\\src\\services\\search\\analytics.ts",
-        "lines": 665
+        "lines": 659
       },
       {
         "file": "backend\\src\\services\\smartNotificationService-backup.ts",
