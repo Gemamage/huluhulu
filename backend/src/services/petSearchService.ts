@@ -1,6 +1,7 @@
 // 重構後的寵物搜尋服務
 // 導出模組化的搜尋服務和相關介面
 
+// 導出類和實例
 export {
   PetSearchService,
   IndexingService,
@@ -12,7 +13,10 @@ export {
   searchCoreService,
   searchSuggestionsService,
   searchAnalyticsService,
-  // 介面和類型
+} from "./search";
+
+// 導出類型
+export type {
   PetSearchQuery,
   SearchSuggestion,
   PopularSearch,

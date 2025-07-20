@@ -39,8 +39,12 @@ interface Pet {
   shares: number;
 }
 
-function PetCard({ pet, onEdit, onDelete }: { 
-  pet: Pet; 
+function PetCard({
+  pet,
+  onEdit,
+  onDelete,
+}: {
+  pet: Pet;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -67,17 +71,17 @@ function PetCard({ pet, onEdit, onDelete }: {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative">
+    <Card className='overflow-hidden hover:shadow-lg transition-shadow'>
+      <div className='relative'>
         {pet.images && pet.images.length > 0 ? (
           <img
             src={pet.images[0]}
             alt={pet.name}
-            className="w-full h-48 object-cover"
+            className='w-full h-48 object-cover'
           />
         ) : (
-          <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-            <Heart className="h-12 w-12 text-gray-400" />
+          <div className='w-full h-48 bg-gray-200 flex items-center justify-center'>
+            <Heart className='h-12 w-12 text-gray-400' />
           </div>
         )}
         <Badge
@@ -86,69 +90,62 @@ function PetCard({ pet, onEdit, onDelete }: {
           {getStatusText(pet.status)}
         </Badge>
       </div>
-      
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+
+      <CardHeader className='pb-3'>
+        <div className='flex items-start justify-between'>
           <div>
-            <CardTitle className="text-lg">{pet.name}</CardTitle>
-            <p className="text-sm text-muted-foreground">{pet.breed}</p>
+            <CardTitle className='text-lg'>{pet.name}</CardTitle>
+            <p className='text-sm text-muted-foreground'>{pet.breed}</p>
           </div>
         </div>
       </CardHeader>
-      
-      <CardContent className="pt-0">
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span className="truncate">{pet.lastSeenLocation}</span>
+
+      <CardContent className='pt-0'>
+        <div className='space-y-2 mb-4'>
+          <div className='flex items-center text-sm text-muted-foreground'>
+            <MapPin className='h-4 w-4 mr-1' />
+            <span className='truncate'>{pet.lastSeenLocation}</span>
           </div>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4 mr-1" />
-            <span>{new Date(pet.lastSeenDate).toLocaleDateString('zh-TW')}</span>
+          <div className='flex items-center text-sm text-muted-foreground'>
+            <Calendar className='h-4 w-4 mr-1' />
+            <span>
+              {new Date(pet.lastSeenDate).toLocaleDateString('zh-TW')}
+            </span>
           </div>
         </div>
-        
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center">
-              <Eye className="h-3 w-3 mr-1" />
+
+        <div className='flex items-center justify-between text-xs text-muted-foreground mb-4'>
+          <div className='flex items-center space-x-3'>
+            <div className='flex items-center'>
+              <Eye className='h-3 w-3 mr-1' />
               <span>{pet.views || 0}</span>
             </div>
-            <div className="flex items-center">
-              <Share2 className="h-3 w-3 mr-1" />
+            <div className='flex items-center'>
+              <Share2 className='h-3 w-3 mr-1' />
               <span>{pet.shares || 0}</span>
             </div>
           </div>
-          <span>發布於 {new Date(pet.createdAt).toLocaleDateString('zh-TW')}</span>
+          <span>
+            發布於 {new Date(pet.createdAt).toLocaleDateString('zh-TW')}
+          </span>
         </div>
-        
-        <Separator className="mb-4" />
-        
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            asChild
-          >
-            <Link href={`/pets/${pet._id}`}>
-              查看詳情
-            </Link>
+
+        <Separator className='mb-4' />
+
+        <div className='flex space-x-2'>
+          <Button variant='outline' size='sm' className='flex-1' asChild>
+            <Link href={`/pets/${pet._id}`}>查看詳情</Link>
+          </Button>
+          <Button variant='outline' size='sm' onClick={() => onEdit(pet._id)}>
+            <Edit className='h-4 w-4' />
           </Button>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(pet._id)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
+            variant='outline'
+            size='sm'
             onClick={() => onDelete(pet._id)}
-            className="text-red-600 hover:text-red-700"
+            className='text-red-600 hover:text-red-700'
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className='h-4 w-4' />
           </Button>
         </div>
       </CardContent>
@@ -158,21 +155,21 @@ function PetCard({ pet, onEdit, onDelete }: {
 
 function PetCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <Skeleton className="w-full h-48" />
-      <CardHeader className="pb-3">
-        <Skeleton className="h-6 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
+    <Card className='overflow-hidden'>
+      <Skeleton className='w-full h-48' />
+      <CardHeader className='pb-3'>
+        <Skeleton className='h-6 w-3/4' />
+        <Skeleton className='h-4 w-1/2' />
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-2 mb-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
+      <CardContent className='pt-0'>
+        <div className='space-y-2 mb-4'>
+          <Skeleton className='h-4 w-full' />
+          <Skeleton className='h-4 w-2/3' />
         </div>
-        <div className="flex space-x-2">
-          <Skeleton className="h-8 flex-1" />
-          <Skeleton className="h-8 w-10" />
-          <Skeleton className="h-8 w-10" />
+        <div className='flex space-x-2'>
+          <Skeleton className='h-8 flex-1' />
+          <Skeleton className='h-8 w-10' />
+          <Skeleton className='h-8 w-10' />
         </div>
       </CardContent>
     </Card>
@@ -242,15 +239,15 @@ export default function MyPetsPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">請先登入</h1>
-          <p className="text-muted-foreground mb-6">
+      <div className='container mx-auto px-4 py-8'>
+        <div className='text-center'>
+          <Heart className='h-16 w-16 text-muted-foreground mx-auto mb-4' />
+          <h1 className='text-2xl font-bold mb-2'>請先登入</h1>
+          <p className='text-muted-foreground mb-6'>
             您需要登入才能查看自己的協尋案例
           </p>
           <Button asChild>
-            <Link href="/auth/login">前往登入</Link>
+            <Link href='/auth/login'>前往登入</Link>
           </Button>
         </div>
       </div>
@@ -258,18 +255,16 @@ export default function MyPetsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className='container mx-auto px-4 py-8'>
       {/* 頁面標題 */}
-      <div className="flex items-center justify-between mb-8">
+      <div className='flex items-center justify-between mb-8'>
         <div>
-          <h1 className="text-3xl font-bold">我的協尋案例</h1>
-          <p className="text-muted-foreground mt-2">
-            管理您發布的寵物協尋案例
-          </p>
+          <h1 className='text-3xl font-bold'>我的協尋案例</h1>
+          <p className='text-muted-foreground mt-2'>管理您發布的寵物協尋案例</p>
         </div>
         <Button asChild>
-          <Link href="/pets/new">
-            <Plus className="h-4 w-4 mr-2" />
+          <Link href='/pets/new'>
+            <Plus className='h-4 w-4 mr-2' />
             發布新協尋
           </Link>
         </Button>
@@ -277,14 +272,14 @@ export default function MyPetsPage() {
 
       {/* 寵物列表 */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {Array.from({ length: 6 }).map((_, index) => (
             <PetCardSkeleton key={index} />
           ))}
         </div>
       ) : pets.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {pets.map((pet) => (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {pets.map(pet => (
             <PetCard
               key={pet._id}
               pet={pet}
@@ -294,15 +289,15 @@ export default function MyPetsPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">還沒有協尋案例</h2>
-          <p className="text-muted-foreground mb-6">
+        <div className='text-center py-12'>
+          <Heart className='h-16 w-16 text-muted-foreground mx-auto mb-4' />
+          <h2 className='text-xl font-semibold mb-2'>還沒有協尋案例</h2>
+          <p className='text-muted-foreground mb-6'>
             您還沒有發布任何寵物協尋案例
           </p>
           <Button asChild>
-            <Link href="/pets/new">
-              <Plus className="h-4 w-4 mr-2" />
+            <Link href='/pets/new'>
+              <Plus className='h-4 w-4 mr-2' />
               發布第一個協尋案例
             </Link>
           </Button>

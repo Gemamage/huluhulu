@@ -25,7 +25,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 16 100% 70%; /* 暖橘色焦點環 */
     --radius: 0.5rem;
-    
+
     /* 品牌專用顏色變數 */
     --brand-orange: 16 100% 70%; /* #FF8C69 */
     --brand-warm-bg: 39 100% 97%; /* #FFF0E5 */
@@ -61,7 +61,7 @@
   }
   body {
     @apply bg-stone-50 text-zinc-700;
-    font-family: "Noto Sans TC", "Inter", sans-serif;
+    font-family: 'Noto Sans TC', 'Inter', sans-serif;
   }
 }
 
@@ -194,29 +194,29 @@
 
 /* 聊天氣泡按鈕 */
 #dify-chatbot-bubble-button {
-  background-color: #FF8C69 !important; /* 品牌主色 */
+  background-color: #ff8c69 !important; /* 品牌主色 */
 }
 
 /* 聊天視窗頂部標題列 - 使用多種可能的選擇器 */
-div[class*="header"],
-div[class*="chat-header"],
-div[class*="dify-header"],
-div[class*="title-bar"],
-div[class*="top-bar"],
+div[class*='header'],
+div[class*='chat-header'],
+div[class*='dify-header'],
+div[class*='title-bar'],
+div[class*='top-bar'],
 #dify-chatbot-bubble-window > div:first-child,
-#dify-chatbot-bubble-window [class*="header"],
-#dify-chatbot-bubble-window [class*="title"],
-#dify-chatbot-bubble-window [class*="top"] {
-    background-color: #FF8C69 !important;
+#dify-chatbot-bubble-window [class*='header'],
+#dify-chatbot-bubble-window [class*='title'],
+#dify-chatbot-bubble-window [class*='top'] {
+  background-color: #ff8c69 !important;
 }
 
 /* 發送按鈕 */
-#dify-chatbot-bubble-window button[class*="chat-send-button"] {
-    background-color: #FF8C69 !important;
+#dify-chatbot-bubble-window button[class*='chat-send-button'] {
+  background-color: #ff8c69 !important;
 }
 
 /* AI 回應的對話框背景 */
-#dify-chatbot-bubble-window div[class*="bot-message-bubble"] {
-    background-color: #FFF0E5 !important;
-    color: #333333 !important;
+#dify-chatbot-bubble-window div[class*='bot-message-bubble'] {
+  background-color: #fff0e5 !important;
+  color: #333333 !important;
 }

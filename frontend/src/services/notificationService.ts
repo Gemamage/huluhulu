@@ -1,24 +1,25 @@
 // 通知服務 - 整合 Socket.IO 和 Firebase FCM
-import { 
-  NotificationData, 
-  NotificationPreferences, 
-  NotificationQuery, 
+import {
+  NotificationData,
+  NotificationPreferences,
+  NotificationQuery,
   NotificationResponse,
   NotificationStats,
   FCMToken,
-  RealtimeNotificationData
+  RealtimeNotificationData,
 } from '../types/notification';
 import { authService } from './authService';
 import { socketService } from './socketService';
-import { 
-  getFCMToken, 
-  requestNotificationPermission, 
+import {
+  getFCMToken,
+  requestNotificationPermission,
   onForegroundMessage,
-  showLocalNotification 
+  showLocalNotification,
 } from '../lib/firebase';
 
 class NotificationService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  private baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
   private fcmToken: string | null = null;
   private isInitialized = false;
 
@@ -50,7 +51,7 @@ class NotificationService {
       }
 
       // 設置前景消息監聽
-      onForegroundMessage((payload) => {
+      onForegroundMessage(payload => {
         this.handleForegroundMessage(payload);
       });
 
@@ -62,7 +63,6 @@ class NotificationService {
 
       this.isInitialized = true;
       console.log('Notification service initialized successfully');
-      
     } catch (error) {
       console.error('Failed to initialize notification service:', error);
     }
@@ -73,9 +73,12 @@ class NotificationService {
    */
   private setupSocketListeners(): void {
     // 監聽通知事件
-    socketService.on('notification', (notification: RealtimeNotificationData) => {
-      this.handleRealtimeNotification(notification);
-    });
+    socketService.on(
+      'notification',
+      (notification: RealtimeNotificationData) => {
+        this.handleRealtimeNotification(notification);
+      }
+    );
 
     // 監聽配對通知
     socketService.on('matchFound', (notification: RealtimeNotificationData) => {
@@ -83,19 +86,22 @@ class NotificationService {
         body: notification.message,
         icon: notification.imageUrl || '/icons/icon-192x192.png',
         tag: `match-${notification.id}`,
-        data: notification.data
+        data: notification.data,
       });
     });
 
     // 監聽地理圍欄警報
-    socketService.on('geofenceAlert', (notification: RealtimeNotificationData) => {
-      this.showNotificationToUser(notification.title, {
-        body: notification.message,
-        icon: '/icons/location-alert.png',
-        tag: `geofence-${notification.id}`,
-        data: notification.data
-      });
-    });
+    socketService.on(
+      'geofenceAlert',
+      (notification: RealtimeNotificationData) => {
+        this.showNotificationToUser(notification.title, {
+          body: notification.message,
+          icon: '/icons/location-alert.png',
+          tag: `geofence-${notification.id}`,
+          data: notification.data,
+        });
+      }
+    );
   }
 
   /**
@@ -103,14 +109,14 @@ class NotificationService {
    */
   private handleForegroundMessage(payload: any): void {
     console.log('Foreground FCM message:', payload);
-    
+
     const { notification, data } = payload;
     if (notification) {
       this.showNotificationToUser(notification.title, {
         body: notification.body,
         icon: notification.icon || '/icons/icon-192x192.png',
         image: notification.image,
-        data: data
+        data: data,
       });
     }
   }
@@ -118,42 +124,49 @@ class NotificationService {
   /**
    * 處理即時通知
    */
-  private handleRealtimeNotification(notification: RealtimeNotificationData): void {
+  private handleRealtimeNotification(
+    notification: RealtimeNotificationData
+  ): void {
     console.log('Realtime notification received:', notification);
-    
+
     // 顯示瀏覽器通知
     this.showNotificationToUser(notification.title, {
       body: notification.message,
       icon: notification.imageUrl || '/icons/icon-192x192.png',
       tag: notification.id,
-      data: notification.data
+      data: notification.data,
     });
 
     // 觸發自定義事件供組件監聽（僅在客戶端）
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('realtimeNotification', {
-        detail: notification
-      }));
+      window.dispatchEvent(
+        new CustomEvent('realtimeNotification', {
+          detail: notification,
+        })
+      );
     }
   }
 
   /**
    * 顯示通知給用戶
    */
-  private showNotificationToUser(title: string, options: NotificationOptions): void {
+  private showNotificationToUser(
+    title: string,
+    options: NotificationOptions
+  ): void {
     showLocalNotification(title, {
       ...options,
       requireInteraction: true,
       actions: [
         {
           action: 'view',
-          title: '查看'
+          title: '查看',
         },
         {
           action: 'dismiss',
-          title: '忽略'
-        }
-      ]
+          title: '忽略',
+        },
+      ],
     });
   }
 
@@ -178,15 +191,15 @@ class NotificationService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           token,
           deviceInfo: {
             userAgent: navigator.userAgent,
-            platform: navigator.platform
-          }
-        })
+            platform: navigator.platform,
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -202,7 +215,9 @@ class NotificationService {
   /**
    * 獲取通知列表
    */
-  public async getNotifications(query: NotificationQuery = {}): Promise<NotificationResponse> {
+  public async getNotifications(
+    query: NotificationQuery = {}
+  ): Promise<NotificationResponse> {
     try {
       const authToken = authService.getToken();
       if (!authToken) {
@@ -218,8 +233,8 @@ class NotificationService {
 
       const response = await fetch(`${this.baseUrl}/notifications?${params}`, {
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       if (!response.ok) {
@@ -243,12 +258,15 @@ class NotificationService {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`${this.baseUrl}/notifications/${notificationId}/read`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${authToken}`
+      const response = await fetch(
+        `${this.baseUrl}/notifications/${notificationId}/read`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to mark notification as read');
@@ -256,7 +274,6 @@ class NotificationService {
 
       // 同時通知 Socket 服務
       socketService.markNotificationAsRead(notificationId);
-      
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
       throw error;
@@ -273,17 +290,19 @@ class NotificationService {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`${this.baseUrl}/notifications/mark-all-read`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${authToken}`
+      const response = await fetch(
+        `${this.baseUrl}/notifications/mark-all-read`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to mark all notifications as read');
       }
-      
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
       throw error;
@@ -302,8 +321,8 @@ class NotificationService {
 
       const response = await fetch(`${this.baseUrl}/notifications/stats`, {
         headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+          Authorization: `Bearer ${authToken}`,
+        },
       });
 
       if (!response.ok) {
@@ -327,11 +346,14 @@ class NotificationService {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`${this.baseUrl}/notifications/preferences`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`
+      const response = await fetch(
+        `${this.baseUrl}/notifications/preferences`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch notification preferences');
@@ -347,26 +369,30 @@ class NotificationService {
   /**
    * 更新通知偏好設定
    */
-  public async updatePreferences(preferences: Partial<NotificationPreferences>): Promise<void> {
+  public async updatePreferences(
+    preferences: Partial<NotificationPreferences>
+  ): Promise<void> {
     try {
       const authToken = authService.getToken();
       if (!authToken) {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`${this.baseUrl}/notifications/preferences`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify(preferences)
-      });
+      const response = await fetch(
+        `${this.baseUrl}/notifications/preferences`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(preferences),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to update notification preferences');
       }
-      
     } catch (error) {
       console.error('Failed to update notification preferences:', error);
       throw error;

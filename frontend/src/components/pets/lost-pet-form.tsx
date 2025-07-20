@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import { LostPetForm as LostPetFormComponent, LostPetFormProps } from './lost-pet-form/index';
+import {
+  LostPetForm as LostPetFormComponent,
+  LostPetFormProps,
+} from './lost-pet-form/index';
 
 export default function LostPetForm(props: LostPetFormProps) {
   return <LostPetFormComponent {...props} />;

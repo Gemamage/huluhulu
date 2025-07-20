@@ -1,12 +1,12 @@
 'use client';
 // 通知相關的 React Hook
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  NotificationData, 
-  NotificationStats, 
+import {
+  NotificationData,
+  NotificationStats,
   NotificationPreferences,
   NotificationQuery,
-  RealtimeNotificationData
+  RealtimeNotificationData,
 } from '../types/notification';
 import { notificationService } from '../services/notificationService';
 import { useToast } from './use-toast';
@@ -22,22 +22,24 @@ export const useNotifications = (query: NotificationQuery = {}) => {
     page: 1,
     limit: 20,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
 
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await notificationService.getNotifications({
         page: pagination.page,
         limit: pagination.limit,
-        ...query
+        ...query,
       });
-      
+
       if (response.success && response.data) {
-        setNotifications(Array.isArray(response.data) ? response.data : [response.data]);
+        setNotifications(
+          Array.isArray(response.data) ? response.data : [response.data]
+        );
         if (response.pagination) {
           setPagination(response.pagination);
         }
@@ -56,11 +58,11 @@ export const useNotifications = (query: NotificationQuery = {}) => {
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
       await notificationService.markAsRead(notificationId);
-      
+
       // 更新本地狀態
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === notificationId
             ? { ...notification, status: 'read' as const }
             : notification
         )
@@ -73,12 +75,12 @@ export const useNotifications = (query: NotificationQuery = {}) => {
   const markAllAsRead = useCallback(async () => {
     try {
       await notificationService.markAllAsRead();
-      
+
       // 更新本地狀態
-      setNotifications(prev => 
-        prev.map(notification => ({ 
-          ...notification, 
-          status: 'read' as const 
+      setNotifications(prev =>
+        prev.map(notification => ({
+          ...notification,
+          status: 'read' as const,
         }))
       );
     } catch (err) {
@@ -105,7 +107,7 @@ export const useNotifications = (query: NotificationQuery = {}) => {
     markAllAsRead,
     refresh,
     loadMore,
-    hasMore: pagination.page < pagination.totalPages
+    hasMore: pagination.page < pagination.totalPages,
   };
 };
 
@@ -142,7 +144,7 @@ export const useNotificationStats = () => {
     stats,
     loading,
     error,
-    refresh
+    refresh,
   };
 };
 
@@ -150,7 +152,8 @@ export const useNotificationStats = () => {
  * 通知偏好設定 Hook
  */
 export const useNotificationPreferences = () => {
-  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
+  const [preferences, setPreferences] =
+    useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
@@ -173,28 +176,31 @@ export const useNotificationPreferences = () => {
     fetchPreferences();
   }, [fetchPreferences]);
 
-  const updatePreferences = useCallback(async (newPreferences: Partial<NotificationPreferences>) => {
-    try {
-      setUpdating(true);
-      await notificationService.updatePreferences(newPreferences);
-      
-      // 更新本地狀態
-      setPreferences(prev => prev ? { ...prev, ...newPreferences } : null);
-      
-      toast({
-        title: '設定已更新',
-        description: '通知偏好設定已成功更新',
-      });
-    } catch (err) {
-      toast({
-        title: '更新失敗',
-        description: err instanceof Error ? err.message : '更新偏好設定失敗',
-        variant: 'destructive'
-      });
-    } finally {
-      setUpdating(false);
-    }
-  }, [toast]);
+  const updatePreferences = useCallback(
+    async (newPreferences: Partial<NotificationPreferences>) => {
+      try {
+        setUpdating(true);
+        await notificationService.updatePreferences(newPreferences);
+
+        // 更新本地狀態
+        setPreferences(prev => (prev ? { ...prev, ...newPreferences } : null));
+
+        toast({
+          title: '設定已更新',
+          description: '通知偏好設定已成功更新',
+        });
+      } catch (err) {
+        toast({
+          title: '更新失敗',
+          description: err instanceof Error ? err.message : '更新偏好設定失敗',
+          variant: 'destructive',
+        });
+      } finally {
+        setUpdating(false);
+      }
+    },
+    [toast]
+  );
 
   return {
     preferences,
@@ -202,7 +208,7 @@ export const useNotificationPreferences = () => {
     error,
     updating,
     updatePreferences,
-    refresh: fetchPreferences
+    refresh: fetchPreferences,
   };
 };
 
@@ -210,20 +216,24 @@ export const useNotificationPreferences = () => {
  * 即時通知 Hook
  */
 export const useRealtimeNotifications = () => {
-  const [realtimeNotifications, setRealtimeNotifications] = useState<RealtimeNotificationData[]>([]);
+  const [realtimeNotifications, setRealtimeNotifications] = useState<
+    RealtimeNotificationData[]
+  >([]);
   const { toast } = useToast();
 
   useEffect(() => {
     // 確保只在客戶端執行
     if (typeof window === 'undefined') return;
-    
+
     // 監聽即時通知事件
-    const handleRealtimeNotification = (event: CustomEvent<RealtimeNotificationData>) => {
+    const handleRealtimeNotification = (
+      event: CustomEvent<RealtimeNotificationData>
+    ) => {
       const notification = event.detail;
-      
+
       // 添加到即時通知列表
       setRealtimeNotifications(prev => [notification, ...prev.slice(0, 9)]); // 保持最新 10 條
-      
+
       // 顯示 Toast 通知
       toast({
         title: notification.title,
@@ -232,10 +242,16 @@ export const useRealtimeNotifications = () => {
       });
     };
 
-    window.addEventListener('realtimeNotification', handleRealtimeNotification as EventListener);
+    window.addEventListener(
+      'realtimeNotification',
+      handleRealtimeNotification as EventListener
+    );
 
     return () => {
-      window.removeEventListener('realtimeNotification', handleRealtimeNotification as EventListener);
+      window.removeEventListener(
+        'realtimeNotification',
+        handleRealtimeNotification as EventListener
+      );
     };
   }, [toast]);
 
@@ -244,7 +260,7 @@ export const useRealtimeNotifications = () => {
   }, []);
 
   const removeRealtimeNotification = useCallback((notificationId: string) => {
-    setRealtimeNotifications(prev => 
+    setRealtimeNotifications(prev =>
       prev.filter(notification => notification.id !== notificationId)
     );
   }, []);
@@ -252,7 +268,7 @@ export const useRealtimeNotifications = () => {
   return {
     realtimeNotifications,
     clearRealtimeNotifications,
-    removeRealtimeNotification
+    removeRealtimeNotification,
   };
 };
 
@@ -269,7 +285,9 @@ export const useNotificationService = () => {
         await notificationService.initialize();
         setIsInitialized(true);
       } catch (error) {
-        setInitError(error instanceof Error ? error.message : '初始化通知服務失敗');
+        setInitError(
+          error instanceof Error ? error.message : '初始化通知服務失敗'
+        );
       }
     };
 
@@ -283,6 +301,6 @@ export const useNotificationService = () => {
 
   return {
     isInitialized,
-    initError
+    initError,
   };
 };

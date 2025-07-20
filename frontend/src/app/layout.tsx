@@ -6,10 +6,10 @@ import { Toaster } from '@/components/ui/toaster';
 import DifyChatbotLoader from '@/components/DifyChatbotLoader';
 
 const inter = Inter({ subsets: ['latin'] });
-const notoSansTC = Noto_Sans({ 
+const notoSansTC = Noto_Sans({
   subsets: ['latin'],
   variable: '--font-noto-sans-tc',
-  display: 'swap'
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -72,7 +72,9 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang='zh-TW' suppressHydrationWarning>
-      <body className={`${inter.className} ${notoSansTC.variable} bg-stone-50 text-zinc-700`}>
+      <body
+        className={`${inter.className} ${notoSansTC.variable} bg-stone-50 text-zinc-700`}
+      >
         <Providers>
           <div className='relative flex min-h-screen flex-col'>
             <div className='flex-1'>
@@ -84,11 +86,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <Toaster />
           <DifyChatbotLoader />
         </Providers>
-        
+
         {/* Dify 聊天機器人腳本 */}
         <script
-          src="https://udify.app/embed.min.js"
-          id="FKpA4O7UI8g4LQaf"
+          src='https://udify.app/embed.min.js'
+          id='FKpA4O7UI8g4LQaf'
           defer
         />
       </body>

@@ -18,5 +18,5 @@ export type {
   SocketEvents,
   NotificationStats as NotificationStatsType,
   NotificationResponse,
-  NotificationQuery
+  NotificationQuery,
 } from '../../types/notification';

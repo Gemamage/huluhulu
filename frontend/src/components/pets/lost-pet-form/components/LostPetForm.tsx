@@ -13,7 +13,7 @@ import {
   LostInfoSection,
   ContactSection,
   ImageUploadSection,
-  AdditionalInfoSection
+  AdditionalInfoSection,
 } from './';
 
 export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
@@ -23,9 +23,9 @@ export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
     setErrors,
     handleInputChange,
     getCurrentBreedOptions,
-    resetForm
+    resetForm,
   } = useLostPetForm(initialData);
-  
+
   const { validateForm, validateField } = useLostPetValidation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -36,7 +36,7 @@ export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
     setSubmitMessage('');
 
     const validation = validateForm(formData);
-    
+
     if (!validation.isValid) {
       setErrors(validation.errors);
       setIsSubmitting(false);
@@ -74,20 +74,28 @@ export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">走失寵物登記</h1>
-        <p className="text-gray-600">請詳細填寫您寵物的資訊，這將幫助其他人更容易識別和聯繫您</p>
+    <div className='max-w-4xl mx-auto p-6 space-y-8'>
+      <div className='text-center'>
+        <h1 className='text-3xl font-bold text-gray-900 mb-2'>走失寵物登記</h1>
+        <p className='text-gray-600'>
+          請詳細填寫您寵物的資訊，這將幫助其他人更容易識別和聯繫您
+        </p>
       </div>
 
       {submitMessage && (
-        <Alert className={submitMessage.includes('成功') ? 'border-green-500' : 'border-red-500'}>
-          <AlertCircle className="h-4 w-4" />
+        <Alert
+          className={
+            submitMessage.includes('成功')
+              ? 'border-green-500'
+              : 'border-red-500'
+          }
+        >
+          <AlertCircle className='h-4 w-4' />
           <AlertDescription>{submitMessage}</AlertDescription>
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className='space-y-8'>
         <BasicInfoSection
           formData={formData}
           errors={errors}
@@ -132,20 +140,16 @@ export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
         />
 
         {/* 提交按鈕 */}
-        <div className="flex justify-center space-x-4">
+        <div className='flex justify-center space-x-4'>
           <Button
-            type="button"
-            variant="outline"
+            type='button'
+            variant='outline'
             onClick={resetForm}
             disabled={isSubmitting}
           >
             重置表單
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="min-w-32"
-          >
+          <Button type='submit' disabled={isSubmitting} className='min-w-32'>
             {isSubmitting ? '提交中...' : '提交走失寵物資訊'}
           </Button>
         </div>

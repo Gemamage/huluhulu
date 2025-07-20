@@ -36,7 +36,8 @@ export interface ResetPasswordData {
 }
 
 class AuthService {
-  private readonly API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  private readonly API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
   private readonly ACCESS_TOKEN_KEY = 'accessToken';
   private readonly REFRESH_TOKEN_KEY = 'refreshToken';
   private readonly USER_KEY = 'user';
@@ -44,7 +45,9 @@ class AuthService {
   /**
    * 用戶註冊
    */
-  async register(data: RegisterData): Promise<{ user: User; tokens: AuthTokens }> {
+  async register(
+    data: RegisterData
+  ): Promise<{ user: User; tokens: AuthTokens }> {
     const response = await fetch(`${this.API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: {
@@ -69,7 +72,9 @@ class AuthService {
   /**
    * 用戶登入
    */
-  async login(credentials: LoginCredentials): Promise<{ user: User; tokens: AuthTokens }> {
+  async login(
+    credentials: LoginCredentials
+  ): Promise<{ user: User; tokens: AuthTokens }> {
     const response = await fetch(`${this.API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -96,14 +101,14 @@ class AuthService {
    */
   async logout(): Promise<void> {
     const refreshToken = this.getRefreshToken();
-    
+
     if (refreshToken) {
       try {
         await fetch(`${this.API_BASE_URL}/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.getAccessToken()}`,
+            Authorization: `Bearer ${this.getAccessToken()}`,
           },
           body: JSON.stringify({ refreshToken }),
         });
@@ -121,7 +126,7 @@ class AuthService {
    */
   async refreshToken(): Promise<AuthTokens> {
     const refreshToken = this.getRefreshToken();
-    
+
     if (!refreshToken) {
       throw new Error('沒有刷新令牌');
     }
@@ -192,7 +197,7 @@ class AuthService {
     const response = await fetch(`${this.API_BASE_URL}/auth/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${this.getAccessToken()}`,
+        Authorization: `Bearer ${this.getAccessToken()}`,
       },
     });
 
@@ -212,9 +217,12 @@ class AuthService {
    * 驗證電子郵件
    */
   async verifyEmail(token: string): Promise<void> {
-    const response = await fetch(`${this.API_BASE_URL}/auth/verify-email/${token}`, {
-      method: 'GET',
-    });
+    const response = await fetch(
+      `${this.API_BASE_URL}/auth/verify-email/${token}`,
+      {
+        method: 'GET',
+      }
+    );
 
     const result = await response.json();
 
@@ -227,12 +235,15 @@ class AuthService {
    * 重新發送驗證郵件（需要登入）
    */
   async resendVerificationEmail(): Promise<void> {
-    const response = await fetch(`${this.API_BASE_URL}/auth/resend-verification`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.getAccessToken()}`,
-      },
-    });
+    const response = await fetch(
+      `${this.API_BASE_URL}/auth/resend-verification`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+      }
+    );
 
     const result = await response.json();
 
@@ -245,13 +256,16 @@ class AuthService {
    * 重新發送驗證郵件（無需登入）
    */
   async resendVerificationEmailByEmail(email: string): Promise<void> {
-    const response = await fetch(`${this.API_BASE_URL}/auth/resend-verification-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+    const response = await fetch(
+      `${this.API_BASE_URL}/auth/resend-verification-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
 
     const result = await response.json();
 
@@ -263,10 +277,19 @@ class AuthService {
   /**
    * 檢查驗證狀態
    */
-  async checkVerificationStatus(email: string): Promise<{ isVerified: boolean; canResend: boolean; nextResendTime?: string }> {
-    const response = await fetch(`${this.API_BASE_URL}/auth/verification-status?email=${encodeURIComponent(email)}`, {
-      method: 'GET',
-    });
+  async checkVerificationStatus(
+    email: string
+  ): Promise<{
+    isVerified: boolean;
+    canResend: boolean;
+    nextResendTime?: string;
+  }> {
+    const response = await fetch(
+      `${this.API_BASE_URL}/auth/verification-status?email=${encodeURIComponent(email)}`,
+      {
+        method: 'GET',
+      }
+    );
 
     const result = await response.json();
 
@@ -285,7 +308,7 @@ class AuthService {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAccessToken()}`,
+        Authorization: `Bearer ${this.getAccessToken()}`,
       },
       body: JSON.stringify(data),
     });
@@ -305,23 +328,29 @@ class AuthService {
   /**
    * 更改密碼
    */
-  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<void> {
     const user = this.getUser();
     if (!user) {
       throw new Error('未找到用戶資訊');
     }
 
-    const response = await fetch(`${this.API_BASE_URL}/users/${user.id}/change-password`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAccessToken()}`,
-      },
-      body: JSON.stringify({
-        currentPassword,
-        newPassword,
-      }),
-    });
+    const response = await fetch(
+      `${this.API_BASE_URL}/users/${user.id}/change-password`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      }
+    );
 
     const result = await response.json();
 
@@ -342,13 +371,16 @@ class AuthService {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    const response = await fetch(`${this.API_BASE_URL}/users/${user.id}/avatar`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.getAccessToken()}`,
-      },
-      body: formData,
-    });
+    const response = await fetch(
+      `${this.API_BASE_URL}/users/${user.id}/avatar`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.getAccessToken()}`,
+        },
+        body: formData,
+      }
+    );
 
     const result = await response.json();
 

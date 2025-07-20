@@ -4,10 +4,26 @@ import { useState, useEffect } from 'react';
 import { petService } from '@/services/petService';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { History, Search, Trash2, Clock, MapPin, Filter } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -32,7 +48,10 @@ interface SearchHistoryProps {
   limit?: number;
 }
 
-export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps) {
+export function SearchHistory({
+  onSearchSelect,
+  limit = 10,
+}: SearchHistoryProps) {
   const { user } = useAuth();
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +66,7 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
     try {
       setLoading(true);
       const response = await petService.getSearchHistory(limit);
-      
+
       if (response.success && response.data) {
         setSearchHistory(response.data.searchHistory);
       }
@@ -67,7 +86,7 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
     try {
       setClearing(true);
       const response = await petService.clearSearchHistory();
-      
+
       if (response.success) {
         setSearchHistory([]);
         toast({
@@ -123,11 +142,9 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
   if (!user) {
     return (
       <Card>
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <History className="h-12 w-12 text-gray-400 mb-4" />
-          <p className="text-gray-600 text-center">
-            請登入以查看搜尋歷史
-          </p>
+        <CardContent className='flex flex-col items-center justify-center py-8'>
+          <History className='h-12 w-12 text-gray-400 mb-4' />
+          <p className='text-gray-600 text-center'>請登入以查看搜尋歷史</p>
         </CardContent>
       </Card>
     );
@@ -137,22 +154,22 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
     return (
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className='flex items-center justify-between'>
             <div>
-              <Skeleton className="h-6 w-24 mb-2" />
-              <Skeleton className="h-4 w-32" />
+              <Skeleton className='h-6 w-24 mb-2' />
+              <Skeleton className='h-4 w-32' />
             </div>
-            <Skeleton className="h-9 w-20" />
+            <Skeleton className='h-9 w-20' />
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className='space-y-4'>
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <div className="flex gap-2">
-                <Skeleton className="h-5 w-12" />
-                <Skeleton className="h-5 w-16" />
-                <Skeleton className="h-5 w-20" />
+            <div key={index} className='space-y-2'>
+              <Skeleton className='h-4 w-full' />
+              <div className='flex gap-2'>
+                <Skeleton className='h-5 w-12' />
+                <Skeleton className='h-5 w-16' />
+                <Skeleton className='h-5 w-20' />
               </div>
             </div>
           ))}
@@ -164,26 +181,20 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className='flex items-center justify-between'>
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
+            <CardTitle className='flex items-center gap-2'>
+              <History className='h-5 w-5' />
               搜尋歷史
             </CardTitle>
-            <CardDescription>
-              查看您最近的搜尋記錄
-            </CardDescription>
+            <CardDescription>查看您最近的搜尋記錄</CardDescription>
           </div>
-          
+
           {searchHistory.length > 0 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  disabled={clearing}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                <Button variant='outline' size='sm' disabled={clearing}>
+                  <Trash2 className='h-4 w-4 mr-2' />
                   清除
                 </Button>
               </AlertDialogTrigger>
@@ -196,9 +207,9 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction 
+                  <AlertDialogAction
                     onClick={handleClearHistory}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
                   >
                     確認清除
                   </AlertDialogAction>
@@ -208,37 +219,35 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {searchHistory.length === 0 ? (
-          <div className="text-center py-8">
-            <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">
-              尚無搜尋歷史
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
+          <div className='text-center py-8'>
+            <Search className='h-12 w-12 text-gray-400 mx-auto mb-4' />
+            <p className='text-gray-600'>尚無搜尋歷史</p>
+            <p className='text-sm text-gray-500 mt-2'>
               開始搜尋寵物協尋案例，您的搜尋記錄將會顯示在這裡
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {searchHistory.map((item) => (
+          <div className='space-y-4'>
+            {searchHistory.map(item => (
               <div
                 key={item._id}
-                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                className='border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer'
                 onClick={() => handleSearchSelect(item)}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Search className="h-4 w-4 text-gray-500" />
-                      <span className="font-medium">
+                <div className='flex items-start justify-between mb-2'>
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2 mb-1'>
+                      <Search className='h-4 w-4 text-gray-500' />
+                      <span className='font-medium'>
                         {item.searchQuery || '無關鍵字搜尋'}
                       </span>
                     </div>
-                    
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Clock className="h-3 w-3" />
+
+                    <div className='flex items-center gap-2 text-sm text-gray-500'>
+                      <Clock className='h-3 w-3' />
                       <span>
                         {formatDistanceToNow(new Date(item.searchedAt), {
                           addSuffix: true,
@@ -250,37 +259,37 @@ export function SearchHistory({ onSearchSelect, limit = 10 }: SearchHistoryProps
                     </div>
                   </div>
                 </div>
-                
+
                 {/* 篩選條件 */}
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className='flex flex-wrap gap-2 mt-3'>
                   {item.filters.type && (
-                    <Badge variant="secondary" className="text-xs">
-                      <Filter className="h-3 w-3 mr-1" />
+                    <Badge variant='secondary' className='text-xs'>
+                      <Filter className='h-3 w-3 mr-1' />
                       {getTypeText(item.filters.type)}
                     </Badge>
                   )}
-                  
+
                   {item.filters.status && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant='secondary' className='text-xs'>
                       {getStatusText(item.filters.status)}
                     </Badge>
                   )}
-                  
+
                   {item.filters.location && (
-                    <Badge variant="secondary" className="text-xs">
-                      <MapPin className="h-3 w-3 mr-1" />
+                    <Badge variant='secondary' className='text-xs'>
+                      <MapPin className='h-3 w-3 mr-1' />
                       {item.filters.location}
                     </Badge>
                   )}
-                  
+
                   {item.filters.breed && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant='secondary' className='text-xs'>
                       品種: {item.filters.breed}
                     </Badge>
                   )}
-                  
+
                   {item.filters.radius && item.filters.radius !== 10 && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant='secondary' className='text-xs'>
                       範圍: {item.filters.radius}km
                     </Badge>
                   )}

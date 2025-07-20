@@ -16,7 +16,7 @@ interface ImageUploadSectionProps {
 export function ImageUploadSection({
   formData,
   errors,
-  onInputChange
+  onInputChange,
 }: ImageUploadSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,69 +40,71 @@ export function ImageUploadSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Camera className="h-5 w-5" />
+        <CardTitle className='flex items-center gap-2'>
+          <Camera className='h-5 w-5' />
           寵物照片
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className='space-y-6'>
         <div>
           <Label>上傳寵物照片 *</Label>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className='text-sm text-gray-600 mb-4'>
             請上傳清晰的寵物照片，有助於他人辨識（最多5張）
           </p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+
+          <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
             {formData.images.map((image, index) => (
-              <div key={index} className="relative group">
+              <div key={index} className='relative group'>
                 <img
                   src={getImagePreview(image)}
                   alt={`寵物照片 ${index + 1}`}
-                  className="w-full h-24 object-cover rounded-lg border"
+                  className='w-full h-24 object-cover rounded-lg border'
                 />
                 <button
-                  type="button"
+                  type='button'
                   onClick={() => removeImage(index)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className='absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity'
                 >
-                  <X className="h-3 w-3" />
+                  <X className='h-3 w-3' />
                 </button>
               </div>
             ))}
-            
+
             {formData.images.length < 5 && (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+                className='w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors'
               >
-                <Upload className="h-6 w-6 text-gray-400 mb-1" />
-                <span className="text-xs text-gray-500">上傳照片</span>
+                <Upload className='h-6 w-6 text-gray-400 mb-1' />
+                <span className='text-xs text-gray-500'>上傳照片</span>
               </div>
             )}
           </div>
-          
+
           <input
             ref={fileInputRef}
-            type="file"
-            accept="image/*"
+            type='file'
+            accept='image/*'
             multiple
             onChange={handleImageUpload}
-            className="hidden"
+            className='hidden'
           />
-          
+
           {formData.images.length < 5 && (
             <Button
-              type="button"
-              variant="outline"
+              type='button'
+              variant='outline'
               onClick={() => fileInputRef.current?.click()}
-              className="mt-4 w-full"
+              className='mt-4 w-full'
             >
-              <Camera className="h-4 w-4 mr-2" />
+              <Camera className='h-4 w-4 mr-2' />
               選擇照片
             </Button>
           )}
-          
-          {errors.images && <p className="text-red-500 text-sm mt-2">{errors.images}</p>}
+
+          {errors.images && (
+            <p className='text-red-500 text-sm mt-2'>{errors.images}</p>
+          )}
         </div>
       </CardContent>
     </Card>

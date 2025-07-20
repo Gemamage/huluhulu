@@ -1,6 +1,11 @@
 // Firebase 配置和初始化
 import { initializeApp, getApps } from 'firebase/app';
-import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging';
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  Messaging,
+} from 'firebase/messaging';
 import { getAnalytics, Analytics } from 'firebase/analytics';
 
 // Firebase 配置 - 這些值需要從 Firebase Console 獲取
@@ -11,7 +16,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // 初始化 Firebase App
@@ -55,14 +60,14 @@ export const getFCMToken = async (): Promise<string | null> => {
   try {
     // VAPID Key 需要從 Firebase Console 獲取
     const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-    
+
     if (!vapidKey) {
       console.error('VAPID key not configured');
       return null;
     }
 
     const token = await getToken(messaging, {
-      vapidKey: vapidKey
+      vapidKey: vapidKey,
     });
 
     if (token) {
@@ -88,7 +93,7 @@ export const onForegroundMessage = (callback: (payload: any) => void) => {
     return;
   }
 
-  return onMessage(messaging, (payload) => {
+  return onMessage(messaging, payload => {
     console.log('Foreground message received:', payload);
     callback(payload);
   });
@@ -98,24 +103,25 @@ export const onForegroundMessage = (callback: (payload: any) => void) => {
  * 請求通知權限
  * @returns Promise<NotificationPermission>
  */
-export const requestNotificationPermission = async (): Promise<NotificationPermission> => {
-  if (!isClient || !('Notification' in window)) {
-    console.warn('This browser does not support notifications');
-    return 'denied';
-  }
+export const requestNotificationPermission =
+  async (): Promise<NotificationPermission> => {
+    if (!isClient || !('Notification' in window)) {
+      console.warn('This browser does not support notifications');
+      return 'denied';
+    }
 
-  if (Notification.permission === 'granted') {
-    return 'granted';
-  }
+    if (Notification.permission === 'granted') {
+      return 'granted';
+    }
 
-  if (Notification.permission === 'denied') {
-    return 'denied';
-  }
+    if (Notification.permission === 'denied') {
+      return 'denied';
+    }
 
-  // 請求權限
-  const permission = await Notification.requestPermission();
-  return permission;
-};
+    // 請求權限
+    const permission = await Notification.requestPermission();
+    return permission;
+  };
 
 /**
  * 檢查通知權限狀態
@@ -133,7 +139,10 @@ export const getNotificationPermission = (): NotificationPermission => {
  * @param title 通知標題
  * @param options 通知選項
  */
-export const showLocalNotification = (title: string, options?: NotificationOptions) => {
+export const showLocalNotification = (
+  title: string,
+  options?: NotificationOptions
+) => {
   if (!isClient || !('Notification' in window)) {
     console.warn('This browser does not support notifications');
     return;
@@ -143,7 +152,7 @@ export const showLocalNotification = (title: string, options?: NotificationOptio
     new Notification(title, {
       icon: '/icons/icon-192x192.png',
       badge: '/icons/badge-72x72.png',
-      ...options
+      ...options,
     });
   }
 };

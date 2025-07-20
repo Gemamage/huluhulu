@@ -16,7 +16,7 @@ function EmailVerificationContent() {
   if (email) props.email = email;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-blue-50 p-4">
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-blue-50 p-4'>
       <EmailVerification {...props} />
     </div>
   );
@@ -24,12 +24,12 @@ function EmailVerificationContent() {
 
 export default function EmailVerificationPage() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-blue-50 p-4">
-          <Card className="w-full max-w-md mx-auto">
-            <CardContent className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
+        <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-blue-50 p-4'>
+          <Card className='w-full max-w-md mx-auto'>
+            <CardContent className='flex items-center justify-center py-8'>
+              <Loader2 className='h-8 w-8 animate-spin' />
             </CardContent>
           </Card>
         </div>

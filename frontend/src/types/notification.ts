@@ -6,20 +6,20 @@ export enum NotificationType {
   REMINDER = 'REMINDER',
   SYSTEM_ANNOUNCEMENT = 'SYSTEM_ANNOUNCEMENT',
   MESSAGE = 'MESSAGE',
-  COMMENT = 'COMMENT'
+  COMMENT = 'COMMENT',
 }
 
 export enum NotificationPriority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  URGENT = 'URGENT'
+  URGENT = 'URGENT',
 }
 
 export enum NotificationStatus {
   UNREAD = 'UNREAD',
   READ = 'READ',
-  ARCHIVED = 'ARCHIVED'
+  ARCHIVED = 'ARCHIVED',
 }
 
 // 通知數據接口
@@ -72,7 +72,7 @@ export interface NotificationPreferences {
   quietHours: {
     enabled: boolean;
     startTime: string; // HH:mm 格式
-    endTime: string;   // HH:mm 格式
+    endTime: string; // HH:mm 格式
   };
   frequency: {
     digest: boolean;
@@ -99,18 +99,18 @@ export enum SocketEvents {
   DISCONNECT = 'disconnect',
   JOIN_ROOM = 'join_room',
   LEAVE_ROOM = 'leave_room',
-  
+
   // 通知相關
   NOTIFICATION = 'notification',
   NOTIFICATION_READ = 'notification_read',
   NOTIFICATION_DELIVERED = 'notification_delivered',
-  
+
   // 寵物相關
   PET_STATUS_UPDATE = 'pet:status_update',
   PET_MATCH_FOUND = 'pet:match_found',
-  
+
   // 系統相關
-  SYSTEM_ANNOUNCEMENT = 'system:announcement'
+  SYSTEM_ANNOUNCEMENT = 'system:announcement',
 }
 
 // 通知統計接口

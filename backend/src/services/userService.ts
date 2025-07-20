@@ -4,6 +4,9 @@
 export {
   UserService,
   userService,
+} from "./users";
+
+export type {
   RegisterUserData,
   LoginUserData,
   UpdateUserData,

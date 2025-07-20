@@ -18,7 +18,7 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
     lostLocation: initialData?.lostLocation || {
       city: '',
       district: '',
-      address: ''
+      address: '',
     },
     lostDate: initialData?.lostDate || new Date().toISOString().split('T')[0],
     lostTime: initialData?.lostTime || '',
@@ -42,28 +42,31 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
 
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleInputChange = useCallback((field: string, value: any) => {
-    setFormData(prev => {
-      const keys = field.split('.');
-      if (keys.length === 1) {
-        return { ...prev, [field]: value };
-      } else if (keys.length === 2) {
-        return {
-          ...prev,
-          [keys[0]]: {
-            ...prev[keys[0] as keyof LostPetFormData],
-            [keys[1]]: value,
-          },
-        };
-      }
-      return prev;
-    });
+  const handleInputChange = useCallback(
+    (field: string, value: any) => {
+      setFormData(prev => {
+        const keys = field.split('.');
+        if (keys.length === 1) {
+          return { ...prev, [field]: value };
+        } else if (keys.length === 2) {
+          return {
+            ...prev,
+            [keys[0]]: {
+              ...prev[keys[0] as keyof LostPetFormData],
+              [keys[1]]: value,
+            },
+          };
+        }
+        return prev;
+      });
 
-    // 清除該欄位的錯誤
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  }, [errors]);
+      // 清除該欄位的錯誤
+      if (errors[field]) {
+        setErrors(prev => ({ ...prev, [field]: '' }));
+      }
+    },
+    [errors]
+  );
 
   const getCurrentBreedOptions = useCallback(() => {
     const typeKey = formData.type as keyof typeof BREED_OPTIONS;
@@ -86,7 +89,7 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
       lostLocation: {
         city: '',
         district: '',
-        address: ''
+        address: '',
       },
       lostDate: new Date().toISOString().split('T')[0],
       lostTime: '',
@@ -116,6 +119,6 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
     setErrors,
     handleInputChange,
     getCurrentBreedOptions,
-    resetForm
+    resetForm,
   };
 }

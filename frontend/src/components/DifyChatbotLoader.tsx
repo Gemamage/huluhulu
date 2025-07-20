@@ -17,14 +17,16 @@ export default function DifyChatbotLoader() {
         token: 'FKpA4O7UI8g4LQaf',
         systemVariables: {
           // 如果用戶已登入，傳遞用戶 ID
-          ...(isAuthenticated && user?._id && { user_id: user._id })
+          ...(isAuthenticated && user?._id && { user_id: user._id }),
         },
         userVariables: {
           // 如果用戶已登入，傳遞用戶姓名
-          ...(isAuthenticated && user?.firstName && user?.lastName && {
-            name: `${user.firstName} ${user.lastName}`
-          })
-        }
+          ...(isAuthenticated &&
+            user?.firstName &&
+            user?.lastName && {
+              name: `${user.firstName} ${user.lastName}`,
+            }),
+        },
       };
     }
   }, [user, isAuthenticated]);

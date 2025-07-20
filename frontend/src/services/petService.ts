@@ -1,8 +1,18 @@
 // 寵物服務
 // 這個文件提供前端測試所需的寵物服務
 
-import { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet';
-import { SearchFilters, AdvancedSearchResponse, SearchAnalytics, ElasticsearchHealth } from '@/types/search';
+import {
+  Pet,
+  CreatePetData,
+  UpdatePetData,
+  PetSearchResult,
+} from '@/types/pet';
+import {
+  SearchFilters,
+  AdvancedSearchResponse,
+  SearchAnalytics,
+  ElasticsearchHealth,
+} from '@/types/search';
 import { errorHandler, ApiError, ApiErrorCode } from './errorHandler';
 import { authService } from './authService';
 import { searchService } from './searchService';
@@ -18,34 +28,47 @@ interface PetServiceMethods {
   createPet(data: CreatePetData): Promise<Pet>;
   updatePet(id: string, data: UpdatePetData): Promise<Pet>;
   deletePet(id: string): Promise<void>;
-  
+
   // 用戶相關
   getMyPets(): Promise<PetSearchResult>;
   favoritePet(petId: string): Promise<void>;
   unfavoritePet(petId: string): Promise<void>;
   getFavoritePets(): Promise<PetSearchResult>;
-  
+
   // 統計與互動
   incrementViewCount(petId: string): Promise<void>;
   incrementShareCount(petId: string): Promise<void>;
   reportPet(petId: string, reason: string): Promise<void>;
-  
+
   // 委託方法 - 提供統一介面但實際由其他服務處理
-  searchPets(query: string, filters?: Omit<SearchFilters, 'q'>): Promise<PetSearchResult>;
-  advancedSearch(query: string, filters?: SearchFilters): Promise<AdvancedSearchResponse<Pet>>;
+  searchPets(
+    query: string,
+    filters?: Omit<SearchFilters, 'q'>
+  ): Promise<PetSearchResult>;
+  advancedSearch(
+    query: string,
+    filters?: SearchFilters
+  ): Promise<AdvancedSearchResponse<Pet>>;
   getSearchSuggestions(query: string): Promise<string[]>;
   getSearchAnalytics(timeRange?: string): Promise<SearchAnalytics>;
-  checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }>;
+  checkSearchHealth(): Promise<{
+    data: { elasticsearch: ElasticsearchHealth };
+  }>;
   uploadPetImage(petId: string, file: File): Promise<string>;
   deletePetImage(petId: string, imageUrl: string): Promise<void>;
 }
 
 class PetService implements PetServiceMethods {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  private baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-  private async makeRequest(url: string, options: RequestInit = {}, context?: string): Promise<any> {
+  private async makeRequest(
+    url: string,
+    options: RequestInit = {},
+    context?: string
+  ): Promise<any> {
     const requestContext = context || `${options.method || 'GET'} ${url}`;
-    
+
     try {
       const token = authService.getToken();
       const headers: HeadersInit = {
@@ -81,8 +104,14 @@ class PetService implements PetServiceMethods {
           // 忽略解析錯誤
         }
 
-        const apiError = errorHandler.createErrorFromResponse(response, errorDetails);
-        const handlingResult = errorHandler.handleError(apiError, requestContext);
+        const apiError = errorHandler.createErrorFromResponse(
+          response,
+          errorDetails
+        );
+        const handlingResult = errorHandler.handleError(
+          apiError,
+          requestContext
+        );
 
         // 處理認證錯誤
         if (apiError.isAuthError()) {
@@ -94,7 +123,9 @@ class PetService implements PetServiceMethods {
 
         // 如果需要重試，則重試
         if (handlingResult.shouldRetry && handlingResult.retryDelay) {
-          await new Promise(resolve => setTimeout(resolve, handlingResult.retryDelay));
+          await new Promise(resolve =>
+            setTimeout(resolve, handlingResult.retryDelay)
+          );
           return this.makeRequest(url, options, context);
         }
 
@@ -109,19 +140,25 @@ class PetService implements PetServiceMethods {
         return response.json();
       }
       return response;
-      
     } catch (error) {
       // 處理網路錯誤
       if (error instanceof ApiError) {
         throw error; // 重新拋出已處理的 ApiError
       }
 
-      const networkError = errorHandler.createErrorFromNetworkError(error as Error);
-      const handlingResult = errorHandler.handleError(networkError, requestContext);
+      const networkError = errorHandler.createErrorFromNetworkError(
+        error as Error
+      );
+      const handlingResult = errorHandler.handleError(
+        networkError,
+        requestContext
+      );
 
       // 如果需要重試，則重試
       if (handlingResult.shouldRetry && handlingResult.retryDelay) {
-        await new Promise(resolve => setTimeout(resolve, handlingResult.retryDelay));
+        await new Promise(resolve =>
+          setTimeout(resolve, handlingResult.retryDelay)
+        );
         return this.makeRequest(url, options, context);
       }
 
@@ -142,11 +179,10 @@ class PetService implements PetServiceMethods {
       const url = `/pets${params.toString() ? `?${params.toString()}` : ''}`;
       return this.makeRequest(url, {}, 'getAllPets');
     } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.UNKNOWN_ERROR,
-        '獲取寵物列表失敗',
-        { filters, originalError: error }
-      );
+      throw new ApiError(ApiErrorCode.UNKNOWN_ERROR, '獲取寵物列表失敗', {
+        filters,
+        originalError: error,
+      });
     }
   }
 
@@ -161,31 +197,38 @@ class PetService implements PetServiceMethods {
 
   async createPet(data: CreatePetData): Promise<Pet> {
     try {
-      return this.makeRequest('/pets', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }, 'createPet');
-    } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.VALIDATION_ERROR,
-        '創建寵物資料失敗',
-        { data, originalError: error }
+      return this.makeRequest(
+        '/pets',
+        {
+          method: 'POST',
+          body: JSON.stringify(data),
+        },
+        'createPet'
       );
+    } catch (error) {
+      throw new ApiError(ApiErrorCode.VALIDATION_ERROR, '創建寵物資料失敗', {
+        data,
+        originalError: error,
+      });
     }
   }
 
   async updatePet(id: string, data: UpdatePetData): Promise<Pet> {
     try {
-      return this.makeRequest(`/pets/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      }, 'updatePet');
-    } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.VALIDATION_ERROR,
-        '更新寵物資料失敗',
-        { id, data, originalError: error }
+      return this.makeRequest(
+        `/pets/${id}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        },
+        'updatePet'
       );
+    } catch (error) {
+      throw new ApiError(ApiErrorCode.VALIDATION_ERROR, '更新寵物資料失敗', {
+        id,
+        data,
+        originalError: error,
+      });
     }
   }
 
@@ -218,7 +261,9 @@ class PetService implements PetServiceMethods {
     return searchService.getSearchAnalytics(timeRange);
   }
 
-  async checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }> {
+  async checkSearchHealth(): Promise<{
+    data: { elasticsearch: ElasticsearchHealth };
+  }> {
     return searchService.checkSearchHealth();
   }
 

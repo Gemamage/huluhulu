@@ -11,7 +11,11 @@ interface ProvidersProps {
 }
 
 // 通知服務初始化組件
-function NotificationServiceProvider({ children }: { children: React.ReactNode }) {
+function NotificationServiceProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   useNotificationService();
   return <>{children}</>;
 }
@@ -32,7 +36,8 @@ export function Providers({ children }: ProvidersProps) {
             // 重試次數
             retry: 1,
             // 重試延遲
-            retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+            retryDelay: attemptIndex =>
+              Math.min(1000 * 2 ** attemptIndex, 30000),
           },
           mutations: {
             // 錯誤重試次數
@@ -51,9 +56,7 @@ export function Providers({ children }: ProvidersProps) {
         disableTransitionOnChange
       >
         <AuthProvider>
-          <NotificationServiceProvider>
-            {children}
-          </NotificationServiceProvider>
+          <NotificationServiceProvider>{children}</NotificationServiceProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

@@ -1,10 +1,10 @@
 // Socket.IO 客戶端服務
 import { io, Socket } from 'socket.io-client';
 import { authService } from './authService';
-import { 
-  SocketEvents, 
-  RealtimeNotificationData, 
-  NotificationType 
+import {
+  SocketEvents,
+  RealtimeNotificationData,
+  NotificationType,
 } from '../types/notification';
 
 class SocketService {
@@ -33,21 +33,21 @@ class SocketService {
         return;
       }
 
-      const serverUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      
+      const serverUrl =
+        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
       this.socket = io(serverUrl, {
         auth: {
-          token: token
+          token: token,
         },
         transports: ['websocket', 'polling'],
         timeout: 20000,
         reconnection: true,
         reconnectionAttempts: this.maxReconnectAttempts,
-        reconnectionDelay: this.reconnectDelay
+        reconnectionDelay: this.reconnectDelay,
       });
 
       this.setupEventListeners();
-      
     } catch (error) {
       console.error('Socket connection failed:', error);
       this.isConnecting = false;
@@ -65,23 +65,23 @@ class SocketService {
       console.log('Socket connected:', this.socket?.id);
       this.isConnecting = false;
       this.reconnectAttempts = 0;
-      
+
       // 加入用戶房間
       this.joinUserRoom();
     });
 
     // 連接失敗
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', error => {
       console.error('Socket connection error:', error);
       this.isConnecting = false;
       this.handleReconnect();
     });
 
     // 斷開連接
-    this.socket.on('disconnect', (reason) => {
+    this.socket.on('disconnect', reason => {
       console.log('Socket disconnected:', reason);
       this.isConnecting = false;
-      
+
       if (reason === 'io server disconnect') {
         // 服務器主動斷開，需要重新連接
         this.handleReconnect();
@@ -89,30 +89,33 @@ class SocketService {
     });
 
     // 接收通知
-    this.socket.on(SocketEvents.NOTIFICATION, (notification: RealtimeNotificationData) => {
-      console.log('Received notification:', notification);
-      this.handleNotification(notification);
-      
-      // 確認通知送達
-      this.socket?.emit(SocketEvents.NOTIFICATION_DELIVERED, {
-        notificationId: notification.id
-      });
-    });
+    this.socket.on(
+      SocketEvents.NOTIFICATION,
+      (notification: RealtimeNotificationData) => {
+        console.log('Received notification:', notification);
+        this.handleNotification(notification);
+
+        // 確認通知送達
+        this.socket?.emit(SocketEvents.NOTIFICATION_DELIVERED, {
+          notificationId: notification.id,
+        });
+      }
+    );
 
     // 寵物狀態更新
-    this.socket.on(SocketEvents.PET_STATUS_UPDATE, (data) => {
+    this.socket.on(SocketEvents.PET_STATUS_UPDATE, data => {
       console.log('Pet status update:', data);
       this.emit('petStatusUpdate', data);
     });
 
     // 寵物配對通知
-    this.socket.on(SocketEvents.PET_MATCH_FOUND, (data) => {
+    this.socket.on(SocketEvents.PET_MATCH_FOUND, data => {
       console.log('Pet match found:', data);
       this.emit('petMatchFound', data);
     });
 
     // 系統公告
-    this.socket.on(SocketEvents.SYSTEM_ANNOUNCEMENT, (data) => {
+    this.socket.on(SocketEvents.SYSTEM_ANNOUNCEMENT, data => {
       console.log('System announcement:', data);
       this.emit('systemAnnouncement', data);
     });
@@ -125,7 +128,7 @@ class SocketService {
     const user = authService.getCurrentUser();
     if (user && this.socket) {
       this.socket.emit(SocketEvents.JOIN_ROOM, {
-        room: `user:${user._id}`
+        room: `user:${user._id}`,
       });
     }
   }
@@ -141,9 +144,11 @@ class SocketService {
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
-    console.log(`Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`);
-    
+
+    console.log(
+      `Attempting to reconnect in ${delay}ms (attempt ${this.reconnectAttempts})`
+    );
+
     setTimeout(() => {
       this.connect();
     }, delay);
@@ -155,7 +160,7 @@ class SocketService {
   private handleNotification(notification: RealtimeNotificationData): void {
     // 觸發通知事件
     this.emit('notification', notification);
-    
+
     // 根據通知類型觸發特定事件
     switch (notification.type) {
       case NotificationType.MATCH_FOUND:
@@ -181,7 +186,7 @@ class SocketService {
   public markNotificationAsRead(notificationId: string): void {
     if (this.socket?.connected) {
       this.socket.emit(SocketEvents.NOTIFICATION_READ, {
-        notificationId
+        notificationId,
       });
     }
   }

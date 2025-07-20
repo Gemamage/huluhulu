@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ErrorFactory } from "./errors";
 
 // 重新導出 schemas（為了向後兼容）
-export * from "../schemas";
+export type * from "../schemas";
 
 // 驗證中介軟體輔助函數
 export const validateRequest = (schema: z.ZodSchema) => {

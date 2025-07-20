@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
 import { authService, User } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -9,7 +15,12 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, phone?: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string
+  ) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -17,7 +28,10 @@ interface AuthContextType {
   verifyEmail: (token: string) => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   updateProfile: (data: { name: string; phone?: string }) => Promise<void>;
-  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<void>;
   uploadAvatar: (file: File) => Promise<void>;
 }
 
@@ -55,7 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
       const result = await authService.login({ email, password });
       setUser(result.user);
-      
+
       toast({
         title: '登入成功',
         description: `歡迎回來，${result.user.name}！`,
@@ -74,12 +88,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   // 註冊
-  const register = async (email: string, password: string, name: string, phone?: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string
+  ) => {
     try {
       setIsLoading(true);
-      const result = await authService.register({ email, password, name, phone });
+      const result = await authService.register({
+        email,
+        password,
+        name,
+        phone,
+      });
       setUser(result.user);
-      
+
       toast({
         title: '註冊成功',
         description: '歡迎加入呼嚕寵物協尋！請檢查您的電子郵件以驗證帳號。',
@@ -102,7 +126,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       await authService.logout();
       setUser(null);
-      
+
       toast({
         title: '已登出',
         description: '您已成功登出。',
@@ -131,13 +155,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const forgotPassword = async (email: string) => {
     try {
       await authService.forgotPassword(email);
-      
+
       toast({
         title: '郵件已發送',
         description: '請檢查您的電子郵件以重設密碼。',
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '發送重設密碼郵件失敗';
+      const message =
+        error instanceof Error ? error.message : '發送重設密碼郵件失敗';
       toast({
         title: '發送失敗',
         description: message,
@@ -151,7 +176,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const resetPassword = async (token: string, newPassword: string) => {
     try {
       await authService.resetPassword({ token, newPassword });
-      
+
       toast({
         title: '密碼重設成功',
         description: '您的密碼已成功重設，請使用新密碼登入。',
@@ -171,16 +196,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const verifyEmail = async (token: string) => {
     try {
       await authService.verifyEmail(token);
-      
+
       // 刷新用戶資訊以更新驗證狀態
       await refreshUser();
-      
+
       toast({
         title: '電子郵件驗證成功',
         description: '您的電子郵件已成功驗證。',
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '電子郵件驗證失敗';
+      const message =
+        error instanceof Error ? error.message : '電子郵件驗證失敗';
       toast({
         title: '驗證失敗',
         description: message,
@@ -194,13 +220,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const resendVerificationEmail = async () => {
     try {
       await authService.resendVerificationEmail();
-      
+
       toast({
         title: '驗證郵件已發送',
         description: '請檢查您的電子郵件以驗證帳號。',
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '發送驗證郵件失敗';
+      const message =
+        error instanceof Error ? error.message : '發送驗證郵件失敗';
       toast({
         title: '發送失敗',
         description: message,
@@ -215,13 +242,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const updatedUser = await authService.updateProfile(data);
       setUser(updatedUser);
-      
+
       toast({
         title: '個人資料更新成功',
         description: '您的個人資料已成功更新。',
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '更新個人資料失敗';
+      const message =
+        error instanceof Error ? error.message : '更新個人資料失敗';
       toast({
         title: '更新失敗',
         description: message,
@@ -232,10 +260,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   // 更改密碼
-  const changePassword = async (currentPassword: string, newPassword: string) => {
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
     try {
       await authService.changePassword(currentPassword, newPassword);
-      
+
       toast({
         title: '密碼更改成功',
         description: '您的密碼已成功更改。',
@@ -256,7 +287,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const updatedUser = await authService.uploadAvatar(file);
       setUser(updatedUser);
-      
+
       toast({
         title: '頭像上傳成功',
         description: '您的頭像已成功更新。',
@@ -274,11 +305,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // 自動刷新令牌
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (authService.isAuthenticated()) {
-        authService.autoRefreshToken().catch(console.error);
-      }
-    }, 5 * 60 * 1000); // 每 5 分鐘檢查一次
+    const interval = setInterval(
+      () => {
+        if (authService.isAuthenticated()) {
+          authService.autoRefreshToken().catch(console.error);
+        }
+      },
+      5 * 60 * 1000
+    ); // 每 5 分鐘檢查一次
 
     return () => clearInterval(interval);
   }, []);
@@ -305,11 +339,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     uploadAvatar,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

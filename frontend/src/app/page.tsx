@@ -36,7 +36,7 @@ export default function HomePage() {
         {/* 立即開始行動 */}
         <CallToAction />
       </main>
-      
+
       {/* 頁腳 */}
       <Footer />
     </>

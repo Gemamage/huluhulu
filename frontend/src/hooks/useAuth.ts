@@ -3,7 +3,15 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/authService';
-import { User, LoginCredentials, RegisterData, ForgotPasswordData, ResetPasswordData, ChangePasswordData, UpdateProfileData } from '@/types/auth';
+import {
+  User,
+  LoginCredentials,
+  RegisterData,
+  ForgotPasswordData,
+  ResetPasswordData,
+  ChangePasswordData,
+  UpdateProfileData,
+} from '@/types/auth';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
@@ -23,7 +31,7 @@ export const useAuth = () => {
   // 登入
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.setQueryData(['currentUser'], data.user);
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
@@ -32,7 +40,7 @@ export const useAuth = () => {
   // 註冊
   const registerMutation = useMutation({
     mutationFn: authService.register,
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.setQueryData(['currentUser'], data.user);
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
@@ -65,7 +73,7 @@ export const useAuth = () => {
   // 更新個人資料
   const updateProfileMutation = useMutation({
     mutationFn: authService.updateProfile,
-    onSuccess: (data) => {
+    onSuccess: data => {
       queryClient.setQueryData(['currentUser'], data);
     },
   });
@@ -86,8 +94,10 @@ export const useAuth = () => {
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
-    forgotPassword: (email: string) => forgotPasswordMutation.mutateAsync({ email }),
-    resetPassword: (token: string, newPassword: string) => resetPasswordMutation.mutateAsync({ token, newPassword }),
+    forgotPassword: (email: string) =>
+      forgotPasswordMutation.mutateAsync({ email }),
+    resetPassword: (token: string, newPassword: string) =>
+      resetPasswordMutation.mutateAsync({ token, newPassword }),
     verifyEmail: verifyEmailMutation.mutateAsync,
     updateProfile: updateProfileMutation.mutateAsync,
     changePassword: changePasswordMutation.mutateAsync,

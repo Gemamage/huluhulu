@@ -2,28 +2,46 @@
 // 從 petService 中分離出來以提升程式碼組織性
 
 import { Pet, PetSearchResult } from '@/types/pet';
-import { SearchFilters, AdvancedSearchResponse, SearchAnalytics, ElasticsearchHealth } from '@/types/search';
+import {
+  SearchFilters,
+  AdvancedSearchResponse,
+  SearchAnalytics,
+  ElasticsearchHealth,
+} from '@/types/search';
 import { errorHandler, ApiError, ApiErrorCode } from './errorHandler';
 import { authService } from './authService';
 
 // 搜尋服務介面定義
 interface SearchServiceMethods {
   // 基本搜尋功能
-  searchPets(query: string, filters?: Omit<SearchFilters, 'q'>): Promise<PetSearchResult>;
-  advancedSearch(query: string, filters?: SearchFilters): Promise<AdvancedSearchResponse<Pet>>;
+  searchPets(
+    query: string,
+    filters?: Omit<SearchFilters, 'q'>
+  ): Promise<PetSearchResult>;
+  advancedSearch(
+    query: string,
+    filters?: SearchFilters
+  ): Promise<AdvancedSearchResponse<Pet>>;
   getSearchSuggestions(query: string): Promise<string[]>;
-  
+
   // 搜尋分析與健康檢查
   getSearchAnalytics(timeRange?: string): Promise<SearchAnalytics>;
-  checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }>;
+  checkSearchHealth(): Promise<{
+    data: { elasticsearch: ElasticsearchHealth };
+  }>;
 }
 
 class SearchService implements SearchServiceMethods {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  private baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-  private async makeRequest(url: string, options: RequestInit = {}, context?: string): Promise<any> {
+  private async makeRequest(
+    url: string,
+    options: RequestInit = {},
+    context?: string
+  ): Promise<any> {
     const requestContext = context || `${options.method || 'GET'} ${url}`;
-    
+
     try {
       const token = authService.getToken();
       const headers: HeadersInit = {
@@ -59,8 +77,14 @@ class SearchService implements SearchServiceMethods {
           // 忽略解析錯誤
         }
 
-        const apiError = errorHandler.createErrorFromResponse(response, errorDetails);
-        const handlingResult = errorHandler.handleError(apiError, requestContext);
+        const apiError = errorHandler.createErrorFromResponse(
+          response,
+          errorDetails
+        );
+        const handlingResult = errorHandler.handleError(
+          apiError,
+          requestContext
+        );
 
         // 處理認證錯誤
         if (apiError.isAuthError()) {
@@ -72,7 +96,9 @@ class SearchService implements SearchServiceMethods {
 
         // 如果需要重試，則重試
         if (handlingResult.shouldRetry && handlingResult.retryDelay) {
-          await new Promise(resolve => setTimeout(resolve, handlingResult.retryDelay));
+          await new Promise(resolve =>
+            setTimeout(resolve, handlingResult.retryDelay)
+          );
           return this.makeRequest(url, options, context);
         }
 
@@ -87,19 +113,25 @@ class SearchService implements SearchServiceMethods {
         return response.json();
       }
       return response;
-      
     } catch (error) {
       // 處理網路錯誤
       if (error instanceof ApiError) {
         throw error; // 重新拋出已處理的 ApiError
       }
 
-      const networkError = errorHandler.createErrorFromNetworkError(error as Error);
-      const handlingResult = errorHandler.handleError(networkError, requestContext);
+      const networkError = errorHandler.createErrorFromNetworkError(
+        error as Error
+      );
+      const handlingResult = errorHandler.handleError(
+        networkError,
+        requestContext
+      );
 
       // 如果需要重試，則重試
       if (handlingResult.shouldRetry && handlingResult.retryDelay) {
-        await new Promise(resolve => setTimeout(resolve, handlingResult.retryDelay));
+        await new Promise(resolve =>
+          setTimeout(resolve, handlingResult.retryDelay)
+        );
         return this.makeRequest(url, options, context);
       }
 
@@ -128,11 +160,11 @@ class SearchService implements SearchServiceMethods {
         'searchPets'
       );
     } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.SEARCH_ERROR,
-        '搜尋寵物失敗',
-        { query, filters, originalError: error }
-      );
+      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '搜尋寵物失敗', {
+        query,
+        filters,
+        originalError: error,
+      });
     }
   }
 
@@ -144,19 +176,23 @@ class SearchService implements SearchServiceMethods {
     try {
       const searchData = {
         q: query,
-        ...filters
+        ...filters,
       };
 
-      return this.makeRequest('/advanced-search/pets', {
-        method: 'POST',
-        body: JSON.stringify(searchData),
-      }, 'advancedSearch');
-    } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.SEARCH_ERROR,
-        '進階搜尋失敗',
-        { query, filters, originalError: error }
+      return this.makeRequest(
+        '/advanced-search/pets',
+        {
+          method: 'POST',
+          body: JSON.stringify(searchData),
+        },
+        'advancedSearch'
       );
+    } catch (error) {
+      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '進階搜尋失敗', {
+        query,
+        filters,
+        originalError: error,
+      });
     }
   }
 
@@ -165,7 +201,7 @@ class SearchService implements SearchServiceMethods {
     try {
       const params = new URLSearchParams();
       params.append('q', query);
-      
+
       const response = await this.makeRequest(
         `/advanced-search/suggestions?${params.toString()}`,
         {},
@@ -173,11 +209,10 @@ class SearchService implements SearchServiceMethods {
       );
       return response.suggestions || [];
     } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.SEARCH_ERROR,
-        '獲取搜尋建議失敗',
-        { query, originalError: error }
-      );
+      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '獲取搜尋建議失敗', {
+        query,
+        originalError: error,
+      });
     }
   }
 
@@ -186,7 +221,7 @@ class SearchService implements SearchServiceMethods {
     try {
       const params = new URLSearchParams();
       params.append('timeRange', timeRange);
-      
+
       const response = await this.makeRequest(
         `/advanced-search/analytics?${params.toString()}`,
         {},
@@ -194,18 +229,23 @@ class SearchService implements SearchServiceMethods {
       );
       return response.data || response;
     } catch (error) {
-      throw new ApiError(
-        ApiErrorCode.SEARCH_ERROR,
-        '獲取搜尋分析失敗',
-        { timeRange, originalError: error }
-      );
+      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '獲取搜尋分析失敗', {
+        timeRange,
+        originalError: error,
+      });
     }
   }
 
   // 檢查 Elasticsearch 服務健康狀態
-  async checkSearchHealth(): Promise<{ data: { elasticsearch: ElasticsearchHealth } }> {
+  async checkSearchHealth(): Promise<{
+    data: { elasticsearch: ElasticsearchHealth };
+  }> {
     try {
-      return this.makeRequest('/advanced-search/health', {}, 'checkSearchHealth');
+      return this.makeRequest(
+        '/advanced-search/health',
+        {},
+        'checkSearchHealth'
+      );
     } catch (error) {
       throw new ApiError(
         ApiErrorCode.SERVICE_UNAVAILABLE,

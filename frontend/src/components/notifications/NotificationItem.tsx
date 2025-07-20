@@ -6,7 +6,10 @@ import { Check, ExternalLink } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { cn } from '../../lib/utils';
-import { NotificationData, NotificationPriority } from '../../types/notification';
+import {
+  NotificationData,
+  NotificationPriority,
+} from '../../types/notification';
 
 interface NotificationItemProps {
   notification: NotificationData;
@@ -23,10 +26,10 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onClick,
   icon,
   typeText,
-  showActions = true
+  showActions = true,
 }) => {
   const isUnread = notification.status === 'unread';
-  
+
   const getPriorityColor = (priority: NotificationPriority) => {
     switch (priority) {
       case 'high':
@@ -57,7 +60,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     if (onClick) {
       onClick(notification);
     }
-    
+
     // 如果是未讀通知，點擊後標記為已讀
     if (isUnread) {
       onMarkAsRead(notification.id);
@@ -84,14 +87,14 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       )}
       onClick={handleClick}
     >
-      <div className="flex items-start gap-3">
+      <div className='flex items-start gap-3'>
         {/* 圖標 */}
-        <div className="flex-shrink-0">
+        <div className='flex-shrink-0'>
           {icon ? (
-            <span className="text-2xl">{icon}</span>
+            <span className='text-2xl'>{icon}</span>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-primary text-sm font-medium">
+            <div className='w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center'>
+              <span className='text-primary text-sm font-medium'>
                 {notification.type.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -99,65 +102,72 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         </div>
 
         {/* 內容 */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1">
+        <div className='flex-1 min-w-0'>
+          <div className='flex items-start justify-between gap-2'>
+            <div className='flex-1'>
               {/* 標題和類型 */}
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className={cn(
-                  'text-sm font-medium truncate',
-                  isUnread ? 'text-foreground' : 'text-muted-foreground'
-                )}>
+              <div className='flex items-center gap-2 mb-1'>
+                <h4
+                  className={cn(
+                    'text-sm font-medium truncate',
+                    isUnread ? 'text-foreground' : 'text-muted-foreground'
+                  )}
+                >
                   {notification.title}
                 </h4>
                 {typeText && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant='outline' className='text-xs'>
                     {typeText}
                   </Badge>
                 )}
-                <Badge variant={getPriorityColor(notification.priority)} className="text-xs">
+                <Badge
+                  variant={getPriorityColor(notification.priority)}
+                  className='text-xs'
+                >
                   {getPriorityText(notification.priority)}
                 </Badge>
               </div>
 
               {/* 消息內容 */}
-              <p className={cn(
-                'text-sm line-clamp-2',
-                isUnread ? 'text-foreground' : 'text-muted-foreground'
-              )}>
+              <p
+                className={cn(
+                  'text-sm line-clamp-2',
+                  isUnread ? 'text-foreground' : 'text-muted-foreground'
+                )}
+              >
                 {notification.message}
               </p>
 
               {/* 時間 */}
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className='text-xs text-muted-foreground mt-1'>
                 {formatDistanceToNow(new Date(notification.createdAt), {
                   addSuffix: true,
-                  locale: zhTW
+                  locale: zhTW,
                 })}
               </p>
             </div>
 
             {/* 操作按鈕 */}
             {showActions && (
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className='flex items-center gap-1 flex-shrink-0'>
                 {notification.actionUrl && (
                   <Button
                     onClick={handleActionClick}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
+                    variant='ghost'
+                    size='sm'
+                    className='h-8 w-8 p-0'
                   >
-                    <ExternalLink className="h-4 w-4" />
+                    <ExternalLink className='h-4 w-4' />
                   </Button>
                 )}
                 {isUnread && (
                   <Button
                     onClick={handleMarkAsRead}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
+                    variant='ghost'
+                    size='sm'
+                    className='h-8 w-8 p-0'
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className='h-4 w-4' />
                   </Button>
                 )}
               </div>
@@ -166,19 +176,19 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
           {/* 額外數據顯示 */}
           {notification.data && Object.keys(notification.data).length > 0 && (
-            <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+            <div className='mt-2 p-2 bg-muted/30 rounded text-xs'>
               {notification.data.petName && (
-                <span className="inline-block mr-2">
+                <span className='inline-block mr-2'>
                   寵物: {notification.data.petName}
                 </span>
               )}
               {notification.data.location && (
-                <span className="inline-block mr-2">
+                <span className='inline-block mr-2'>
                   地點: {notification.data.location}
                 </span>
               )}
               {notification.data.matchScore && (
-                <span className="inline-block mr-2">
+                <span className='inline-block mr-2'>
                   匹配度: {notification.data.matchScore}%
                 </span>
               )}

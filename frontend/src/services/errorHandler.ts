@@ -1,14 +1,20 @@
 // 統一錯誤處理服務
 // 提供錯誤分析、處理和用戶通知功能
 
-import { ApiError, ApiErrorCode, ErrorHandlingResult, ErrorHandlerConfig, ERROR_MESSAGES } from '@/types/errors';
+import {
+  ApiError,
+  ApiErrorCode,
+  ErrorHandlingResult,
+  ErrorHandlerConfig,
+  ERROR_MESSAGES,
+} from '@/types/errors';
 
 // 預設配置
 const DEFAULT_CONFIG: ErrorHandlerConfig = {
   maxRetries: 3,
   retryDelay: 1000,
   enableLogging: true,
-  enableUserNotification: true
+  enableUserNotification: true,
 };
 
 class ErrorHandlerService {
@@ -82,26 +88,20 @@ class ErrorHandlerService {
    */
   createErrorFromNetworkError(error: Error): ApiError {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      return new ApiError(
-        ApiErrorCode.NETWORK_ERROR,
-        '網路連線失敗',
-        { originalError: error.message }
-      );
+      return new ApiError(ApiErrorCode.NETWORK_ERROR, '網路連線失敗', {
+        originalError: error.message,
+      });
     }
 
     if (error.name === 'AbortError') {
-      return new ApiError(
-        ApiErrorCode.TIMEOUT_ERROR,
-        '請求被中止',
-        { originalError: error.message }
-      );
+      return new ApiError(ApiErrorCode.TIMEOUT_ERROR, '請求被中止', {
+        originalError: error.message,
+      });
     }
 
-    return new ApiError(
-      ApiErrorCode.CONNECTION_ERROR,
-      '連線錯誤',
-      { originalError: error.message }
-    );
+    return new ApiError(ApiErrorCode.CONNECTION_ERROR, '連線錯誤', {
+      originalError: error.message,
+    });
   }
 
   /**
@@ -146,7 +146,7 @@ class ErrorHandlerService {
 
     // 決定是否應該重試
     const shouldRetry = this.shouldRetry(error, currentRetries);
-    
+
     if (shouldRetry) {
       this.retryCount.set(contextKey, currentRetries + 1);
     } else {
@@ -164,10 +164,12 @@ class ErrorHandlerService {
 
     return {
       shouldRetry,
-      retryDelay: shouldRetry ? this.config.retryDelay * Math.pow(2, currentRetries) : undefined,
+      retryDelay: shouldRetry
+        ? this.config.retryDelay * Math.pow(2, currentRetries)
+        : undefined,
       userMessage,
       logLevel,
-      shouldRedirect
+      shouldRedirect,
     };
   }
 
@@ -185,9 +187,11 @@ class ErrorHandlerService {
     }
 
     // 服務器錯誤可以重試
-    if (error.isType(ApiErrorCode.SERVER_ERROR) || 
-        error.isType(ApiErrorCode.SERVICE_UNAVAILABLE) ||
-        error.isType(ApiErrorCode.TIMEOUT_ERROR)) {
+    if (
+      error.isType(ApiErrorCode.SERVER_ERROR) ||
+      error.isType(ApiErrorCode.SERVICE_UNAVAILABLE) ||
+      error.isType(ApiErrorCode.TIMEOUT_ERROR)
+    ) {
       return true;
     }
 
@@ -203,7 +207,11 @@ class ErrorHandlerService {
    * 獲取用戶友好的錯誤訊息
    */
   private getUserMessage(error: ApiError): string {
-    return ERROR_MESSAGES[error.code as ApiErrorCode] || error.message || '發生未知錯誤';
+    return (
+      ERROR_MESSAGES[error.code as ApiErrorCode] ||
+      error.message ||
+      '發生未知錯誤'
+    );
   }
 
   /**
@@ -229,8 +237,10 @@ class ErrorHandlerService {
    * 決定是否需要重定向
    */
   private getShouldRedirect(error: ApiError): string | undefined {
-    if (error.isType(ApiErrorCode.UNAUTHORIZED) || 
-        error.isType(ApiErrorCode.TOKEN_EXPIRED)) {
+    if (
+      error.isType(ApiErrorCode.UNAUTHORIZED) ||
+      error.isType(ApiErrorCode.TOKEN_EXPIRED)
+    ) {
       return '/login';
     }
 
@@ -255,7 +265,7 @@ class ErrorHandlerService {
       message: error.message,
       context,
       details: error.details,
-      stack: error.stack
+      stack: error.stack,
     };
 
     console.error('[ErrorHandler]', logData);

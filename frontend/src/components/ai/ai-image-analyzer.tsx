@@ -2,13 +2,30 @@
 
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { aiService, AIAnalysisResult, ImageOptimizationResult } from '@/services/aiService';
-import { Upload, Image as ImageIcon, Zap, Scissors, Search, Loader2 } from 'lucide-react';
+import {
+  aiService,
+  AIAnalysisResult,
+  ImageOptimizationResult,
+} from '@/services/aiService';
+import {
+  Upload,
+  Image as ImageIcon,
+  Zap,
+  Scissors,
+  Search,
+  Loader2,
+} from 'lucide-react';
 
 interface AIImageAnalyzerProps {
   onAnalysisComplete?: (result: AIAnalysisResult) => void;
@@ -16,10 +33,10 @@ interface AIImageAnalyzerProps {
   className?: string;
 }
 
-export function AIImageAnalyzer({ 
-  onAnalysisComplete, 
-  onOptimizationComplete, 
-  className 
+export function AIImageAnalyzer({
+  onAnalysisComplete,
+  onOptimizationComplete,
+  className,
 }: AIImageAnalyzerProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -27,44 +44,50 @@ export function AIImageAnalyzer({
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isCropping, setIsCropping] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null);
-  const [optimizationResult, setOptimizationResult] = useState<ImageOptimizationResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(
+    null
+  );
+  const [optimizationResult, setOptimizationResult] =
+    useState<ImageOptimizationResult | null>(null);
 
   // 處理文件選擇
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // 檢查文件類型
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: '文件類型錯誤',
-          description: '請選擇圖像文件',
-          variant: 'destructive',
-        });
-        return;
-      }
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        // 檢查文件類型
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: '文件類型錯誤',
+            description: '請選擇圖像文件',
+            variant: 'destructive',
+          });
+          return;
+        }
 
-      // 檢查文件大小（限制 10MB）
-      if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: '文件過大',
-          description: '圖像文件大小不能超過 10MB',
-          variant: 'destructive',
-        });
-        return;
-      }
+        // 檢查文件大小（限制 10MB）
+        if (file.size > 10 * 1024 * 1024) {
+          toast({
+            title: '文件過大',
+            description: '圖像文件大小不能超過 10MB',
+            variant: 'destructive',
+          });
+          return;
+        }
 
-      setSelectedFile(file);
-      
-      // 創建預覽 URL
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      
-      // 清除之前的結果
-      setAnalysisResult(null);
-      setOptimizationResult(null);
-    }
-  }, []);
+        setSelectedFile(file);
+
+        // 創建預覽 URL
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+
+        // 清除之前的結果
+        setAnalysisResult(null);
+        setOptimizationResult(null);
+      }
+    },
+    []
+  );
 
   // AI 圖像分析
   const handleAnalyze = useCallback(async () => {
@@ -109,7 +132,7 @@ export function AIImageAnalyzer({
         width: 800,
         height: 600,
         quality: 85,
-        format: 'jpeg'
+        format: 'jpeg',
       });
       if (response.success && response.data) {
         setOptimizationResult(response.data);
@@ -137,7 +160,7 @@ export function AIImageAnalyzer({
     try {
       const response = await aiService.searchSimilarPets({
         imageFile: selectedFile,
-        limit: 10
+        limit: 10,
       });
       if (response.success && response.data) {
         // 這裡可以導航到搜尋結果頁面或顯示結果
@@ -158,8 +181,8 @@ export function AIImageAnalyzer({
       {/* 文件上傳區域 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+          <CardTitle className='flex items-center gap-2'>
+            <Upload className='h-5 w-5' />
             AI 圖像分析工具
           </CardTitle>
           <CardDescription>
@@ -167,21 +190,24 @@ export function AIImageAnalyzer({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {/* 文件選擇 */}
-            <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <ImageIcon className="w-8 h-8 mb-4 text-gray-500" />
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">點擊上傳</span> 或拖拽圖像文件
+            <div className='flex items-center justify-center w-full'>
+              <label className='flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100'>
+                <div className='flex flex-col items-center justify-center pt-5 pb-6'>
+                  <ImageIcon className='w-8 h-8 mb-4 text-gray-500' />
+                  <p className='mb-2 text-sm text-gray-500'>
+                    <span className='font-semibold'>點擊上傳</span>{' '}
+                    或拖拽圖像文件
                   </p>
-                  <p className="text-xs text-gray-500">PNG, JPG, JPEG (最大 10MB)</p>
+                  <p className='text-xs text-gray-500'>
+                    PNG, JPG, JPEG (最大 10MB)
+                  </p>
                 </div>
                 <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
+                  type='file'
+                  className='hidden'
+                  accept='image/*'
                   onChange={handleFileSelect}
                 />
               </label>
@@ -189,29 +215,30 @@ export function AIImageAnalyzer({
 
             {/* 圖像預覽 */}
             {previewUrl && (
-              <div className="mt-4">
+              <div className='mt-4'>
                 <img
                   src={previewUrl}
-                  alt="預覽"
-                  className="max-w-full h-48 object-contain mx-auto rounded-lg border"
+                  alt='預覽'
+                  className='max-w-full h-48 object-contain mx-auto rounded-lg border'
                 />
-                <p className="text-sm text-gray-500 text-center mt-2">
-                  {selectedFile?.name} ({(selectedFile?.size || 0 / 1024 / 1024).toFixed(2)} MB)
+                <p className='text-sm text-gray-500 text-center mt-2'>
+                  {selectedFile?.name} (
+                  {(selectedFile?.size || 0 / 1024 / 1024).toFixed(2)} MB)
                 </p>
               </div>
             )}
 
             {/* 操作按鈕 */}
-            <div className="flex flex-wrap gap-2">
+            <div className='flex flex-wrap gap-2'>
               <Button
                 onClick={handleAnalyze}
                 disabled={!selectedFile || isAnalyzing}
-                className="flex items-center gap-2"
+                className='flex items-center gap-2'
               >
                 {isAnalyzing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className='h-4 w-4 animate-spin' />
                 ) : (
-                  <Zap className="h-4 w-4" />
+                  <Zap className='h-4 w-4' />
                 )}
                 {isAnalyzing ? '分析中...' : 'AI 分析'}
               </Button>
@@ -219,13 +246,13 @@ export function AIImageAnalyzer({
               <Button
                 onClick={handleOptimize}
                 disabled={!selectedFile || isOptimizing}
-                variant="outline"
-                className="flex items-center gap-2"
+                variant='outline'
+                className='flex items-center gap-2'
               >
                 {isOptimizing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className='h-4 w-4 animate-spin' />
                 ) : (
-                  <Scissors className="h-4 w-4" />
+                  <Scissors className='h-4 w-4' />
                 )}
                 {isOptimizing ? '優化中...' : '圖像優化'}
               </Button>
@@ -233,13 +260,13 @@ export function AIImageAnalyzer({
               <Button
                 onClick={handleSimilarSearch}
                 disabled={!selectedFile || isSearching}
-                variant="outline"
-                className="flex items-center gap-2"
+                variant='outline'
+                className='flex items-center gap-2'
               >
                 {isSearching ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className='h-4 w-4 animate-spin' />
                 ) : (
-                  <Search className="h-4 w-4" />
+                  <Search className='h-4 w-4' />
                 )}
                 {isSearching ? '搜尋中...' : '相似搜尋'}
               </Button>
@@ -255,33 +282,45 @@ export function AIImageAnalyzer({
             <CardTitle>AI 處理結果</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="analysis" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="analysis" disabled={!analysisResult}>
+            <Tabs defaultValue='analysis' className='w-full'>
+              <TabsList className='grid w-full grid-cols-2'>
+                <TabsTrigger value='analysis' disabled={!analysisResult}>
                   分析結果
                 </TabsTrigger>
-                <TabsTrigger value="optimization" disabled={!optimizationResult}>
+                <TabsTrigger
+                  value='optimization'
+                  disabled={!optimizationResult}
+                >
                   優化結果
                 </TabsTrigger>
               </TabsList>
 
               {/* 分析結果 */}
               {analysisResult && (
-                <TabsContent value="analysis" className="space-y-4">
+                <TabsContent value='analysis' className='space-y-4'>
                   {/* 品種識別 */}
                   {analysisResult.breedPrediction && (
                     <div>
-                      <h4 className="font-semibold mb-2">品種識別</h4>
-                      <div className="space-y-2">
-                        <Badge variant="default" className="text-sm">
-                          {analysisResult.breedPrediction.breed} 
-                          ({(analysisResult.breedPrediction.confidence * 100).toFixed(1)}%)
+                      <h4 className='font-semibold mb-2'>品種識別</h4>
+                      <div className='space-y-2'>
+                        <Badge variant='default' className='text-sm'>
+                          {analysisResult.breedPrediction.breed}(
+                          {(
+                            analysisResult.breedPrediction.confidence * 100
+                          ).toFixed(1)}
+                          %)
                         </Badge>
-                        {analysisResult.breedPrediction.alternatives.slice(0, 3).map((alt, index) => (
-                          <Badge key={index} variant="outline" className="text-sm ml-2">
-                            {alt.breed} ({(alt.confidence * 100).toFixed(1)}%)
-                          </Badge>
-                        ))}
+                        {analysisResult.breedPrediction.alternatives
+                          .slice(0, 3)
+                          .map((alt, index) => (
+                            <Badge
+                              key={index}
+                              variant='outline'
+                              className='text-sm ml-2'
+                            >
+                              {alt.breed} ({(alt.confidence * 100).toFixed(1)}%)
+                            </Badge>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -290,13 +329,16 @@ export function AIImageAnalyzer({
 
                   {/* 圖像標籤 */}
                   <div>
-                    <h4 className="font-semibold mb-2">圖像內容</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {analysisResult.labels.slice(0, 10).map((label, index) => (
-                        <Badge key={index} variant="secondary">
-                          {label.description} ({(label.score * 100).toFixed(0)}%)
-                        </Badge>
-                      ))}
+                    <h4 className='font-semibold mb-2'>圖像內容</h4>
+                    <div className='flex flex-wrap gap-2'>
+                      {analysisResult.labels
+                        .slice(0, 10)
+                        .map((label, index) => (
+                          <Badge key={index} variant='secondary'>
+                            {label.description} (
+                            {(label.score * 100).toFixed(0)}%)
+                          </Badge>
+                        ))}
                     </div>
                   </div>
 
@@ -305,13 +347,16 @@ export function AIImageAnalyzer({
                   {/* 檢測到的物件 */}
                   {analysisResult.objects.length > 0 && (
                     <div>
-                      <h4 className="font-semibold mb-2">檢測到的物件</h4>
-                      <div className="space-y-1">
-                        {analysisResult.objects.slice(0, 5).map((obj, index) => (
-                          <div key={index} className="text-sm">
-                            {obj.name} - {(obj.score * 100).toFixed(1)}% 信心度
-                          </div>
-                        ))}
+                      <h4 className='font-semibold mb-2'>檢測到的物件</h4>
+                      <div className='space-y-1'>
+                        {analysisResult.objects
+                          .slice(0, 5)
+                          .map((obj, index) => (
+                            <div key={index} className='text-sm'>
+                              {obj.name} - {(obj.score * 100).toFixed(1)}%
+                              信心度
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -320,10 +365,14 @@ export function AIImageAnalyzer({
 
                   {/* AI 標籤 */}
                   <div>
-                    <h4 className="font-semibold mb-2">AI 標籤</h4>
-                    <div className="flex flex-wrap gap-1">
+                    <h4 className='font-semibold mb-2'>AI 標籤</h4>
+                    <div className='flex flex-wrap gap-1'>
                       {analysisResult.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                        <Badge
+                          key={index}
+                          variant='outline'
+                          className='text-xs'
+                        >
                           {tag}
                         </Badge>
                       ))}
@@ -334,26 +383,40 @@ export function AIImageAnalyzer({
 
               {/* 優化結果 */}
               {optimizationResult && (
-                <TabsContent value="optimization" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <TabsContent value='optimization' className='space-y-4'>
+                  <div className='grid grid-cols-2 gap-4'>
                     <div>
-                      <h4 className="font-semibold mb-2">優化統計</h4>
-                      <div className="space-y-2 text-sm">
-                        <div>原始大小: {(optimizationResult.originalSize / 1024).toFixed(1)} KB</div>
-                        <div>優化後大小: {(optimizationResult.optimizedSize / 1024).toFixed(1)} KB</div>
-                        <div>壓縮率: {optimizationResult.compressionRatio.toFixed(1)}%</div>
-                        <div>格式: {optimizationResult.format.toUpperCase()}</div>
+                      <h4 className='font-semibold mb-2'>優化統計</h4>
+                      <div className='space-y-2 text-sm'>
                         <div>
-                          尺寸: {optimizationResult.dimensions.width} × {optimizationResult.dimensions.height}
+                          原始大小:{' '}
+                          {(optimizationResult.originalSize / 1024).toFixed(1)}{' '}
+                          KB
+                        </div>
+                        <div>
+                          優化後大小:{' '}
+                          {(optimizationResult.optimizedSize / 1024).toFixed(1)}{' '}
+                          KB
+                        </div>
+                        <div>
+                          壓縮率:{' '}
+                          {optimizationResult.compressionRatio.toFixed(1)}%
+                        </div>
+                        <div>
+                          格式: {optimizationResult.format.toUpperCase()}
+                        </div>
+                        <div>
+                          尺寸: {optimizationResult.dimensions.width} ×{' '}
+                          {optimizationResult.dimensions.height}
                         </div>
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-2">優化後圖像</h4>
+                      <h4 className='font-semibold mb-2'>優化後圖像</h4>
                       <img
                         src={optimizationResult.optimizedImageUrl}
-                        alt="優化後"
-                        className="max-w-full h-32 object-contain border rounded"
+                        alt='優化後'
+                        className='max-w-full h-32 object-contain border rounded'
                       />
                     </div>
                   </div>

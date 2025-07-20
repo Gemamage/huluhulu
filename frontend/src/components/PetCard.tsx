@@ -79,7 +79,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // 防止觸發卡片點擊事件
-    
+
     if (!currentUserId) {
       toast({
         title: '請先登入',
@@ -93,7 +93,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
 
     try {
       setIsLoading(true);
-      
+
       if (isFavorited) {
         await petService.unfavoritePet(pet._id);
         setIsFavorited(false);
@@ -124,95 +124,96 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
   };
 
   return (
-    <Card 
-      className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+    <Card
+      className='cursor-pointer hover:shadow-lg transition-shadow duration-200'
       onClick={handleCardClick}
-      role="article"
+      role='article'
     >
-      <CardHeader className="p-0">
-        <div className="relative w-full aspect-[3/4]">
+      <CardHeader className='p-0'>
+        <div className='relative w-full aspect-[3/4]'>
           {pet.images && pet.images.length > 0 ? (
             <Image
               src={pet.images[0]}
               alt={pet.name}
               fill={true}
-              className="object-cover rounded-t-lg"
+              className='object-cover rounded-t-lg'
             />
           ) : (
-            <div className="h-full w-full bg-gray-200 rounded-t-lg flex items-center justify-center">
-              <span className="text-gray-500">無圖片</span>
+            <div className='h-full w-full bg-gray-200 rounded-t-lg flex items-center justify-center'>
+              <span className='text-gray-500'>無圖片</span>
             </div>
           )}
-          <div className="absolute top-2 right-2 flex flex-col gap-2">
+          <div className='absolute top-2 right-2 flex flex-col gap-2'>
             <Badge variant={getStatusColor(pet.status)}>
               {getStatusText(pet.status)}
             </Badge>
             {currentUserId && (
               <Button
-                variant="ghost"
-                size="sm"
+                variant='ghost'
+                size='sm'
                 className={`h-8 w-8 p-0 rounded-full bg-white/80 hover:bg-white/90 ${
                   isFavorited ? 'text-red-500' : 'text-gray-500'
                 }`}
                 onClick={handleFavoriteClick}
                 disabled={isLoading}
-                data-testid="favorite-button"
+                data-testid='favorite-button'
               >
-                <Heart 
-                  className={`h-4 w-4 ${
-                    isFavorited ? 'fill-current' : ''
-                  }`} 
+                <Heart
+                  className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`}
                 />
               </Button>
             )}
           </div>
         </div>
       </CardHeader>
-      
-      <CardContent className="p-4">
-        <div className="space-y-2">
-          <div className="flex justify-between items-start">
-            <h3 className="text-lg font-semibold">{pet.name}</h3>
-            <div className="flex items-center space-x-1" data-testid="pet-gender">
-              <span className="text-sm text-gray-600">
-                {pet.gender === 'male' ? '♂' : pet.gender === 'female' ? '♀' : '?'}
+
+      <CardContent className='p-4'>
+        <div className='space-y-2'>
+          <div className='flex justify-between items-start'>
+            <h3 className='text-lg font-semibold'>{pet.name}</h3>
+            <div
+              className='flex items-center space-x-1'
+              data-testid='pet-gender'
+            >
+              <span className='text-sm text-gray-600'>
+                {pet.gender === 'male'
+                  ? '♂'
+                  : pet.gender === 'female'
+                    ? '♀'
+                    : '?'}
               </span>
             </div>
           </div>
-          
-          {pet.breed && (
-            <p className="text-sm text-gray-600">{pet.breed}</p>
-          )}
-          
-          {pet.age && (
-            <p className="text-sm text-gray-600">{pet.age}歲</p>
-          )}
-          
-          <p className="text-sm text-gray-600">{getSizeText(pet.size)}</p>
-          
-          <div className="flex items-center space-x-1 text-sm text-gray-600">
-            <MapPin className="h-4 w-4" />
+
+          {pet.breed && <p className='text-sm text-gray-600'>{pet.breed}</p>}
+
+          {pet.age && <p className='text-sm text-gray-600'>{pet.age}歲</p>}
+
+          <p className='text-sm text-gray-600'>{getSizeText(pet.size)}</p>
+
+          <div className='flex items-center space-x-1 text-sm text-gray-600'>
+            <MapPin className='h-4 w-4' />
             <span>{pet.lastSeenLocation.address}</span>
           </div>
-          
-          <div className="flex justify-between items-center pt-2">
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Eye className="h-4 w-4" />
+
+          <div className='flex justify-between items-center pt-2'>
+            <div className='flex items-center space-x-4 text-sm text-gray-500'>
+              <div className='flex items-center space-x-1'>
+                <Eye className='h-4 w-4' />
                 <span>{pet.viewCount}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Share2 className="h-4 w-4" />
+              <div className='flex items-center space-x-1'>
+                <Share2 className='h-4 w-4' />
                 <span>{pet.shareCount}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Heart className="h-4 w-4" />
+              <div className='flex items-center space-x-1'>
+                <Heart className='h-4 w-4' />
                 <span>{favoriteCount}</span>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-1 text-xs text-gray-400">
-              <Calendar className="h-3 w-3" />
+
+            <div className='flex items-center space-x-1 text-xs text-gray-400'>
+              <Calendar className='h-3 w-3' />
               <span>{new Date(pet.createdAt).toLocaleDateString('zh-TW')}</span>
             </div>
           </div>

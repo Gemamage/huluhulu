@@ -1,10 +1,20 @@
 // 認證服務
 // 這個文件提供前端測試所需的認證服務
 
-import { User, LoginCredentials, RegisterData, AuthResponse, ForgotPasswordData, ResetPasswordData, ChangePasswordData, UpdateProfileData } from '@/types/auth';
+import {
+  User,
+  LoginCredentials,
+  RegisterData,
+  AuthResponse,
+  ForgotPasswordData,
+  ResetPasswordData,
+  ChangePasswordData,
+  UpdateProfileData,
+} from '@/types/auth';
 
 class AuthService {
-  private baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  private baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
   private tokenKey = 'auth_token';
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
@@ -48,7 +58,7 @@ class AuthService {
       await fetch(`${this.baseUrl}/auth/logout`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.getToken()}`,
+          Authorization: `Bearer ${this.getToken()}`,
         },
       });
     } finally {
@@ -59,7 +69,7 @@ class AuthService {
   async getCurrentUser(): Promise<User> {
     const response = await fetch(`${this.baseUrl}/auth/me`, {
       headers: {
-        'Authorization': `Bearer ${this.getToken()}`,
+        Authorization: `Bearer ${this.getToken()}`,
       },
     });
 
@@ -117,7 +127,7 @@ class AuthService {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getToken()}`,
+        Authorization: `Bearer ${this.getToken()}`,
       },
       body: JSON.stringify(data),
     });
@@ -134,7 +144,7 @@ class AuthService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getToken()}`,
+        Authorization: `Bearer ${this.getToken()}`,
       },
       body: JSON.stringify(data),
     });

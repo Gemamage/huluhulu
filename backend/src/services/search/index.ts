@@ -8,10 +8,16 @@ import { searchAnalyticsService, SearchAnalyticsService } from "./analytics";
 import { logger } from "../../utils/logger";
 
 // 重新導出介面和類型
-export * from "./indexing";
-export * from "./core";
-export * from "./suggestions";
-export * from "./analytics";
+export type * from "./indexing";
+export type * from "./core";
+export type * from "./suggestions";
+export type * from "./analytics";
+
+// 重新導出實例和類
+export { IndexingService, indexingService } from "./indexing";
+export { SearchCoreService, searchCoreService } from "./core";
+export { SearchSuggestionsService, searchSuggestionsService } from "./suggestions";
+export { SearchAnalyticsService, searchAnalyticsService } from "./analytics";
 
 /**
  * 統一的寵物搜尋服務

@@ -1,11 +1,6 @@
-import {
-  elasticsearchService,
-  SearchResult,
-  SearchResponse,
-  AggregationResult,
-} from "./elasticsearchService";
-import { logger } from "../utils/logger";
-import { IPet } from "../models/Pet";
+import { elasticsearchService, SearchResult, SearchResponse, AggregationResult } from './elasticsearchService';
+import { logger } from '../utils/logger';
+import { IPet } from '../models/Pet';
 
 // 寵物搜尋查詢介面
 export interface PetSearchQuery {
@@ -20,7 +15,7 @@ export interface PetSearchQuery {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
   fuzzy?: boolean;
   radius?: number;
   coordinates?: {
@@ -33,7 +28,7 @@ export interface PetSearchQuery {
 export interface SearchSuggestion {
   text: string;
   score: number;
-  type: "breed" | "location" | "description";
+  type: 'breed' | 'location' | 'description';
 }
 
 // 搜尋分析結果介面
@@ -55,8 +50,8 @@ export interface SearchAnalytics {
 }
 
 class PetSearchService {
-  private readonly PET_INDEX = "pets";
-  private readonly SEARCH_ANALYTICS_INDEX = "search_analytics";
+  private readonly PET_INDEX = 'pets';
+  private readonly SEARCH_ANALYTICS_INDEX = 'search_analytics';
 
   /**
    * 初始化寵物搜尋索引
@@ -65,88 +60,88 @@ class PetSearchService {
     const mapping = {
       properties: {
         name: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer',
           fields: {
-            keyword: { type: "keyword" },
+            keyword: { type: 'keyword' },
             suggest: {
-              type: "completion",
-              analyzer: "simple",
-            },
-          },
+              type: 'completion',
+              analyzer: 'simple'
+            }
+          }
         },
-        type: { type: "keyword" },
+        type: { type: 'keyword' },
         breed: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer',
           fields: {
-            keyword: { type: "keyword" },
+            keyword: { type: 'keyword' },
             suggest: {
-              type: "completion",
-              analyzer: "simple",
-            },
-          },
+              type: 'completion',
+              analyzer: 'simple'
+            }
+          }
         },
-        gender: { type: "keyword" },
-        age: { type: "integer" },
+        gender: { type: 'keyword' },
+        age: { type: 'integer' },
         color: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer',
           fields: {
-            keyword: { type: "keyword" },
-          },
+            keyword: { type: 'keyword' }
+          }
         },
-        size: { type: "keyword" },
-        status: { type: "keyword" },
+        size: { type: 'keyword' },
+        status: { type: 'keyword' },
         description: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer'
         },
         lastSeenLocation: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer',
           fields: {
-            keyword: { type: "keyword" },
+            keyword: { type: 'keyword' },
             suggest: {
-              type: "completion",
-              analyzer: "simple",
-            },
-          },
+              type: 'completion',
+              analyzer: 'simple'
+            }
+          }
         },
         location: {
-          type: "geo_point",
+          type: 'geo_point'
         },
-        lastSeenDate: { type: "date" },
+        lastSeenDate: { type: 'date' },
         contactInfo: {
           properties: {
             name: {
-              type: "text",
-              analyzer: "chinese_analyzer",
+              type: 'text',
+              analyzer: 'chinese_analyzer'
             },
-            phone: { type: "keyword" },
-            email: { type: "keyword" },
-          },
+            phone: { type: 'keyword' },
+            email: { type: 'keyword' }
+          }
         },
-        images: { type: "keyword" },
-        reward: { type: "integer" },
-        isUrgent: { type: "boolean" },
-        microchipId: { type: "keyword" },
-        vaccinations: { type: "keyword" },
-        medicalConditions: { type: "keyword" },
+        images: { type: 'keyword' },
+        reward: { type: 'integer' },
+        isUrgent: { type: 'boolean' },
+        microchipId: { type: 'keyword' },
+        vaccinations: { type: 'keyword' },
+        medicalConditions: { type: 'keyword' },
         specialMarks: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer'
         },
-        personality: { type: "keyword" },
-        viewCount: { type: "integer" },
-        shareCount: { type: "integer" },
-        userId: { type: "keyword" },
-        aiTags: { type: "keyword" },
-        aiBreedPrediction: { type: "keyword" },
-        aiConfidence: { type: "float" },
-        createdAt: { type: "date" },
-        updatedAt: { type: "date" },
-      },
+        personality: { type: 'keyword' },
+        viewCount: { type: 'integer' },
+        shareCount: { type: 'integer' },
+        userId: { type: 'keyword' },
+        aiTags: { type: 'keyword' },
+        aiBreedPrediction: { type: 'keyword' },
+        aiConfidence: { type: 'float' },
+        createdAt: { type: 'date' },
+        updatedAt: { type: 'date' }
+      }
     };
 
     return await elasticsearchService.createIndex(this.PET_INDEX, mapping);
@@ -159,35 +154,32 @@ class PetSearchService {
     const mapping = {
       properties: {
         query: {
-          type: "text",
-          analyzer: "chinese_analyzer",
+          type: 'text',
+          analyzer: 'chinese_analyzer',
           fields: {
-            keyword: { type: "keyword" },
-          },
+            keyword: { type: 'keyword' }
+          }
         },
         filters: {
           properties: {
-            type: { type: "keyword" },
-            status: { type: "keyword" },
-            location: { type: "keyword" },
-            breed: { type: "keyword" },
-            size: { type: "keyword" },
-            gender: { type: "keyword" },
-          },
+            type: { type: 'keyword' },
+            status: { type: 'keyword' },
+            location: { type: 'keyword' },
+            breed: { type: 'keyword' },
+            size: { type: 'keyword' },
+            gender: { type: 'keyword' }
+          }
         },
-        userId: { type: "keyword" },
-        resultCount: { type: "integer" },
-        timestamp: { type: "date" },
-        sessionId: { type: "keyword" },
-        userAgent: { type: "text" },
-        ipAddress: { type: "ip" },
-      },
+        userId: { type: 'keyword' },
+        resultCount: { type: 'integer' },
+        timestamp: { type: 'date' },
+        sessionId: { type: 'keyword' },
+        userAgent: { type: 'text' },
+        ipAddress: { type: 'ip' }
+      }
     };
 
-    return await elasticsearchService.createIndex(
-      this.SEARCH_ANALYTICS_INDEX,
-      mapping,
-    );
+    return await elasticsearchService.createIndex(this.SEARCH_ANALYTICS_INDEX, mapping);
   }
 
   /**
@@ -222,13 +214,13 @@ class PetSearchService {
       aiBreedPrediction: pet.aiBreedPrediction,
       aiConfidence: pet.aiConfidence,
       createdAt: pet.createdAt,
-      updatedAt: pet.updatedAt,
+      updatedAt: pet.updatedAt
     };
 
     return await elasticsearchService.indexDocument(
       this.PET_INDEX,
       pet._id.toString(),
-      document,
+      document
     );
   }
 
@@ -236,7 +228,7 @@ class PetSearchService {
    * 批量索引寵物文檔
    */
   public async bulkIndexPets(pets: IPet[]): Promise<boolean> {
-    const documents = pets.map((pet) => ({
+    const documents = pets.map(pet => ({
       id: pet._id.toString(),
       document: {
         name: pet.name,
@@ -266,8 +258,8 @@ class PetSearchService {
         aiBreedPrediction: pet.aiBreedPrediction,
         aiConfidence: pet.aiConfidence,
         createdAt: pet.createdAt,
-        updatedAt: pet.updatedAt,
-      },
+        updatedAt: pet.updatedAt
+      }
     }));
 
     return await elasticsearchService.bulkIndex(this.PET_INDEX, documents);
@@ -311,25 +303,23 @@ class PetSearchService {
       aiTags: pet.aiTags,
       aiBreedPrediction: pet.aiBreedPrediction,
       aiConfidence: pet.aiConfidence,
-      updatedAt: new Date(),
+      updatedAt: new Date()
     };
 
     return await elasticsearchService.updateDocument(
       this.PET_INDEX,
       pet._id.toString(),
-      document,
+      document
     );
   }
 
   /**
    * 搜尋寵物
    */
-  public async searchPets(
-    searchQuery: PetSearchQuery,
-  ): Promise<SearchResponse> {
+  public async searchPets(searchQuery: PetSearchQuery): Promise<SearchResponse> {
     try {
       const {
-        query = "",
+        query = '',
         type,
         status,
         breed,
@@ -339,11 +329,11 @@ class PetSearchService {
         color,
         page = 1,
         limit = 12,
-        sortBy = "createdAt",
-        sortOrder = "desc",
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
         fuzzy = false,
         radius = 10,
-        coordinates,
+        coordinates
       } = searchQuery;
 
       // 建立查詢條件
@@ -359,40 +349,30 @@ class PetSearchService {
             {
               multi_match: {
                 query: query,
-                fields: [
-                  "name^3",
-                  "breed^2",
-                  "description",
-                  "lastSeenLocation^2",
-                ],
-                fuzziness: "AUTO",
-                operator: "or",
-              },
+                fields: ['name^3', 'breed^2', 'description', 'lastSeenLocation^2'],
+                fuzziness: 'AUTO',
+                operator: 'or'
+              }
             },
             {
               wildcard: {
-                "name.keyword": `*${query}*`,
-              },
+                'name.keyword': `*${query}*`
+              }
             },
             {
               wildcard: {
-                "breed.keyword": `*${query}*`,
-              },
-            },
+                'breed.keyword': `*${query}*`
+              }
+            }
           );
         } else {
           // 精確搜尋
           must.push({
             multi_match: {
               query: query,
-              fields: [
-                "name^3",
-                "breed^2",
-                "description",
-                "lastSeenLocation^2",
-              ],
-              operator: "and",
-            },
+              fields: ['name^3', 'breed^2', 'description', 'lastSeenLocation^2'],
+              operator: 'and'
+            }
           });
         }
       }
@@ -400,15 +380,15 @@ class PetSearchService {
       // 篩選條件
       if (type) filter.push({ term: { type } });
       if (status) filter.push({ term: { status } });
-      if (breed) filter.push({ term: { "breed.keyword": breed } });
+      if (breed) filter.push({ term: { 'breed.keyword': breed } });
       if (size) filter.push({ term: { size } });
       if (gender) filter.push({ term: { gender } });
       if (color) filter.push({ match: { color } });
       if (location) {
         filter.push({
           match: {
-            lastSeenLocation: location,
-          },
+            lastSeenLocation: location
+          }
         });
       }
 
@@ -417,17 +397,17 @@ class PetSearchService {
         filter.push({
           geo_distance: {
             distance: `${radius}km`,
-            location: coordinates,
-          },
+            location: coordinates
+          }
         });
       }
 
       // 排序
       const sort: any[] = [];
-      if (sortBy === "relevance") {
+      if (sortBy === 'relevance') {
         sort.push({ _score: { order: sortOrder } });
-      } else if (sortBy === "createdAt") {
-        sort.push({ isUrgent: { order: "desc" } });
+      } else if (sortBy === 'createdAt') {
+        sort.push({ isUrgent: { order: 'desc' } });
         sort.push({ createdAt: { order: sortOrder } });
       } else {
         sort.push({ [sortBy]: { order: sortOrder } });
@@ -440,8 +420,8 @@ class PetSearchService {
             must: must.length > 0 ? must : [{ match_all: {} }],
             filter,
             should: should.length > 0 ? should : undefined,
-            minimum_should_match: should.length > 0 ? 1 : undefined,
-          },
+            minimum_should_match: should.length > 0 ? 1 : undefined
+          }
         },
         sort,
         from: (page - 1) * limit,
@@ -451,33 +431,33 @@ class PetSearchService {
             name: {},
             description: {},
             breed: {},
-            lastSeenLocation: {},
+            lastSeenLocation: {}
           },
-          pre_tags: ["<mark>"],
-          post_tags: ["</mark>"],
-        },
+          pre_tags: ['<mark>'],
+          post_tags: ['</mark>']
+        }
       };
 
       const response = await elasticsearchService.getClient().search({
         index: this.PET_INDEX,
-        body: searchBody,
+        body: searchBody
       });
 
       const hits = response.body.hits.hits.map((hit: any) => ({
         id: hit._id,
         score: hit._score,
         source: hit._source,
-        highlights: hit.highlight,
+        highlights: hit.highlight
       }));
 
       return {
         hits,
         total: response.body.hits.total.value,
         maxScore: response.body.hits.max_score,
-        took: response.body.took,
+        took: response.body.took
       };
     } catch (error) {
-      logger.error("搜尋寵物失敗:", error);
+      logger.error('搜尋寵物失敗:', error);
       throw error;
     }
   }
@@ -485,10 +465,7 @@ class PetSearchService {
   /**
    * 獲取搜尋建議
    */
-  public async getSearchSuggestions(
-    query: string,
-    limit: number = 5,
-  ): Promise<SearchSuggestion[]> {
+  public async getSearchSuggestions(query: string, limit: number = 5): Promise<SearchSuggestion[]> {
     try {
       const response = await elasticsearchService.getClient().search({
         index: this.PET_INDEX,
@@ -497,26 +474,26 @@ class PetSearchService {
             name_suggest: {
               prefix: query,
               completion: {
-                field: "name.suggest",
-                size: limit,
-              },
+                field: 'name.suggest',
+                size: limit
+              }
             },
             breed_suggest: {
               prefix: query,
               completion: {
-                field: "breed.suggest",
-                size: limit,
-              },
+                field: 'breed.suggest',
+                size: limit
+              }
             },
             location_suggest: {
               prefix: query,
               completion: {
-                field: "lastSeenLocation.suggest",
-                size: limit,
-              },
-            },
-          },
-        },
+                field: 'lastSeenLocation.suggest',
+                size: limit
+              }
+            }
+          }
+        }
       });
 
       const suggestions: SearchSuggestion[] = [];
@@ -527,7 +504,7 @@ class PetSearchService {
         suggestions.push({
           text: option.text,
           score: option._score,
-          type: "breed",
+          type: 'breed'
         });
       });
 
@@ -536,7 +513,7 @@ class PetSearchService {
         suggestions.push({
           text: option.text,
           score: option._score,
-          type: "breed",
+          type: 'breed'
         });
       });
 
@@ -545,22 +522,21 @@ class PetSearchService {
         suggestions.push({
           text: option.text,
           score: option._score,
-          type: "location",
+          type: 'location'
         });
       });
 
       // 去重並排序
       const uniqueSuggestions = suggestions
-        .filter(
-          (suggestion, index, self) =>
-            index === self.findIndex((s) => s.text === suggestion.text),
+        .filter((suggestion, index, self) => 
+          index === self.findIndex(s => s.text === suggestion.text)
         )
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
 
       return uniqueSuggestions;
     } catch (error) {
-      logger.error("獲取搜尋建議失敗:", error);
+      logger.error('獲取搜尋建議失敗:', error);
       return [];
     }
   }
@@ -575,7 +551,7 @@ class PetSearchService {
     resultCount: number = 0,
     sessionId?: string,
     userAgent?: string,
-    ipAddress?: string,
+    ipAddress?: string
   ): Promise<boolean> {
     try {
       const document = {
@@ -586,16 +562,16 @@ class PetSearchService {
         timestamp: new Date(),
         sessionId,
         userAgent,
-        ipAddress,
+        ipAddress
       };
 
       return await elasticsearchService.indexDocument(
         this.SEARCH_ANALYTICS_INDEX,
         `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        document,
+        document
       );
     } catch (error) {
-      logger.error("記錄搜尋分析失敗:", error);
+      logger.error('記錄搜尋分析失敗:', error);
       return false;
     }
   }
@@ -614,49 +590,49 @@ class PetSearchService {
           query: {
             range: {
               timestamp: {
-                gte: fromDate.toISOString(),
-              },
-            },
+                gte: fromDate.toISOString()
+              }
+            }
           },
           aggs: {
             total_searches: {
               value_count: {
-                field: "query.keyword",
-              },
+                field: 'query.keyword'
+              }
             },
             popular_queries: {
               terms: {
-                field: "query.keyword",
-                size: 10,
-              },
+                field: 'query.keyword',
+                size: 10
+              }
             },
             popular_types: {
               terms: {
-                field: "filters.type",
-                size: 10,
-              },
+                field: 'filters.type',
+                size: 10
+              }
             },
             popular_locations: {
               terms: {
-                field: "filters.location",
-                size: 10,
-              },
+                field: 'filters.location',
+                size: 10
+              }
             },
             popular_breeds: {
               terms: {
-                field: "filters.breed",
-                size: 10,
-              },
+                field: 'filters.breed',
+                size: 10
+              }
             },
             search_trends: {
               date_histogram: {
-                field: "timestamp",
-                calendar_interval: "day",
-              },
-            },
+                field: 'timestamp',
+                calendar_interval: 'day'
+              }
+            }
           },
-          size: 0,
-        },
+          size: 0
+        }
       });
 
       const aggs = response.body.aggregations;
@@ -665,29 +641,29 @@ class PetSearchService {
         totalSearches: aggs.total_searches.value,
         popularQueries: aggs.popular_queries.buckets.map((bucket: any) => ({
           query: bucket.key,
-          count: bucket.doc_count,
+          count: bucket.doc_count
         })),
         popularFilters: {
           types: aggs.popular_types.buckets.map((bucket: any) => ({
             key: bucket.key,
-            count: bucket.doc_count,
+            count: bucket.doc_count
           })),
           locations: aggs.popular_locations.buckets.map((bucket: any) => ({
             key: bucket.key,
-            count: bucket.doc_count,
+            count: bucket.doc_count
           })),
           breeds: aggs.popular_breeds.buckets.map((bucket: any) => ({
             key: bucket.key,
-            count: bucket.doc_count,
-          })),
+            count: bucket.doc_count
+          }))
         },
         searchTrends: aggs.search_trends.buckets.map((bucket: any) => ({
           date: bucket.key_as_string,
-          count: bucket.doc_count,
-        })),
+          count: bucket.doc_count
+        }))
       };
     } catch (error) {
-      logger.error("獲取搜尋分析失敗:", error);
+      logger.error('獲取搜尋分析失敗:', error);
       throw error;
     }
   }

@@ -1,47 +1,55 @@
 {
-  "timestamp": "2025-07-20T06:49:22.419Z",
+  "timestamp": "2025-07-20T09:59:39.321Z",
   "summary": {
-    "totalFiles": 331,
-    "totalLines": 77847,
-    "averageLines": 235
+    "totalFiles": 337,
+    "totalLines": 82160,
+    "averageLines": 244
   },
   "issues": {
     "oversized": [
       {
         "file": "backend\\src\\routes\\community-backup.ts",
-        "lines": 1057
+        "lines": 1193
+      },
+      {
+        "file": "backend\\src\\routes\\notifications.ts",
+        "lines": 656
       },
       {
         "file": "backend\\src\\routes\\pets-backup.ts",
-        "lines": 728
+        "lines": 795
       },
       {
         "file": "backend\\src\\routes\\users.ts",
-        "lines": 670
+        "lines": 685
+      },
+      {
+        "file": "backend\\src\\services\\aiService.ts",
+        "lines": 616
       },
       {
         "file": "backend\\src\\services\\notificationService.ts",
-        "lines": 685
+        "lines": 764
       },
       {
         "file": "backend\\src\\services\\petSearchService-backup.ts",
-        "lines": 674
+        "lines": 699
       },
       {
         "file": "backend\\src\\services\\reportService.ts",
-        "lines": 685
+        "lines": 707
       },
       {
         "file": "backend\\src\\services\\search\\analytics.ts",
-        "lines": 624
+        "lines": 665
       },
       {
         "file": "backend\\src\\services\\smartNotificationService-backup.ts",
-        "lines": 752
+        "lines": 783
       },
       {
         "file": "backend\\src\\services\\userService-backup.ts",
-        "lines": 693
+        "lines": 732
       },
       {
         "file": "backend\\test\\routes\\admin.test.ts",
@@ -65,29 +73,45 @@
       },
       {
         "file": "frontend\\src\\app\\pets\\page.tsx",
-        "lines": 618
+        "lines": 689
       },
       {
         "file": "frontend\\src\\app\\pets\\[id]\\page.tsx",
-        "lines": 682
+        "lines": 745
       },
       {
         "file": "frontend\\src\\components\\community\\CommentSection.tsx",
-        "lines": 602
+        "lines": 685
       },
       {
         "file": "frontend\\src\\components\\community\\MessageCenter.tsx",
-        "lines": 672
+        "lines": 747
       },
       {
         "file": "frontend\\src\\components\\community\\ReportCenter.tsx",
-        "lines": 895
+        "lines": 972
+      },
+      {
+        "file": "frontend\\src\\components\\community\\ReviewSection.tsx",
+        "lines": 655
+      },
+      {
+        "file": "frontend\\src\\components\\pets\\found-pet-form.tsx",
+        "lines": 630
+      },
+      {
+        "file": "frontend\\src\\components\\pets\\pet-form.tsx",
+        "lines": 635
       }
     ],
     "warnings": [
       {
-        "file": "backend\\src\\services\\aiService.ts",
-        "lines": 557
+        "file": "backend\\src\\routes\\upload.ts",
+        "lines": 562
+      },
+      {
+        "file": "backend\\src\\services\\matchingService.ts",
+        "lines": 556
       },
       {
         "file": "backend\\test\\routes\\privacy.test.ts",
@@ -96,10 +120,6 @@
       {
         "file": "backend\\test\\routes\\search.test.ts",
         "lines": 585
-      },
-      {
-        "file": "frontend\\src\\components\\community\\ReviewSection.tsx",
-        "lines": 571
       }
     ],
     "todos": [
@@ -149,7 +169,21 @@
       }
     ],
     "fixmes": [],
-    "complex": []
+    "complex": [
+      {
+        "file": "frontend\\out\\static\\chunks\\polyfills.js",
+        "reason": "過多函數 (23)",
+        "metrics": {
+          "functions": 23,
+          "classes": 0,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      }
+    ]
   },
   "recommendations": [
     {
@@ -158,8 +192,10 @@
       "description": "立即重構超過 600 行的文件",
       "files": [
         "backend\\src\\routes\\community-backup.ts",
+        "backend\\src\\routes\\notifications.ts",
         "backend\\src\\routes\\pets-backup.ts",
         "backend\\src\\routes\\users.ts",
+        "backend\\src\\services\\aiService.ts",
         "backend\\src\\services\\notificationService.ts",
         "backend\\src\\services\\petSearchService-backup.ts",
         "backend\\src\\services\\reportService.ts",
@@ -175,7 +211,10 @@
         "frontend\\src\\app\\pets\\[id]\\page.tsx",
         "frontend\\src\\components\\community\\CommentSection.tsx",
         "frontend\\src\\components\\community\\MessageCenter.tsx",
-        "frontend\\src\\components\\community\\ReportCenter.tsx"
+        "frontend\\src\\components\\community\\ReportCenter.tsx",
+        "frontend\\src\\components\\community\\ReviewSection.tsx",
+        "frontend\\src\\components\\pets\\found-pet-form.tsx",
+        "frontend\\src\\components\\pets\\pet-form.tsx"
       ]
     },
     {
@@ -183,10 +222,18 @@
       "type": "refactor",
       "description": "考慮重構接近 600 行的文件",
       "files": [
-        "backend\\src\\services\\aiService.ts",
+        "backend\\src\\routes\\upload.ts",
+        "backend\\src\\services\\matchingService.ts",
         "backend\\test\\routes\\privacy.test.ts",
-        "backend\\test\\routes\\search.test.ts",
-        "frontend\\src\\components\\community\\ReviewSection.tsx"
+        "backend\\test\\routes\\search.test.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "type": "simplify",
+      "description": "簡化複雜的文件結構",
+      "files": [
+        "frontend\\out\\static\\chunks\\polyfills.js"
       ]
     }
   ]

@@ -125,7 +125,7 @@ class AIService {
     try {
       const authHeaders = this.getAuthHeaders();
       const isFormData = options.body instanceof FormData;
-      
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         headers: {
           ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
@@ -139,7 +139,9 @@ class AIService {
 
       if (!response.ok) {
         if (response.status === 400 && data.errors) {
-          const errorMessages = data.errors.map((err: any) => `${err.field}: ${err.message}`).join(', ');
+          const errorMessages = data.errors
+            .map((err: any) => `${err.field}: ${err.message}`)
+            .join(', ');
           toast({
             title: 'AI 處理失敗',
             description: errorMessages,
@@ -168,10 +170,13 @@ class AIService {
    * 分析圖像內容和寵物品種
    */
   async analyzeImage(imageUrl: string): Promise<ApiResponse<AIAnalysisResult>> {
-    const response = await this.makeRequest<AIAnalysisResult>('/api/ai/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ imageUrl }),
-    });
+    const response = await this.makeRequest<AIAnalysisResult>(
+      '/api/ai/analyze',
+      {
+        method: 'POST',
+        body: JSON.stringify({ imageUrl }),
+      }
+    );
 
     if (response.success) {
       toast({
@@ -186,14 +191,19 @@ class AIService {
   /**
    * 分析上傳的圖像文件
    */
-  async analyzeImageFile(imageFile: File): Promise<ApiResponse<AIAnalysisResult>> {
+  async analyzeImageFile(
+    imageFile: File
+  ): Promise<ApiResponse<AIAnalysisResult>> {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await this.makeRequest<AIAnalysisResult>('/api/ai/analyze', {
-      method: 'POST',
-      body: formData,
-    });
+    const response = await this.makeRequest<AIAnalysisResult>(
+      '/api/ai/analyze',
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
 
     if (response.success) {
       toast({
@@ -217,7 +227,7 @@ class AIService {
     format?: 'jpeg' | 'png' | 'webp';
   }): Promise<ApiResponse<ImageOptimizationResult>> {
     let body: FormData | string;
-    
+
     if (params.imageFile) {
       body = new FormData();
       body.append('image', params.imageFile);
@@ -229,10 +239,13 @@ class AIService {
       body = JSON.stringify(params);
     }
 
-    const response = await this.makeRequest<ImageOptimizationResult>('/api/ai/optimize', {
-      method: 'POST',
-      body,
-    });
+    const response = await this.makeRequest<ImageOptimizationResult>(
+      '/api/ai/optimize',
+      {
+        method: 'POST',
+        body,
+      }
+    );
 
     if (response.success) {
       toast({
@@ -256,7 +269,7 @@ class AIService {
     height: number;
   }): Promise<ApiResponse<ImageCropResult>> {
     let body: FormData | string;
-    
+
     if (params.imageFile) {
       body = new FormData();
       body.append('image', params.imageFile);
@@ -295,7 +308,7 @@ class AIService {
     limit?: number;
   }): Promise<ApiResponse<SimilarPetsResult>> {
     let body: FormData | string;
-    
+
     if (params.imageFile) {
       body = new FormData();
       body.append('image', params.imageFile);
@@ -307,10 +320,13 @@ class AIService {
       body = JSON.stringify(params);
     }
 
-    const response = await this.makeRequest<SimilarPetsResult>('/api/ai/similarity-search', {
-      method: 'POST',
-      body,
-    });
+    const response = await this.makeRequest<SimilarPetsResult>(
+      '/api/ai/similarity-search',
+      {
+        method: 'POST',
+        body,
+      }
+    );
 
     if (response.success) {
       toast({
@@ -325,8 +341,12 @@ class AIService {
   /**
    * 獲取 AI 搜尋建議
    */
-  async getSearchSuggestions(petId: string): Promise<ApiResponse<AISearchSuggestions>> {
-    const response = await this.makeRequest<AISearchSuggestions>(`/api/ai/suggestions/${petId}`);
+  async getSearchSuggestions(
+    petId: string
+  ): Promise<ApiResponse<AISearchSuggestions>> {
+    const response = await this.makeRequest<AISearchSuggestions>(
+      `/api/ai/suggestions/${petId}`
+    );
 
     return response;
   }
@@ -334,26 +354,31 @@ class AIService {
   /**
    * 批量處理圖像（上傳 + AI 分析）
    */
-  async processImageWithAI(imageFile: File, options?: {
-    analyze?: boolean;
-    optimize?: boolean;
-    optimizeOptions?: {
-      width?: number;
-      height?: number;
-      quality?: number;
-    };
-  }): Promise<ApiResponse<{
-    uploadResult: { imageUrl: string };
-    analysisResult?: AIAnalysisResult;
-    optimizationResult?: ImageOptimizationResult;
-  }>> {
+  async processImageWithAI(
+    imageFile: File,
+    options?: {
+      analyze?: boolean;
+      optimize?: boolean;
+      optimizeOptions?: {
+        width?: number;
+        height?: number;
+        quality?: number;
+      };
+    }
+  ): Promise<
+    ApiResponse<{
+      uploadResult: { imageUrl: string };
+      analysisResult?: AIAnalysisResult;
+      optimizationResult?: ImageOptimizationResult;
+    }>
+  > {
     const formData = new FormData();
     formData.append('image', imageFile);
-    
+
     if (options?.analyze) {
       formData.append('analyze', 'true');
     }
-    
+
     if (options?.optimize) {
       formData.append('optimize', 'true');
       if (options.optimizeOptions?.width) {

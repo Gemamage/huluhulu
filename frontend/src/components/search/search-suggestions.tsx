@@ -29,7 +29,7 @@ export function SearchSuggestions({
   onChange,
   onSearch,
   placeholder = '搜尋寵物名稱、品種、地點...',
-  className
+  className,
 }: SearchSuggestionsProps) {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -48,16 +48,16 @@ export function SearchSuggestions({
     try {
       setLoading(true);
       const response = await petService.getSearchSuggestions(query);
-      
+
       if (response.success && response.data) {
         const suggestions: SearchSuggestion[] = [
           ...response.data.suggestions.map((item: any) => ({
             query: item._id,
             count: item.count,
-            type: 'popular' as const
-          }))
+            type: 'popular' as const,
+          })),
         ];
-        
+
         setSuggestions(suggestions);
       }
     } catch (error) {
@@ -71,12 +71,12 @@ export function SearchSuggestions({
   const handleInputChange = (newValue: string) => {
     onChange(newValue);
     setSelectedIndex(-1);
-    
+
     // 清除之前的 debounce
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
-    
+
     // 設置新的 debounce
     debounceRef.current = setTimeout(() => {
       loadSuggestions(newValue);
@@ -102,13 +102,13 @@ export function SearchSuggestions({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex(prev =>
           prev < suggestions.length - 1 ? prev + 1 : prev
         );
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
         break;
       case 'Enter':
         e.preventDefault();
@@ -169,29 +169,29 @@ export function SearchSuggestions({
 
   return (
     <div className={cn('relative', className)}>
-      <form onSubmit={handleSubmit} className="relative">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <form onSubmit={handleSubmit} className='relative'>
+        <div className='relative'>
+          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
           <Input
             ref={inputRef}
-            type="text"
+            type='text'
             value={value}
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={e => handleInputChange(e.target.value)}
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            className="pl-10 pr-10"
+            className='pl-10 pr-10'
           />
           {value && (
             <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
+              type='button'
+              variant='ghost'
+              size='sm'
+              className='absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100'
               onClick={handleClear}
             >
-              <X className="h-4 w-4" />
+              <X className='h-4 w-4' />
             </Button>
           )}
         </div>
@@ -199,54 +199,53 @@ export function SearchSuggestions({
 
       {/* 搜尋建議下拉選單 */}
       {showSuggestions && (suggestions.length > 0 || loading) && (
-        <Card 
+        <Card
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-1 z-50 shadow-lg border"
+          className='absolute top-full left-0 right-0 mt-1 z-50 shadow-lg border'
         >
-          <CardContent className="p-0">
+          <CardContent className='p-0'>
             {loading ? (
-              <div className="p-4 text-center text-sm text-gray-500">
+              <div className='p-4 text-center text-sm text-gray-500'>
                 搜尋中...
               </div>
             ) : (
-              <div className="max-h-64 overflow-y-auto">
+              <div className='max-h-64 overflow-y-auto'>
                 {suggestions.map((suggestion, index) => (
                   <div
                     key={`${suggestion.type}-${suggestion.query}`}
                     className={cn(
                       'flex items-center justify-between px-4 py-3 cursor-pointer transition-colors',
                       'hover:bg-gray-50',
-                      selectedIndex === index && 'bg-blue-50 border-l-2 border-blue-500'
+                      selectedIndex === index &&
+                        'bg-blue-50 border-l-2 border-blue-500'
                     )}
                     onClick={() => handleSuggestionSelect(suggestion)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
-                    <div className="flex items-center gap-3 flex-1">
+                    <div className='flex items-center gap-3 flex-1'>
                       {suggestion.type === 'history' ? (
-                        <Clock className="h-4 w-4 text-gray-400" />
+                        <Clock className='h-4 w-4 text-gray-400' />
                       ) : (
-                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                        <TrendingUp className='h-4 w-4 text-blue-500' />
                       )}
-                      
-                      <span className="text-sm">
-                        {suggestion.query}
-                      </span>
-                      
+
+                      <span className='text-sm'>{suggestion.query}</span>
+
                       {suggestion.type === 'popular' && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant='secondary' className='text-xs'>
                           熱門
                         </Badge>
                       )}
                     </div>
-                    
-                    <div className="text-xs text-gray-500">
+
+                    <div className='text-xs text-gray-500'>
                       {suggestion.count} 次
                     </div>
                   </div>
                 ))}
-                
+
                 {suggestions.length === 0 && !loading && (
-                  <div className="p-4 text-center text-sm text-gray-500">
+                  <div className='p-4 text-center text-sm text-gray-500'>
                     無相關搜尋建議
                   </div>
                 )}

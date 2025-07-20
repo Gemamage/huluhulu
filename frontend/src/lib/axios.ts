@@ -14,24 +14,24 @@ const api = axios.create({
 
 // 請求攔截器 - 添加認證 token
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // 響應攔截器 - 處理錯誤
 api.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     if (error.response?.status === 401) {
       // Token 過期或無效，清除本地存儲並重定向到登入頁面
       authService.removeToken();

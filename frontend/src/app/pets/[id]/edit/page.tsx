@@ -59,7 +59,7 @@ export default function EditPetPage() {
     try {
       setLoading(true);
       const petData = await petService.getPetById(petId);
-      
+
       // 檢查是否為當前用戶的寵物
       if (petData.owner._id !== user?.id) {
         toast({
@@ -70,7 +70,7 @@ export default function EditPetPage() {
         router.push('/pets/my');
         return;
       }
-      
+
       setPet(petData);
     } catch (error) {
       console.error('獲取寵物資訊失敗:', error);
@@ -87,10 +87,10 @@ export default function EditPetPage() {
 
   const handleSubmit = async (formData: PetFormData) => {
     if (!pet) return;
-    
+
     try {
       setSubmitting(true);
-      
+
       // 準備更新數據
       const updateData = {
         name: formData.name,
@@ -114,20 +114,20 @@ export default function EditPetPage() {
         microchipId: formData.microchipId,
         isVaccinated: formData.isVaccinated,
       };
-      
+
       // 更新寵物資訊
       await petService.updatePet(pet._id, updateData);
-      
+
       // 如果有新圖片，上傳圖片
       if (formData.images && formData.images.length > 0) {
         await petService.uploadPetImages(pet._id, formData.images);
       }
-      
+
       toast({
         title: '成功',
         description: '協尋案例已更新',
       });
-      
+
       // 跳轉到寵物詳情頁面
       router.push(`/pets/${pet._id}`);
     } catch (error) {
@@ -144,15 +144,15 @@ export default function EditPetPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">請先登入</h1>
-          <p className="text-muted-foreground mb-6">
+      <div className='container mx-auto px-4 py-8'>
+        <div className='text-center'>
+          <Heart className='h-16 w-16 text-muted-foreground mx-auto mb-4' />
+          <h1 className='text-2xl font-bold mb-2'>請先登入</h1>
+          <p className='text-muted-foreground mb-6'>
             您需要登入才能編輯協尋案例
           </p>
           <Button asChild>
-            <Link href="/auth/login">前往登入</Link>
+            <Link href='/auth/login'>前往登入</Link>
           </Button>
         </div>
       </div>
@@ -161,24 +161,24 @@ export default function EditPetPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center space-x-4 mb-8">
-            <Skeleton className="h-10 w-10" />
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-64" />
+      <div className='container mx-auto px-4 py-8'>
+        <div className='max-w-2xl mx-auto'>
+          <div className='flex items-center space-x-4 mb-8'>
+            <Skeleton className='h-10 w-10' />
+            <div className='space-y-2'>
+              <Skeleton className='h-8 w-48' />
+              <Skeleton className='h-4 w-64' />
             </div>
           </div>
           <Card>
             <CardHeader>
-              <Skeleton className="h-6 w-32" />
+              <Skeleton className='h-6 w-32' />
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className='space-y-6'>
               {Array.from({ length: 8 }).map((_, index) => (
-                <div key={index} className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-10 w-full" />
+                <div key={index} className='space-y-2'>
+                  <Skeleton className='h-4 w-24' />
+                  <Skeleton className='h-10 w-full' />
                 </div>
               ))}
             </CardContent>
@@ -190,15 +190,15 @@ export default function EditPetPage() {
 
   if (!pet) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">找不到協尋案例</h1>
-          <p className="text-muted-foreground mb-6">
+      <div className='container mx-auto px-4 py-8'>
+        <div className='text-center'>
+          <Heart className='h-16 w-16 text-muted-foreground mx-auto mb-4' />
+          <h1 className='text-2xl font-bold mb-2'>找不到協尋案例</h1>
+          <p className='text-muted-foreground mb-6'>
             您要編輯的協尋案例不存在或已被刪除
           </p>
           <Button asChild>
-            <Link href="/pets/my">返回我的協尋</Link>
+            <Link href='/pets/my'>返回我的協尋</Link>
           </Button>
         </div>
       </div>
@@ -231,18 +231,18 @@ export default function EditPetPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
+    <div className='container mx-auto px-4 py-8'>
+      <div className='max-w-2xl mx-auto'>
         {/* 返回按鈕和標題 */}
-        <div className="flex items-center space-x-4 mb-8">
-          <Button variant="outline" size="icon" asChild>
+        <div className='flex items-center space-x-4 mb-8'>
+          <Button variant='outline' size='icon' asChild>
             <Link href={`/pets/${pet._id}`}>
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className='h-4 w-4' />
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">編輯協尋案例</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className='text-3xl font-bold'>編輯協尋案例</h1>
+            <p className='text-muted-foreground mt-2'>
               更新 {pet.name} 的協尋資訊
             </p>
           </div>
@@ -258,17 +258,17 @@ export default function EditPetPage() {
               initialData={initialData}
               onSubmit={handleSubmit}
               isSubmitting={submitting}
-              submitButtonText="更新協尋案例"
+              submitButtonText='更新協尋案例'
             />
           </CardContent>
         </Card>
 
         {/* 溫馨提示 */}
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+        <div className='mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800'>
+          <h3 className='font-medium text-blue-900 dark:text-blue-100 mb-2'>
             💡 編輯提示
           </h3>
-          <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+          <ul className='text-sm text-blue-700 dark:text-blue-300 space-y-1'>
             <li>• 請確保聯絡資訊是最新的，以便好心人能夠聯繫到您</li>
             <li>• 如果寵物已找到，請記得更新狀態為「找到」</li>
             <li>• 詳細的描述和清晰的照片有助於提高找到寵物的機會</li>

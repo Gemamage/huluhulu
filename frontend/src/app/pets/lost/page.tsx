@@ -54,7 +54,7 @@ export default function LostPetPage() {
       };
 
       const result = await petService.createPet(petData);
-      
+
       toast({
         title: '走失協尋發布成功',
         description: '您的走失協尋已成功發布，我們會盡力幫助您找回寶貝',
@@ -73,31 +73,31 @@ export default function LostPetPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className='min-h-screen bg-gray-50'>
+      <div className='max-w-4xl mx-auto px-4 py-8'>
         {/* 頁面標題區域 */}
-        <div className="mb-8">
+        <div className='mb-8'>
           <Button
-            variant="ghost"
+            variant='ghost'
             onClick={() => router.back()}
-            className="mb-4 p-0 h-auto font-normal text-gray-600 hover:text-gray-900"
+            className='mb-4 p-0 h-auto font-normal text-gray-600 hover:text-gray-900'
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className='h-4 w-4 mr-2' />
             返回
           </Button>
-          
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+
+          <div className='text-center'>
+            <h1 className='text-3xl font-bold text-gray-900 mb-2'>
               刊登走失協尋
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className='text-lg text-gray-600'>
               請詳細填寫您寶貝的資訊，讓我們一起幫助牠回家。
             </p>
           </div>
         </div>
 
         {/* 表單區域 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className='bg-white rounded-lg shadow-sm border border-gray-200 p-6'>
           <LostPetForm onSubmit={handleSubmit} />
         </div>
       </div>
