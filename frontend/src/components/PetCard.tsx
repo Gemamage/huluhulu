@@ -32,6 +32,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
       setIsFavorited(pet.favoritedBy.includes(currentUserId));
     }
   }, [currentUserId, pet.favoritedBy]);
+
   const getStatusText = (status: ExtendedPet['status']) => {
     switch (status) {
       case 'lost':

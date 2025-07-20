@@ -37,7 +37,7 @@ export function SearchSuggestions({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<number>();
+  const debounceRef = useRef<NodeJS.Timeout | undefined>();
 
   const loadSuggestions = async (query: string) => {
     if (!query.trim()) {
@@ -76,7 +76,7 @@ export function SearchSuggestions({
     // 設置新的 debounce
     debounceRef.current = setTimeout(() => {
       loadSuggestions(newValue);
-    }, 300);
+    }, 300) as NodeJS.Timeout;
   };
 
   const handleSuggestionSelect = (suggestion: SearchSuggestion) => {

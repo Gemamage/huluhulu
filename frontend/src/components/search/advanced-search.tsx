@@ -354,7 +354,7 @@ export function AdvancedSearch({
         {/* 操作按鈕 */}
         <div className='flex gap-3 pt-4'>
           <Button onClick={onSearch} className='flex-1'>
-            <Search className='h-4 w-4 mr-2' />
+            <SlidersHorizontal className='h-4 w-4 mr-2' />
             套用篩選
           </Button>
 

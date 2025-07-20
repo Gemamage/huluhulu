@@ -4,40 +4,40 @@ import { BREED_OPTIONS } from '../constants/formOptions';
 
 export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
   const [formData, setFormData] = useState<LostPetFormData>({
-    name: initialData?.name || '',
-    type: initialData?.type || 'dog',
-    breed: initialData?.breed || [],
-    gender: initialData?.gender || 'unknown',
-    age: initialData?.age || 'adult',
-    size: initialData?.size || 'medium',
-    color: initialData?.color || [],
+    name: initialData?.name ?? '',
+    type: initialData?.type ?? 'dog',
+    breed: initialData?.breed ?? [],
+    gender: initialData?.gender ?? 'unknown',
+    age: initialData?.age ?? 'adult',
+    size: initialData?.size ?? 'medium',
+    color: initialData?.color ?? [],
     weight: initialData?.weight,
-    description: initialData?.description || [],
-    specialMarks: initialData?.specialMarks || '',
-    personality: initialData?.personality || [],
-    lostLocation: initialData?.lostLocation || {
+    description: initialData?.description ?? [],
+    specialMarks: initialData?.specialMarks,
+    personality: initialData?.personality ?? [],
+    lostLocation: initialData?.lostLocation ?? {
       city: '',
       district: '',
       address: '',
     },
-    lostDate: initialData?.lostDate || new Date().toISOString().split('T')[0],
-    lostTime: initialData?.lostTime || '',
-    circumstances: initialData?.circumstances || '',
+    lostDate: initialData?.lostDate ?? new Date().toISOString().split('T')[0],
+    lostTime: initialData?.lostTime ?? undefined,
+    circumstances: initialData?.circumstances ?? undefined,
     ownerContact: {
-      name: initialData?.ownerContact?.name || '',
-      phone: initialData?.ownerContact?.phone || '',
-      email: initialData?.ownerContact?.email || '',
-      preferredContact: initialData?.ownerContact?.preferredContact || 'phone',
+      name: initialData?.ownerContact?.name ?? '',
+      phone: initialData?.ownerContact?.phone ?? '',
+      email: initialData?.ownerContact?.email,
+      preferredContact: initialData?.ownerContact?.preferredContact ?? 'phone',
     },
-    images: initialData?.images || [],
-    microchipId: initialData?.microchipId || '',
-    hasCollar: initialData?.hasCollar || false,
-    collarDescription: initialData?.collarDescription || '',
-    healthCondition: initialData?.healthCondition || '',
-    medications: initialData?.medications || '',
+    images: initialData?.images ?? [],
+    microchipId: initialData?.microchipId,
+    hasCollar: initialData?.hasCollar ?? false,
+    collarDescription: initialData?.collarDescription,
+    healthCondition: initialData?.healthCondition,
+    medications: initialData?.medications,
     reward: initialData?.reward,
-    rewardDescription: initialData?.rewardDescription || '',
-    additionalNotes: initialData?.additionalNotes || '',
+    rewardDescription: initialData?.rewardDescription,
+    additionalNotes: initialData?.additionalNotes,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -62,7 +62,7 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
 
       // 清除該欄位的錯誤
       if (errors[field]) {
-        setErrors(prev => ({ ...prev, [field]: '' }));
+        setErrors(prev => ({ ...prev, [field]: undefined }));
       }
     },
     [errors]
@@ -92,8 +92,8 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
         address: '',
       },
       lostDate: new Date().toISOString().split('T')[0],
-      lostTime: '',
-      circumstances: '',
+      lostTime: undefined,
+      circumstances: undefined,
       ownerContact: {
         name: '',
         phone: '',

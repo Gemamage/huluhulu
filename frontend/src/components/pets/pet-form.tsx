@@ -86,34 +86,34 @@ export function PetForm({
   const [formData, setFormData] = useState<PetFormData>({
     name: initialData?.name || '',
     type: initialData?.type || 'dog',
-    breed: initialData?.breed || '',
+    breed: initialData?.breed,
     gender: initialData?.gender || 'unknown',
-    age: initialData?.age || undefined,
-    color: initialData?.color || '',
-    size: initialData?.size || 'medium',
+    age: initialData?.age,
+    color: initialData?.color,
+    size: initialData?.size,
     status: initialData?.status || 'lost',
-    description: initialData?.description || '',
+    description: initialData?.description,
     lastSeenLocation: {
       address: initialData?.lastSeenLocation?.address || '',
-      latitude: initialData?.lastSeenLocation?.latitude || undefined,
-      longitude: initialData?.lastSeenLocation?.longitude || undefined,
+      ...(initialData?.lastSeenLocation?.latitude !== undefined && { latitude: initialData.lastSeenLocation.latitude }),
+      ...(initialData?.lastSeenLocation?.longitude !== undefined && { longitude: initialData.lastSeenLocation.longitude }),
     },
     lastSeenDate:
       initialData?.lastSeenDate || new Date().toISOString().split('T')[0],
     contactInfo: {
       name: initialData?.contactInfo?.name || '',
       phone: initialData?.contactInfo?.phone || '',
-      email: initialData?.contactInfo?.email || '',
+      email: initialData?.contactInfo?.email,
       preferredContact: initialData?.contactInfo?.preferredContact || 'phone',
     },
-    images: initialData?.images || [],
-    reward: initialData?.reward || 0,
+    images: initialData?.images,
+    reward: initialData?.reward,
     isUrgent: initialData?.isUrgent || false,
-    microchipId: initialData?.microchipId || '',
+    microchipId: initialData?.microchipId,
     vaccinated: initialData?.vaccinated,
-    medicalConditions: initialData?.medicalConditions || '',
-    specialMarks: initialData?.specialMarks || '',
-    personality: initialData?.personality || '',
+    medicalConditions: initialData?.medicalConditions,
+    specialMarks: initialData?.specialMarks,
+    personality: initialData?.personality,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -142,7 +142,7 @@ export function PetForm({
           ...prev,
           [keys[0] as string]: {
             ...(prev[keys[0] as keyof PetFormData] as any),
-            [keys[1]]: value,
+            [keys[1] as string]: value,
           },
         };
       }
@@ -151,7 +151,7 @@ export function PetForm({
 
     // 清除該欄位的錯誤
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -163,7 +163,7 @@ export function PetForm({
     }
 
     try {
-      await onSubmit(formData);
+      await onSubmit(formData as any);
     } catch (error) {
       console.error('表單提交失敗:', error);
     }

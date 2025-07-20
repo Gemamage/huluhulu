@@ -126,7 +126,7 @@ export function PopularSearches({
           <div className='space-y-4'>
             {/* 標籤雲樣式 */}
             <div className='flex flex-wrap gap-2'>
-              {popularSearches.map((item, index) => {
+              {popularSearches.map((item) => {
                 const level = getPopularityLevel(item.count, maxCount);
                 const colorClass = getPopularityColor(level);
 

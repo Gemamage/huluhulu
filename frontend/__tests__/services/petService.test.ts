@@ -292,7 +292,7 @@ describe('petService', () => {
         const mockResult = { pets: [mockPet], total: 1, page: 1, totalPages: 1 };
         mockSearchService.searchPets.mockResolvedValue(mockResult);
 
-        const result = await petService.searchPets('小白');
+        const result = await petService.searchPets('小白', {});
 
         expect(mockSearchService.searchPets).toHaveBeenCalledWith('小白', {});
         expect(result).toEqual(mockResult);

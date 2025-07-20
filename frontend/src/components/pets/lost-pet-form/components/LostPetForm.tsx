@@ -57,11 +57,11 @@ export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
   };
 
   const handleFieldBlur = (field: string, value: any) => {
-    const error = validateField(field, value, formData);
+    const error = validateField(field, value);
     if (error) {
       setErrors(prev => ({ ...prev, [field]: error }));
     } else {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
 

@@ -6,7 +6,7 @@ import {
   validatePetData,
   validateSearchFilters
 } from '@/utils/validation'
-import { CreatePetData } from '@/types/pet'
+import { CreatePetData, PetType } from '@/types/pet'
 import { SearchFilters } from '@/types/search'
 
 describe('validation utils', () => {
@@ -165,7 +165,7 @@ describe('validation utils', () => {
       const invalidPetData = {
         ...validPetData,
         name: '',
-        type: ''
+        type: '' as PetType
       }
 
       const result = validatePetData(invalidPetData)

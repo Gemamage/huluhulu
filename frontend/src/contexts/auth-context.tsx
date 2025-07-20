@@ -97,10 +97,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true);
       const result = await authService.register({
+        name,
         email,
         password,
-        name,
-        phone: phone || undefined,
+        ...(phone ? { phone } : {}),
       });
       setUser(result.user);
 

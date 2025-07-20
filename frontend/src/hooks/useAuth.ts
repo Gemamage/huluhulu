@@ -87,8 +87,8 @@ export const useAuth = () => {
     logout: logoutMutation.mutateAsync,
     forgotPassword: (email: string) =>
       forgotPasswordMutation.mutateAsync({ email }),
-    resetPassword: (token: string, password: string) =>
-      resetPasswordMutation.mutateAsync({ token, password }),
+    resetPassword: (token: string, password: string, confirmPassword: string) =>
+      resetPasswordMutation.mutateAsync({ token, password, confirmPassword }),
     verifyEmail: verifyEmailMutation.mutateAsync,
     updateProfile: updateProfileMutation.mutateAsync,
     changePassword: changePasswordMutation.mutateAsync,

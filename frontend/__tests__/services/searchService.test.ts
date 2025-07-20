@@ -22,7 +22,7 @@ describe('searchService', () => {
     mockAuthService.getToken.mockReturnValue('mock-token');
   });
 
-  const mockSearchResult: SearchResult = {
+  const mockSearchResult: SearchResult<Pet> = {
     pets: [
       {
         _id: '1',
@@ -349,7 +349,7 @@ describe('searchService', () => {
       const result = await searchService.checkSearchHealth();
 
       expect(result.status).toBe('unhealthy');
-      expect(result.data.elasticsearch.status).toBe('red');
+      expect(result.elasticsearch.status).toBe('red');
     });
   });
 

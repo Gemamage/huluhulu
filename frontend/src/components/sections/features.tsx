@@ -173,7 +173,7 @@ export function Features({ className }: FeaturesProps) {
 
         {/* 額外功能 */}
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-8'>
-          {additionalFeatures.map((feature, index) => (
+          {additionalFeatures.map((feature) => (
             <div
               key={feature.id}
               className='bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 p-6'

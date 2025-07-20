@@ -77,9 +77,10 @@ export function UserProfile() {
 
     setIsLoading(true);
     try {
+      const trimmedPhone = formData.phone.trim();
       await authService.updateProfile({
         name: formData.name.trim(),
-        phone: formData.phone.trim() ? formData.phone.trim() : undefined,
+        ...(trimmedPhone ? { phone: trimmedPhone } : {}),
       });
 
       await refreshUser();

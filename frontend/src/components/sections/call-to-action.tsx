@@ -126,7 +126,7 @@ export function CallToAction({ className }: CallToActionProps) {
 
         {/* 行動卡片 */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16'>
-          {actionCards.map((card, index) => (
+          {actionCards.map((card) => (
             <div
               key={card.id}
               className='group relative bg-white rounded-3xl p-8 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-4'
@@ -146,9 +146,9 @@ export function CallToAction({ className }: CallToActionProps) {
 
               {/* 功能列表 */}
               <ul className='space-y-3 mb-8'>
-                {card.features.map((feature, featureIndex) => (
+                {card.features.map((feature, index) => (
                   <li
-                    key={featureIndex}
+                    key={index}
                     className='flex items-center gap-3 text-sm text-zinc-600'
                   >
                     <div className='w-2 h-2 rounded-full flex-shrink-0 bg-amber-600' />

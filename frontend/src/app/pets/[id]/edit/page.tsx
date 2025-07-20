@@ -242,11 +242,11 @@ export default function EditPetPage() {
         ? pet.lastSeenLocation.coordinates[0]
         : 0
     },
-    lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : '',
+    lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     contactInfo: {
-      name: pet.contactName || '',
-      phone: pet.contactPhone || '',
-      email: pet.contactEmail || '',
+      name: (pet.contactName as string) || '',
+      phone: (pet.contactPhone as string) || '',
+      email: (pet.contactEmail as string) || '',
       preferredContact: 'phone' as 'phone' | 'email',
     },
     images: [],

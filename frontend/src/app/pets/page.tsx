@@ -170,7 +170,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
           <div className='flex items-center gap-2'>
             <MapPin className='h-4 w-4' />
             <span className='truncate'>
-              {pet.lastSeenLocation?.address || (pet as any).location}
+              {typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address || (pet as any).location}
             </span>
           </div>
 

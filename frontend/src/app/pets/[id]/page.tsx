@@ -137,7 +137,7 @@ export default function PetDetailPage() {
 
       if (response) {
         setPet(response);
-        loadSimilarPets(response);
+        loadSimilarPets();
       } else {
         toast({
           title: '載入失敗',
@@ -198,7 +198,7 @@ export default function PetDetailPage() {
       setDeleting(true);
       const response = await petService.deletePet(pet._id);
 
-      if (response?.success) {
+      if (response) {
         toast({
           title: '刪除成功',
           description: '寵物協尋案例已成功刪除',
@@ -218,7 +218,10 @@ export default function PetDetailPage() {
   };
 
   // 檢查是否為寵物擁有者
-  const isOwner = isAuthenticated && user && pet && (pet.owner?._id === user.id || pet.owner === user.id);
+  const isOwner = isAuthenticated && user && pet && (
+    (typeof pet.owner === 'object' && pet.owner?._id === user.id) || 
+    (typeof pet.owner === 'string' && pet.owner === user.id)
+  );
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('zh-TW', {
@@ -545,7 +548,7 @@ export default function PetDetailPage() {
                     <Phone className='h-4 w-4 text-blue-600' />
                   </div>
                   <div>
-                    <p className='font-medium'>{pet.contactInfo?.name || '未提供'}</p>
+                    <p className='font-medium'>{pet.contactName || '未提供'}</p>
                     <p className='text-sm text-gray-600'>
                       {pet.contactInfo?.phone || '未提供'}
                     </p>
@@ -723,7 +726,7 @@ export default function PetDetailPage() {
                     asChild
                   >
                     <Link
-                      href={`/pets?type=${pet.type}&location=${encodeURIComponent(pet.lastSeenLocation?.address || '')}`}
+                      href={`/pets?type=${pet.type}&location=${encodeURIComponent(typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address || '')}`}
                     >
                       查看更多相似案例
                     </Link>

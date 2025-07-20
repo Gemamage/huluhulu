@@ -73,34 +73,34 @@ export function FoundPetForm({
   isLoading = false,
 }: FoundPetFormProps) {
   const [formData, setFormData] = useState<FoundPetFormData>({
-    name: initialData?.name || '',
-    type: initialData?.type || 'unknown',
-    breed: initialData?.breed || [],
-    gender: initialData?.gender || 'unknown',
-    estimatedAge: initialData?.estimatedAge || 'unknown',
-    size: initialData?.size || 'unknown',
-    color: initialData?.color || [],
-    description: initialData?.description || [],
-    foundLocation: initialData?.foundLocation || {
+    name: initialData?.name,
+    type: initialData?.type ?? 'unknown',
+    breed: initialData?.breed ?? [],
+    gender: initialData?.gender ?? 'unknown',
+    estimatedAge: initialData?.estimatedAge,
+    size: initialData?.size,
+    color: initialData?.color ?? [],
+    description: initialData?.description ?? [],
+    foundLocation: initialData?.foundLocation ?? {
       city: '',
       district: '',
       address: '',
     },
-    foundDate: initialData?.foundDate || new Date().toISOString().split('T')[0],
-    foundTime: initialData?.foundTime || '',
+    foundDate: initialData?.foundDate ?? new Date().toISOString().split('T')[0],
+    foundTime: initialData?.foundTime,
     finderContact: {
-      name: initialData?.finderContact?.name || '',
-      phone: initialData?.finderContact?.phone || '',
-      email: initialData?.finderContact?.email || '',
-      preferredContact: initialData?.finderContact?.preferredContact || 'phone',
+      name: initialData?.finderContact?.name ?? '',
+      phone: initialData?.finderContact?.phone ?? '',
+      email: initialData?.finderContact?.email,
+      preferredContact: initialData?.finderContact?.preferredContact ?? 'phone',
     },
-    images: initialData?.images || [],
-    specialMarks: initialData?.specialMarks || '',
-    behaviorNotes: initialData?.behaviorNotes || [],
-    healthCondition: initialData?.healthCondition || '',
-    isInjured: initialData?.isInjured || false,
-    hasCollar: initialData?.hasCollar || false,
-    collarDescription: initialData?.collarDescription || '',
+    images: initialData?.images ?? [],
+    specialMarks: initialData?.specialMarks,
+    behaviorNotes: initialData?.behaviorNotes ?? [],
+    healthCondition: initialData?.healthCondition,
+    isInjured: initialData?.isInjured ?? false,
+    hasCollar: initialData?.hasCollar ?? false,
+    collarDescription: initialData?.collarDescription,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -313,7 +313,7 @@ export function FoundPetForm({
               onChange={value => handleInputChange('breed', value)}
               options={getCurrentBreedOptions()}
               placeholder='選擇或輸入品種'
-              error={errors.breed}
+              error={errors.breed || ''}
             />
           </div>
 
@@ -370,7 +370,7 @@ export function FoundPetForm({
               onChange={value => handleInputChange('color', value)}
               options={colorOptions}
               placeholder='選擇或輸入毛色'
-              error={errors.color}
+              error={errors.color || ''}
             />
           </div>
         </div>
@@ -392,7 +392,7 @@ export function FoundPetForm({
             onChange={value => handleInputChange('description', value)}
             options={appearanceOptions}
             placeholder='選擇或輸入外觀特徵'
-            error={errors.description}
+            {...(errors.description && { error: errors.description })}
           />
         </div>
       </div>
@@ -452,7 +452,7 @@ export function FoundPetForm({
               label='拾獲地點'
               value={formData.foundLocation}
               onChange={value => handleInputChange('foundLocation', value)}
-              error={errors.foundLocation}
+              {...(errors.foundLocation && { error: errors.foundLocation })}
             />
           </div>
         </div>
@@ -598,7 +598,7 @@ export function FoundPetForm({
               onChange={value => handleInputChange('behaviorNotes', value)}
               options={personalityOptions}
               placeholder='選擇或輸入個性特徵'
-              error={errors.behaviorNotes}
+              {...(errors.behaviorNotes && { error: errors.behaviorNotes })}
             />
           </div>
 

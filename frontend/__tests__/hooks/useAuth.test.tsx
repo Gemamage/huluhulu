@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { authService } from '@/services/authService'
-import { User, LoginCredentials, RegisterData } from '@/types/auth'
+import { User, LoginCredentials } from '@/types/auth'
+import { RegisterData } from '@/lib/auth'
 
 // Mock authService
 jest.mock('@/services/authService', () => ({
@@ -139,11 +140,9 @@ describe('useAuth', () => {
   describe('register', () => {
     it('registers user successfully', async () => {
       const registerData: RegisterData = {
-        username: 'testuser',
+        name: 'testuser',
         email: 'test@example.com',
-        password: 'password123',
-        firstName: 'Test',
-        lastName: 'User'
+        password: 'password123'
       }
       const registerResponse = {
         user: mockUser,

@@ -23,14 +23,7 @@ const renderWithQueryClient = (component: React.ReactElement) => {
 
 describe('SearchForm', () => {
   const mockOnSearch = jest.fn()
-  const defaultFilters: SearchFilters = {
-    type: '',
-    status: '',
-    breed: '',
-    location: '',
-    size: '',
-    gender: ''
-  }
+  const defaultFilters: SearchFilters = {}
 
   beforeEach(() => {
     mockOnSearch.mockClear()
@@ -72,7 +65,6 @@ describe('SearchForm', () => {
   })
 
   it('calls onSearch when form is submitted', async () => {
-    const user = userEvent.setup()
     renderWithQueryClient(
       <SearchForm onSearch={mockOnSearch} initialFilters={defaultFilters} />
     )
@@ -80,8 +72,8 @@ describe('SearchForm', () => {
     const typeSelect = screen.getByLabelText(/寵物類型/i)
     const submitButton = screen.getByRole('button', { name: /搜尋/i })
 
-    await user.selectOptions(typeSelect, 'dog')
-    await user.click(submitButton)
+    fireEvent.change(typeSelect, { target: { value: 'dog' } })
+    fireEvent.click(submitButton)
 
     await waitFor(() => {
       expect(mockOnSearch).toHaveBeenCalledWith(
