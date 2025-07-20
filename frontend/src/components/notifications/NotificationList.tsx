@@ -36,39 +36,57 @@ export const NotificationList: React.FC<NotificationListProps> = ({
 
   const unreadCount = notifications.filter(n => n.status === 'unread').length;
 
-  const getNotificationIcon = (type: NotificationType) => {
+  const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'MATCH_FOUND':
       case 'pet_match':
         return '🐾';
+      case 'PET_STATUS_UPDATE':
       case 'pet_found':
         return '🎉';
       case 'pet_lost':
         return '🚨';
+      case 'GEOFENCE_ALERT':
       case 'geofence':
         return '📍';
+      case 'REMINDER':
       case 'reminder':
         return '⏰';
+      case 'SYSTEM_ANNOUNCEMENT':
       case 'system':
         return '🔔';
+      case 'MESSAGE':
+        return '💬';
+      case 'COMMENT':
+        return '💭';
       default:
         return '📢';
     }
   };
 
-  const getNotificationTypeText = (type: NotificationType) => {
+  const getNotificationTypeText = (type: string) => {
     switch (type) {
+      case 'MATCH_FOUND':
       case 'pet_match':
         return '寵物配對';
+      case 'PET_STATUS_UPDATE':
       case 'pet_found':
         return '寵物找到';
       case 'pet_lost':
         return '寵物走失';
+      case 'GEOFENCE_ALERT':
       case 'geofence':
         return '地理圍欄';
+      case 'REMINDER':
       case 'reminder':
         return '提醒';
+      case 'SYSTEM_ANNOUNCEMENT':
       case 'system':
         return '系統';
+      case 'MESSAGE':
+        return '訊息';
+      case 'COMMENT':
+        return '評論';
       default:
         return '通知';
     }
