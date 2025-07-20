@@ -52,8 +52,7 @@ export default function NewPetPage() {
         },
         foundDate: formData.foundDate,
         foundTime: formData.foundTime,
-        contact: {
-          name: formData.finderContact.name,
+        contactInfo: {
           phone: formData.finderContact.phone,
           email: formData.finderContact.email,
           preferredContact: formData.finderContact.preferredContact,
@@ -62,15 +61,13 @@ export default function NewPetPage() {
 
       const response = await petService.createPet(petData);
 
-      if (response.success && response.data) {
-        toast({
-          title: '拾獲通報發布成功',
-          description: '感謝您的愛心，拾獲通報已成功發布',
-        });
+      toast({
+        title: '拾獲通報發布成功',
+        description: '感謝您的愛心，拾獲通報已成功發布',
+      });
 
-        // 跳轉到新建立的寵物詳情頁面
-        router.push(`/pets/${response.data.pet._id}`);
-      }
+      // 跳轉到新建立的寵物詳情頁面
+       router.push(`/pets/${response._id}`);
     } catch (error) {
       console.error('發布拾獲通報失敗:', error);
       toast({
@@ -110,8 +107,7 @@ export default function NewPetPage() {
         <CardContent className='pt-6'>
           <FoundPetForm
             onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            submitButtonText='發布拾獲通報'
+            isLoading={isSubmitting}
           />
         </CardContent>
       </Card>

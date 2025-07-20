@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AuthProvider } from '@/contexts/auth-context';
 import { useNotificationService } from '@/hooks/useNotifications';
 

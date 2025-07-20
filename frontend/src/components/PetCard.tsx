@@ -17,7 +17,7 @@ interface ExtendedPet extends Pet {
 interface PetCardProps {
   pet: ExtendedPet;
   onClick?: (pet: ExtendedPet) => void;
-  currentUserId?: string | undefined;
+  currentUserId?: string;
 }
 
 const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {

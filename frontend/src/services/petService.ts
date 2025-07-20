@@ -318,3 +318,5 @@ class PetService implements PetServiceMethods {
 
 export const petService = new PetService();
 export { PetService };
+// 導出 Pet 型別以供其他模組使用
+export { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet';

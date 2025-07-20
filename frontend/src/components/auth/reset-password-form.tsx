@@ -15,9 +15,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import {
-  validatePasswordReset,
+  validateNewPassword,
   convertValidationErrors,
   ValidationResult,
 } from '@/utils/validation';
@@ -41,7 +41,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
 
   const validateForm = () => {
-    const validationResult: ValidationResult = validatePasswordReset(formData);
+    const validationResult: ValidationResult = validateNewPassword(formData);
 
     if (!validationResult.isValid) {
       const newErrors = convertValidationErrors(validationResult.errors);

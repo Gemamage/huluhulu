@@ -17,7 +17,6 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import {
   validateUserRegistration,
   convertValidationErrors,

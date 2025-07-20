@@ -28,7 +28,7 @@ export function EmailVerification({ token, email }: EmailVerificationProps) {
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  const { verifyEmail, resendVerificationEmail, user } = useAuth();
+  const { verifyEmail, user } = useAuth();
   const router = useRouter();
 
   // 倒數計時器

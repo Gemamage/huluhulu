@@ -2,17 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { petService, Pet, PetSearchParams } from '@/services/petService';
+import { petService } from '@/services/petService';
+import { Pet } from '@/types/pet';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
+
 import {
   Card,
   CardContent,
@@ -23,20 +18,13 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+
 } from '@/components/ui/collapsible';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import {
   Search,
   Filter,
@@ -45,23 +33,17 @@ import {
   Calendar,
   Phone,
   Mail,
-  Eye,
-  Share2,
-  DollarSign,
-  ChevronLeft,
-  ChevronRight,
+
   ChevronDown,
   ChevronUp,
   History,
-  TrendingUp,
   Heart,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
-import { zhTW } from 'date-fns/locale';
-import { SearchFilters } from '@/shared/types';
+
+import { SearchFilters } from '@/types/search';
 import { AdvancedSearch } from '@/components/search/advanced-search';
 import { SearchHistory } from '@/components/search/search-history';
 import { PopularSearches } from '@/components/search/popular-searches';
@@ -80,11 +62,10 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (currentUserId && pet.favoritedBy) {
-      setIsFavorited(pet.favoritedBy.includes(currentUserId));
-      setFavoriteCount(pet.favoritedBy.length);
-    }
-  }, [currentUserId, pet.favoritedBy]);
+    // TODO: 實現收藏功能時需要從 API 獲取收藏狀態
+    setIsFavorited(false);
+    setFavoriteCount(0);
+  }, [currentUserId]);
 
   const handleFavoriteClick = async () => {
     if (!currentUserId) {
@@ -173,11 +154,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
             <Badge variant={getStatusColor(pet.status)}>
               {getStatusText(pet.status)}
             </Badge>
-            {pet.isUrgent && (
-              <Badge variant='destructive' className='text-xs'>
-                緊急
-              </Badge>
-            )}
+
           </div>
         </div>
       </CardHeader>
@@ -186,7 +163,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
         {pet.images && pet.images.length > 0 && (
           <div className='aspect-[3/4] bg-gray-100 rounded-md overflow-hidden relative'>
             <Image
-              src={pet.images[0]}
+              src={pet.images?.[0] || '/placeholder-pet.jpg'}
               alt={pet.name}
               fill
               className='object-cover'
@@ -205,7 +182,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
 
           <div className='flex items-center gap-2'>
             <Calendar className='h-4 w-4' />
-            <span>最後見到: {formatDate(pet.lastSeenDate)}</span>
+            <span>發布時間: {formatDate(pet.createdAt)}</span>
           </div>
 
           {pet.description && (
@@ -321,12 +298,12 @@ export default function PetsPage() {
     hasPrev: false,
   });
   const [searchText, setSearchText] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({});
 
-  const loadPets = async (params: PetSearchParams) => {
+  const loadPets = async () => {
     try {
       setLoading(true);
 
@@ -374,7 +351,7 @@ export default function PetsPage() {
   };
 
   useEffect(() => {
-    loadPets(searchParams);
+    loadPets();
   }, [searchParams]);
 
   const handleSearch = (query?: string) => {
@@ -387,25 +364,10 @@ export default function PetsPage() {
     };
     setSearchParams(newParams);
     setSearchText(searchQuery);
-    loadPets(newParams);
+    loadPets();
   };
 
-  const handleFilterChange = (key: string, value: any) => {
-    const newFilters = {
-      ...filters,
-      [key]: value || undefined,
-    };
-    setFilters(newFilters);
 
-    const newParams = {
-      ...searchParams,
-      ...newFilters,
-      page: 1,
-      search: searchText || undefined,
-    };
-    setSearchParams(newParams);
-    loadPets(newParams);
-  };
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);
@@ -417,7 +379,7 @@ export default function PetsPage() {
       search: searchText || undefined,
     };
     setSearchParams(newParams);
-    loadPets(newParams);
+    loadPets();
   };
 
   const handleResetFilters = () => {
@@ -432,7 +394,7 @@ export default function PetsPage() {
       sortOrder: 'desc' as const,
     };
     setSearchParams(newParams);
-    loadPets(newParams);
+    loadPets();
   };
 
   const handleSearchSelect = (query: string, searchFilters?: any) => {
@@ -552,7 +514,7 @@ export default function PetsPage() {
               <PetCard
                 key={pet._id}
                 pet={pet}
-                currentUserId={user?.id}
+                {...(user?.id && { currentUserId: user.id })}
                 onClick={() => router.push(`/pets/${pet._id}`)}
               />
             ))}
@@ -571,7 +533,7 @@ export default function PetsPage() {
               <PetCard
                 key={pet._id}
                 pet={pet}
-                currentUserId={user?.id}
+                {...(user?.id && { currentUserId: user.id })}
                 onClick={() => router.push(`/pets/${pet._id}`)}
               />
             ))}

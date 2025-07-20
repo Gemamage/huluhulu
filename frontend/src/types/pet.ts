@@ -25,6 +25,7 @@ export interface PetOwner {
 
 export interface Pet {
   _id: string;
+  id?: string; // 相容性支援
   name: string;
   type: PetType;
   breed?: string;
@@ -35,13 +36,19 @@ export interface Pet {
   description?: string;
   status: PetStatus;
   lastSeenLocation?: Location;
+  lastSeenDate?: string; // 新增缺少的屬性
   contactInfo: ContactInfo;
+  contactName?: string; // 新增缺少的屬性
+  contactPhone?: string; // 新增缺少的屬性
+  contactEmail?: string; // 新增缺少的屬性
   images?: string[];
   owner: PetOwner;
   createdAt: Date;
   updatedAt: Date;
   viewCount?: number;
   shareCount?: number;
+  views?: number; // 相容性支援
+  shares?: number; // 相容性支援
 }
 
 export interface CreatePetData {

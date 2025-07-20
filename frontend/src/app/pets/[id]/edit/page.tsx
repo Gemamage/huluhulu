@@ -72,7 +72,7 @@ export default function EditPetPage() {
       const petData = await petService.getPetById(petId);
 
       // 檢查是否為當前用戶的寵物
-      if (petData.owner._id !== user?.id) {
+      if (petData.owner !== user?.id) {
         toast({
           title: '權限不足',
           description: '您只能編輯自己發布的協尋案例',
@@ -243,10 +243,10 @@ export default function EditPetPage() {
     },
     lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     contactInfo: {
-      name: pet.owner.username || '',
-      phone: pet.contactInfo?.phone || '',
-      email: pet.contactInfo?.email || '',
-      preferredContact: (pet.contactInfo?.preferredContact as 'phone' | 'email') || 'phone',
+      name: pet.contactName || '',
+      phone: pet.contactPhone || '',
+      email: pet.contactEmail || '',
+      preferredContact: 'phone' as 'phone' | 'email',
     },
     images: [],
     reward: 0,

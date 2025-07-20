@@ -23,10 +23,6 @@ import {
   Settings,
   Mail,
   Heart,
-  Search,
-  Plus,
-  ShoppingCart,
-  HelpCircle,
   Bell,
 } from 'lucide-react';
 

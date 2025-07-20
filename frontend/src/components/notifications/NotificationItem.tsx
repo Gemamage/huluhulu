@@ -9,6 +9,7 @@ import { cn } from '../../lib/utils';
 import {
   NotificationData,
   NotificationPriority,
+  NotificationStatus,
 } from '../../types/notification';
 
 interface NotificationItemProps {
@@ -28,15 +29,16 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   typeText,
   showActions = true,
 }) => {
-  const isUnread = notification.status === 'unread';
+  const isUnread = notification.status === NotificationStatus.UNREAD;
 
   const getPriorityColor = (priority: NotificationPriority) => {
     switch (priority) {
-      case 'high':
+      case NotificationPriority.HIGH:
+      case NotificationPriority.URGENT:
         return 'destructive';
-      case 'medium':
+      case NotificationPriority.MEDIUM:
         return 'default';
-      case 'low':
+      case NotificationPriority.LOW:
         return 'secondary';
       default:
         return 'default';
@@ -45,11 +47,13 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
   const getPriorityText = (priority: NotificationPriority) => {
     switch (priority) {
-      case 'high':
+      case NotificationPriority.HIGH:
         return '高';
-      case 'medium':
+      case NotificationPriority.URGENT:
+        return '緊急';
+      case NotificationPriority.MEDIUM:
         return '中';
-      case 'low':
+      case NotificationPriority.LOW:
         return '低';
       default:
         return '普通';
@@ -140,7 +144,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
               {/* 時間 */}
               <p className='text-xs text-muted-foreground mt-1'>
-                {formatDistanceToNow(new Date(notification.createdAt), {
+                {formatDistanceToNow(new Date(notification.timestamp), {
                   addSuffix: true,
                   locale: zhTW,
                 })}

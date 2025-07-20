@@ -20,24 +20,7 @@ import {
   Eye,
   Share2,
 } from 'lucide-react';
-
-interface Pet {
-  id: string;
-  name: string;
-  type: 'dog' | 'cat' | 'other';
-  breed: string;
-  status: 'lost' | 'found';
-  description: string;
-  lastSeenLocation: string;
-  lastSeenDate: string;
-  contactPhone: string;
-  contactEmail: string;
-  images: string[];
-  createdAt: string;
-  updatedAt: string;
-  views: number;
-  shares: number;
-}
+import { Pet } from '@/types/pet';
 
 function PetCard({
   pet,
@@ -104,12 +87,17 @@ function PetCard({
         <div className='space-y-2 mb-4'>
           <div className='flex items-center text-sm text-muted-foreground'>
             <MapPin className='h-4 w-4 mr-1' />
-            <span className='truncate'>{pet.lastSeenLocation}</span>
+            <span className='truncate'>
+              {pet.lastSeenLocation?.address || '未提供位置'}
+            </span>
           </div>
           <div className='flex items-center text-sm text-muted-foreground'>
             <Calendar className='h-4 w-4 mr-1' />
             <span>
-              {new Date(pet.lastSeenDate).toLocaleDateString('zh-TW')}
+              {pet.lastSeenDate 
+                ? new Date(pet.lastSeenDate).toLocaleDateString('zh-TW')
+                : '未提供日期'
+              }
             </span>
           </div>
         </div>

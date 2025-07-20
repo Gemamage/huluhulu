@@ -275,7 +275,7 @@ export const validateUserLogin = (data: {
 };
 
 /**
- * 驗證密碼重設資料
+ * 驗證密碼重設資料（請求重設）
  */
 export const validatePasswordReset = (data: {
   email: string;
@@ -287,6 +287,33 @@ export const validatePasswordReset = (data: {
     errors.push({ field: 'email', message: '電子郵件為必填項目' });
   } else if (!validateEmail(data.email)) {
     errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+};
+
+/**
+ * 驗證新密碼設定資料
+ */
+export const validateNewPassword = (data: {
+  password: string;
+  confirmPassword: string;
+}): ValidationResult => {
+  const errors: ValidationError[] = [];
+
+  // 驗證密碼
+  if (!validateRequired(data.password)) {
+    errors.push({ field: 'password', message: '密碼為必填項目' });
+  } else if (!validatePassword(data.password)) {
+    errors.push({ field: 'password', message: '密碼至少需要8個字符，包含大小寫字母、數字和特殊字符' });
+  }
+
+  // 驗證確認密碼
+  if (!validateRequired(data.confirmPassword)) {
+    errors.push({ field: 'confirmPassword', message: '確認密碼為必填項目' });
   }
 
   return {

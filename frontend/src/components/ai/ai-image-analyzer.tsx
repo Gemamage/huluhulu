@@ -42,7 +42,7 @@ export function AIImageAnalyzer({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [isCropping, setIsCropping] = useState(false);
+
   const [isSearching, setIsSearching] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(
     null
