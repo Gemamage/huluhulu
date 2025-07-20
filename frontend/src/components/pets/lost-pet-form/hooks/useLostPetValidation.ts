@@ -72,7 +72,7 @@ export function useLostPetValidation() {
       }
 
       // 獎金驗證
-      if (formData.reward !== undefined && formData.reward < 0) {
+      if (formData.reward !== undefined && formData.reward !== null && formData.reward < 0) {
         newErrors.reward = '獎金金額不能為負數';
       }
 
@@ -102,7 +102,7 @@ export function useLostPetValidation() {
   );
 
   const validateField = useCallback(
-    (field: string, value: any, formData: LostPetFormData): string => {
+    (field: string, value: any): string => {
       switch (field) {
         case 'name':
           return !value?.trim() ? '請填寫寵物名稱' : '';

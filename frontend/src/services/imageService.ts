@@ -45,13 +45,20 @@ class ImageService implements ImageServiceMethods {
 
     try {
       const token = authService.getToken();
-      const headers: HeadersInit = {
-        ...options.headers,
-      };
-
-      // 注意：對於 FormData，不要設置 Content-Type，讓瀏覽器自動設置
+      const headers: Record<string, string> = {};
+      
+      // 設置Content-Type（除非是FormData）
       if (!(options.body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
+      }
+      
+      // 安全地合併headers
+      if (options.headers) {
+        Object.entries(options.headers).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            headers[key] = value;
+          }
+        });
       }
 
       if (token) {
@@ -187,7 +194,7 @@ class ImageService implements ImageServiceMethods {
 
       return response.imageUrl;
     } catch (error) {
-      throw new ApiError(ApiErrorCode.UPLOAD_ERROR, '上傳寵物圖片失敗', {
+      throw new ApiError(ApiErrorCode.UPLOAD_FAILED, '上傳寵物圖片失敗', {
         petId,
         fileName: file.name,
         fileSize: file.size,
@@ -208,7 +215,7 @@ class ImageService implements ImageServiceMethods {
         'deletePetImage'
       );
     } catch (error) {
-      throw new ApiError(ApiErrorCode.DELETE_ERROR, '刪除寵物圖片失敗', {
+      throw new ApiError(ApiErrorCode.SERVER_ERROR, '刪除寵物圖片失敗', {
         petId,
         imageUrl,
         originalError: error,

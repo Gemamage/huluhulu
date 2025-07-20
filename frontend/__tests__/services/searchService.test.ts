@@ -1,5 +1,5 @@
 import { searchService } from '@/services/searchService';
-import { SearchFilters, PetSearchResult } from '@/types/search';
+import { SearchFilters, SearchResult } from '@/types/search';
 import { authService } from '@/services/authService';
 
 // Mock fetch
@@ -22,7 +22,7 @@ describe('searchService', () => {
     mockAuthService.getToken.mockReturnValue('mock-token');
   });
 
-  const mockSearchResult: PetSearchResult = {
+  const mockSearchResult: SearchResult = {
     pets: [
       {
         _id: '1',
@@ -130,16 +130,15 @@ describe('searchService', () => {
   describe('advancedSearch', () => {
     it('performs advanced search successfully', async () => {
       const filters: SearchFilters = {
-        q: '小白',
         type: 'dog',
         breed: '拉布拉多',
-        age: { min: 1, max: 3 },
+        age: 3,
         size: 'large',
         status: 'lost',
         location: '台北市',
         dateRange: {
-          start: new Date('2023-01-01'),
-          end: new Date('2023-12-31')
+          start: '2023-01-01',
+          end: '2023-12-31'
         }
       };
 
@@ -167,7 +166,7 @@ describe('searchService', () => {
 
     it('handles advanced search with minimal filters', async () => {
       const filters: SearchFilters = {
-        q: 'test'
+        type: 'dog'
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -350,7 +349,7 @@ describe('searchService', () => {
       const result = await searchService.checkSearchHealth();
 
       expect(result.status).toBe('unhealthy');
-      expect(result.elasticsearch.status).toBe('red');
+      expect(result.data.elasticsearch.status).toBe('red');
     });
   });
 

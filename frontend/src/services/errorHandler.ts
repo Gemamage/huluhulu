@@ -162,15 +162,21 @@ class ErrorHandlerService {
     // 決定是否需要重定向
     const shouldRedirect = this.getShouldRedirect(error);
 
-    return {
+    const result: ErrorHandlingResult = {
       shouldRetry,
-      retryDelay: shouldRetry
-        ? this.config.retryDelay * Math.pow(2, currentRetries)
-        : undefined,
       userMessage,
       logLevel,
-      shouldRedirect,
     };
+
+    if (shouldRetry) {
+      result.retryDelay = this.config.retryDelay * Math.pow(2, currentRetries);
+    }
+
+    if (shouldRedirect) {
+      result.shouldRedirect = shouldRedirect;
+    }
+
+    return result;
   }
 
   /**

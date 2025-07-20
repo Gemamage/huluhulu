@@ -35,20 +35,28 @@ export interface Pet {
   color?: string;
   description?: string;
   status: PetStatus;
-  lastSeenLocation?: Location;
-  lastSeenDate?: string; // 新增缺少的屬性
+  lastSeenLocation?: Location | string;
+  lastSeenDate?: string;
   contactInfo: ContactInfo;
-  contactName?: string; // 新增缺少的屬性
-  contactPhone?: string; // 新增缺少的屬性
-  contactEmail?: string; // 新增缺少的屬性
+  contactName?: string;
+  contactPhone?: string;
+  contactEmail?: string;
   images?: string[];
-  owner: PetOwner;
+  owner: PetOwner | string;
+  userId?: string;
   createdAt: Date;
   updatedAt: Date;
   viewCount?: number;
   shareCount?: number;
   views?: number; // 相容性支援
   shares?: number; // 相容性支援
+  reward?: number;
+  isUrgent?: boolean;
+  microchipId?: string;
+  vaccinated?: boolean;
+  specialMarks?: string;
+  personality?: string | string[];
+  medicalConditions?: string | string[];
 }
 
 export interface CreatePetData {

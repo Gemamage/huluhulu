@@ -1,7 +1,7 @@
 // 驗證工具函數
 // 這個文件提供前端測試所需的驗證工具函數
 
-import { CreatePetData } from '@/types/pet';
+import { CreatePetData } from '@/types';
 import { SearchFilters } from '@/types/search';
 
 // 驗證結果介面

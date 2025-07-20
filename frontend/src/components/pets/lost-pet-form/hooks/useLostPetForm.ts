@@ -51,9 +51,9 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
         } else if (keys.length === 2) {
           return {
             ...prev,
-            [keys[0]]: {
-              ...prev[keys[0] as keyof LostPetFormData],
-              [keys[1]]: value,
+            [keys[0] as string]: {
+              ...(prev[keys[0] as keyof LostPetFormData] as any),
+              [keys[1] as string]: value,
             },
           };
         }
@@ -70,7 +70,7 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
 
   const getCurrentBreedOptions = useCallback(() => {
     const typeKey = formData.type as keyof typeof BREED_OPTIONS;
-    return BREED_OPTIONS[typeKey] || BREED_OPTIONS.other;
+    return [...(BREED_OPTIONS[typeKey] || BREED_OPTIONS.other)];
   }, [formData.type]);
 
   const resetForm = useCallback(() => {

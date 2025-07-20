@@ -70,7 +70,9 @@ export class ApiError extends Error implements BaseError {
     this.code = code;
     this.details = details;
     this.timestamp = new Date();
-    this.statusCode = statusCode;
+    if (statusCode !== undefined) {
+      this.statusCode = statusCode;
+    }
 
     // 確保錯誤堆疊正確顯示
     if (Error.captureStackTrace) {
@@ -128,10 +130,10 @@ export class ApiError extends Error implements BaseError {
 // 錯誤處理結果
 export interface ErrorHandlingResult {
   shouldRetry: boolean;
-  retryDelay?: number;
+  retryDelay?: number | undefined;
   userMessage: string;
   logLevel: 'error' | 'warn' | 'info';
-  shouldRedirect?: string;
+  shouldRedirect?: string | undefined;
 }
 
 // 錯誤處理配置

@@ -7,6 +7,7 @@ import {
   NotificationPreferences,
   NotificationQuery,
   RealtimeNotificationData,
+  NotificationStatus,
 } from '../types/notification';
 import { notificationService } from '../services/notificationService';
 import { useToast } from './use-toast';
@@ -63,7 +64,7 @@ export const useNotifications = (query: NotificationQuery = {}) => {
       setNotifications(prev =>
         prev.map(notification =>
           notification.id === notificationId
-            ? { ...notification, status: 'read' as const }
+            ? { ...notification, status: NotificationStatus.READ }
             : notification
         )
       );
@@ -80,7 +81,7 @@ export const useNotifications = (query: NotificationQuery = {}) => {
       setNotifications(prev =>
         prev.map(notification => ({
           ...notification,
-          status: 'read' as const,
+          status: NotificationStatus.READ,
         }))
       );
     } catch (err) {

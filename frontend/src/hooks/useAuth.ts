@@ -3,15 +3,6 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/authService';
-import {
-  User,
-  LoginCredentials,
-  RegisterData,
-  ForgotPasswordData,
-  ResetPasswordData,
-  ChangePasswordData,
-  UpdateProfileData,
-} from '@/types/auth';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
@@ -96,8 +87,8 @@ export const useAuth = () => {
     logout: logoutMutation.mutateAsync,
     forgotPassword: (email: string) =>
       forgotPasswordMutation.mutateAsync({ email }),
-    resetPassword: (token: string, newPassword: string) =>
-      resetPasswordMutation.mutateAsync({ token, newPassword }),
+    resetPassword: (token: string, password: string) =>
+      resetPasswordMutation.mutateAsync({ token, password }),
     verifyEmail: verifyEmailMutation.mutateAsync,
     updateProfile: updateProfileMutation.mutateAsync,
     changePassword: changePasswordMutation.mutateAsync,

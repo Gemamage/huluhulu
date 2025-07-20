@@ -1,11 +1,9 @@
 // 通知服務 - 整合 Socket.IO 和 Firebase FCM
-import {
-  NotificationData,
+import type {
   NotificationPreferences,
   NotificationQuery,
   NotificationResponse,
   NotificationStats,
-  FCMToken,
   RealtimeNotificationData,
 } from '../types/notification';
 import { authService } from './authService';
@@ -115,7 +113,6 @@ class NotificationService {
       this.showNotificationToUser(notification.title, {
         body: notification.body,
         icon: notification.icon || '/icons/icon-192x192.png',
-        image: notification.image,
         data: data,
       });
     }
@@ -157,16 +154,6 @@ class NotificationService {
     showLocalNotification(title, {
       ...options,
       requireInteraction: true,
-      actions: [
-        {
-          action: 'view',
-          title: '查看',
-        },
-        {
-          action: 'dismiss',
-          title: '忽略',
-        },
-      ],
     });
   }
 

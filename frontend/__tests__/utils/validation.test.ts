@@ -136,7 +136,7 @@ describe('validation utils', () => {
   describe('validatePetData', () => {
     const validPetData: CreatePetData = {
       name: '小白',
-      type: 'dog',
+      type: 'dog' as PetType,
       breed: '拉布拉多',
       age: 2,
       gender: 'male',
@@ -146,7 +146,7 @@ describe('validation utils', () => {
       status: 'lost',
       lastSeenLocation: {
         address: '台北市信義區',
-        coordinates: [121.5654, 25.0330]
+        coordinates: [121.5654, 25.0330] as [number, number]
       },
       contactInfo: {
         phone: '0912345678',
@@ -217,7 +217,7 @@ describe('validation utils', () => {
         ...validPetData,
         lastSeenLocation: {
           address: '台北市信義區',
-          coordinates: [200, 100] // invalid longitude and latitude
+          coordinates: [200, 100] as [number, number] // invalid longitude and latitude
         }
       }
 

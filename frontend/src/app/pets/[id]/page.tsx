@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { petService } from '@/services/petService';
-import { Pet } from '@/types/pet';
+import { Pet } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -99,7 +99,7 @@ export default function PetDetailPage() {
   const [loading, setLoading] = useState(true);
   const [sharing, setSharing] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [similarPets, setSimilarPets] = useState<Pet[]>([]);
+  const [similarPets] = useState<Pet[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
 
   const petId = params?.id as string;
@@ -110,7 +110,7 @@ export default function PetDetailPage() {
     }
   }, [petId]);
 
-  const loadSimilarPets = async (currentPet: Pet) => {
+  const loadSimilarPets = async () => {
     try {
       setLoadingSimilar(true);
       // 暫時註解掉，因為 searchSimilarPets 方法不存在
@@ -159,13 +159,13 @@ export default function PetDetailPage() {
     }
   };
 
-  const handleShare = async (platform?: string) => {
+  const handleShare = async () => {
     if (!pet) return;
 
     try {
       setSharing(true);
       // 暫時註解掉，因為 sharePet 方法不存在
-      // const response = await petService.sharePet(pet._id, platform);
+      // const response = await petService.sharePet(pet._id);
 
       // 複製分享連結到剪貼板
       const shareUrl = `${window.location.origin}/pets/${pet._id}`;
@@ -198,7 +198,7 @@ export default function PetDetailPage() {
       setDeleting(true);
       const response = await petService.deletePet(pet._id);
 
-      if (response.success) {
+      if (response?.success) {
         toast({
           title: '刪除成功',
           description: '寵物協尋案例已成功刪除',
@@ -218,7 +218,7 @@ export default function PetDetailPage() {
   };
 
   // 檢查是否為寵物擁有者
-  const isOwner = isAuthenticated && user && pet && pet.userId === user.id;
+  const isOwner = isAuthenticated && user && pet && (pet.owner?._id === user.id || pet.owner === user.id);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('zh-TW', {
@@ -510,7 +510,7 @@ export default function PetDetailPage() {
                 <div>
                   <p className='font-medium text-gray-900'>最後出現地點</p>
                   <p className='text-gray-600'>
-                    {pet.lastSeenLocation.address}
+                    {typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address}
                   </p>
                 </div>
               </div>
@@ -520,7 +520,7 @@ export default function PetDetailPage() {
                 <div>
                   <p className='font-medium text-gray-900'>最後見到時間</p>
                   <p className='text-gray-600'>
-                    {formatDate(pet.lastSeenDate)}
+                    {pet.lastSeenDate ? formatDate(pet.lastSeenDate) : '未知'}
                   </p>
                 </div>
               </div>
@@ -545,21 +545,21 @@ export default function PetDetailPage() {
                     <Phone className='h-4 w-4 text-blue-600' />
                   </div>
                   <div>
-                    <p className='font-medium'>{pet.contactInfo.name}</p>
+                    <p className='font-medium'>{pet.contactInfo?.name || '未提供'}</p>
                     <p className='text-sm text-gray-600'>
-                      {pet.contactInfo.phone}
+                      {pet.contactInfo?.phone || '未提供'}
                     </p>
                   </div>
                 </div>
 
-                {pet.contactInfo.email && (
+                {pet.contactInfo?.email && (
                   <div className='flex items-center gap-3'>
                     <div className='p-2 bg-green-100 rounded-full'>
                       <Mail className='h-4 w-4 text-green-600' />
                     </div>
                     <div>
                       <p className='text-sm text-gray-600'>
-                        {pet.contactInfo.email}
+                        {pet.contactInfo?.email || '未提供'}
                       </p>
                     </div>
                   </div>
@@ -574,7 +574,7 @@ export default function PetDetailPage() {
                   撥打電話
                 </Button>
 
-                {pet.contactInfo.email && (
+                {pet.contactInfo?.email && (
                   <Button variant='outline' className='w-full'>
                     <Mail className='h-4 w-4 mr-2' />
                     發送郵件
@@ -614,16 +614,16 @@ export default function PetDetailPage() {
             <CardContent className='space-y-3'>
               <div className='flex justify-between items-center'>
                 <span className='text-gray-600'>瀏覽次數</span>
-                <span className='font-medium'>{pet.viewCount}</span>
+                <span className='font-medium'>{pet.viewCount || 0}</span>
               </div>
               <div className='flex justify-between items-center'>
                 <span className='text-gray-600'>分享次數</span>
-                <span className='font-medium'>{pet.shareCount}</span>
+                <span className='font-medium'>{pet.shareCount || 0}</span>
               </div>
               <div className='flex justify-between items-center'>
                 <span className='text-gray-600'>發布時間</span>
                 <span className='font-medium text-sm'>
-                  {formatDate(pet.createdAt)}
+                  {formatDate(pet.createdAt.toString())}
                 </span>
               </div>
             </CardContent>
@@ -689,7 +689,7 @@ export default function PetDetailPage() {
                               </p>
                               <p className='text-xs text-gray-600 truncate'>
                                 {getTypeText(similarPet.type)} •{' '}
-                                {similarPet.lastSeenLocation.address}
+                                {typeof similarPet.lastSeenLocation === 'string' ? similarPet.lastSeenLocation : similarPet.lastSeenLocation?.address}
                               </p>
                               <div className='flex items-center gap-2 mt-1'>
                                 <Badge

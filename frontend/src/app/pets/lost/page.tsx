@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import LostPetForm from '@/components/pets/lost-pet-form';
 import { petService } from '@/services/petService';
-import { CreatePetData } from '@/types/pet';
+import { CreatePetData } from '@/types';
 
 export default function LostPetPage() {
   const router = useRouter();

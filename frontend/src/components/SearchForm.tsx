@@ -28,10 +28,15 @@ const SearchForm: React.FC<SearchFormProps> = ({
   }, [initialFilters]);
 
   const handleInputChange = (field: keyof SearchFilters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (field === 'age') {
+        newFilters[field] = value ? parseInt(value, 10) : undefined;
+      } else {
+        (newFilters as any)[field] = value;
+      }
+      return newFilters;
+    });
 
     // 清除該欄位的錯誤
     if (errors[field]) {

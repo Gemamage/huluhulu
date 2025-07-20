@@ -153,19 +153,19 @@ export function Statistics({ className }: StatisticsProps) {
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         {/* 標題區塊 */}
         <div className='text-center mb-16'>
-          <h2 class='text-3xl font-bold text-gray-800 mb-4'>
-            我們的<span class='text-primary'>成果</span>
+          <h2 className='text-3xl font-bold text-gray-800 mb-4'>
+            我們的<span className='text-primary'>成果</span>
           </h2>
-          <p class='text-lg text-zinc-600 max-w-3xl mx-auto mb-8'>
-            透過「<span class='text-primary font-semibold'>科技</span>」與「
-            <span class='text-primary font-semibold'>愛心</span>
+          <p className='text-lg text-zinc-600 max-w-3xl mx-auto mb-8'>
+            透過「<span className='text-primary font-semibold'>科技</span>」與「
+            <span className='text-primary font-semibold'>愛心</span>
             」，我們已經幫助無數家庭重新團聚
           </p>
         </div>
 
         {/* 統計數據網格 */}
         <div className='grid grid-cols-2 md:grid-cols-3 gap-8'>
-          {statisticsData.map((stat, index) => (
+          {statisticsData.map((stat) => (
             <div
               key={stat.id}
               className='bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-center p-8'

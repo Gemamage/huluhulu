@@ -37,7 +37,7 @@ export function SearchSuggestions({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<number>();
 
   const loadSuggestions = async (query: string) => {
     if (!query.trim()) {
@@ -49,17 +49,13 @@ export function SearchSuggestions({
       setLoading(true);
       const response = await petService.getSearchSuggestions(query);
 
-      if (response.success && response.data) {
-        const suggestions: SearchSuggestion[] = [
-          ...response.data.suggestions.map((item: any) => ({
-            query: item._id,
-            count: item.count,
-            type: 'popular' as const,
-          })),
-        ];
+      const suggestions: SearchSuggestion[] = response.map((item: string) => ({
+        query: item,
+        count: 0,
+        type: 'popular' as const,
+      }));
 
-        setSuggestions(suggestions);
-      }
+      setSuggestions(suggestions);
     } catch (error) {
       console.error('載入搜尋建議失敗:', error);
       setSuggestions([]);
@@ -112,7 +108,7 @@ export function SearchSuggestions({
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0) {
+        if (selectedIndex >= 0 && suggestions[selectedIndex]) {
           handleSuggestionSelect(suggestions[selectedIndex]);
         } else {
           onSearch();

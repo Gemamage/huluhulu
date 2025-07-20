@@ -1,12 +1,12 @@
 // 通知設定組件
 import React from 'react';
-import { Settings, Bell, Mail, Smartphone, Volume2 } from 'lucide-react';
+import { Settings, Mail, Smartphone, Volume2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+
 import { useNotificationPreferences } from '../../hooks/useNotifications';
 import { NotificationPreferences } from '../../types/notification';
 

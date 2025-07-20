@@ -79,7 +79,7 @@ export function UserProfile() {
     try {
       await authService.updateProfile({
         name: formData.name.trim(),
-        phone: formData.phone.trim() || undefined,
+        phone: formData.phone.trim() ? formData.phone.trim() : undefined,
       });
 
       await refreshUser();

@@ -14,15 +14,11 @@ import {
 import { Separator } from '@/components/ui/separator';
 import {
   MapPin,
-  Phone,
-  Mail,
   User,
-  Calendar,
   Heart,
   AlertTriangle,
   Camera,
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 import {
   validatePetForm,
   convertValidationErrors,
@@ -99,8 +95,8 @@ export function PetForm({
     description: initialData?.description || '',
     lastSeenLocation: {
       address: initialData?.lastSeenLocation?.address || '',
-      latitude: initialData?.lastSeenLocation?.latitude,
-      longitude: initialData?.lastSeenLocation?.longitude,
+      latitude: initialData?.lastSeenLocation?.latitude || undefined,
+      longitude: initialData?.lastSeenLocation?.longitude || undefined,
     },
     lastSeenDate:
       initialData?.lastSeenDate || new Date().toISOString().split('T')[0],
@@ -144,8 +140,8 @@ export function PetForm({
       } else if (keys.length === 2) {
         return {
           ...prev,
-          [keys[0]]: {
-            ...prev[keys[0] as keyof PetFormData],
+          [keys[0] as string]: {
+            ...(prev[keys[0] as keyof PetFormData] as any),
             [keys[1]]: value,
           },
         };

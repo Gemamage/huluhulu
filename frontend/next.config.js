@@ -10,7 +10,7 @@ const nextConfig = {
       'amazonaws.com'
     ],
     formats: ['image/webp', 'image/avif'],
-    unoptimized: false, // Netlify 支援圖片優化
+    unoptimized: true, // 靜態導出模式需要禁用圖片優化
   },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY || 'default-value',

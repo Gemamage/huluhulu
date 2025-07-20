@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { useNotificationStats } from '../../hooks/useNotifications';
-import { NotificationType } from '../../types/notification';
+
 
 export const NotificationStats: React.FC = () => {
   const { stats, loading, error, refresh } = useNotificationStats();
@@ -265,13 +265,13 @@ export const NotificationStats: React.FC = () => {
               <span className='text-sm text-muted-foreground'>
                 本週收到通知
               </span>
-              <Badge variant='outline'>{stats.weekCount || 0} 條</Badge>
+              <Badge variant='outline'>{(stats as any).weekCount || 0} 條</Badge>
             </div>
             <div className='flex items-center justify-between py-2'>
               <span className='text-sm text-muted-foreground'>
                 本月收到通知
               </span>
-              <Badge variant='outline'>{stats.monthCount || 0} 條</Badge>
+              <Badge variant='outline'>{(stats as any).monthCount || 0} 條</Badge>
             </div>
             <div className='flex items-center justify-between py-2'>
               <span className='text-sm text-muted-foreground'>

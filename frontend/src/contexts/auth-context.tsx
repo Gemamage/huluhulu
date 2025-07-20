@@ -100,7 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email,
         password,
         name,
-        phone,
+        phone: phone || undefined,
       });
       setUser(result.user);
 

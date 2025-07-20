@@ -392,7 +392,11 @@ class AIService {
       }
     }
 
-    const response = await this.makeRequest('/api/upload/process-with-ai', {
+    const response = await this.makeRequest<{
+      uploadResult: { imageUrl: string };
+      analysisResult?: AIAnalysisResult;
+      optimizationResult?: ImageOptimizationResult;
+    }>('/api/upload/process-with-ai', {
       method: 'POST',
       body: formData,
     });

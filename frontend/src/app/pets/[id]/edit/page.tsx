@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { PetService } from '@/services/petService';
 import { PetForm } from '@/components/pets/pet-form';
-import { Pet } from '@/types/pet';
+import { Pet } from '@/types';
 import { Heart, ArrowLeft } from 'lucide-react';
 
 // 使用與 PetForm 組件相同的介面定義
@@ -72,7 +72,8 @@ export default function EditPetPage() {
       const petData = await petService.getPetById(petId);
 
       // 檢查是否為當前用戶的寵物
-      if (petData.owner !== user?.id) {
+      const petOwnerId = typeof petData.owner === 'object' ? petData.owner._id : petData.owner;
+      if (petOwnerId !== user?.id) {
         toast({
           title: '權限不足',
           description: '您只能編輯自己發布的協尋案例',
@@ -241,7 +242,7 @@ export default function EditPetPage() {
         ? pet.lastSeenLocation.coordinates[0]
         : 0
     },
-    lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : '',
     contactInfo: {
       name: pet.contactName || '',
       phone: pet.contactPhone || '',
@@ -289,6 +290,7 @@ export default function EditPetPage() {
               onSubmit={handleSubmit}
               isSubmitting={submitting}
               submitButtonText='更新協尋案例'
+              mode="edit"
             />
           </CardContent>
         </Card>

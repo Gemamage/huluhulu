@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,7 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Filter, X, Search, SlidersHorizontal } from 'lucide-react';
+import { MapPin, X, SlidersHorizontal } from 'lucide-react';
 import { SearchFilters } from '@/types/search';
 
 interface AdvancedSearchProps {
@@ -60,10 +60,7 @@ const SORT_OPTIONS = [
   { value: 'views', label: '瀏覽次數' },
 ];
 
-const SORT_ORDER = [
-  { value: 'desc', label: '由高到低' },
-  { value: 'asc', label: '由低到高' },
-];
+
 
 const DOG_BREEDS = [
   '黃金獵犬',
@@ -116,7 +113,7 @@ export function AdvancedSearch({
   onReset,
   className,
 }: AdvancedSearchProps) {
-  const [currentLocation, setCurrentLocation] = useState<string>('');
+
   const [gettingLocation, setGettingLocation] = useState(false);
 
   const updateFilter = (key: keyof SearchFilters, value: any) => {
@@ -143,7 +140,7 @@ export function AdvancedSearch({
           // 這裡需要實際的 API 調用，暫時使用模擬數據
           const mockAddress = `台北市信義區 (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
 
-          setCurrentLocation(mockAddress);
+          // setCurrentLocation(mockAddress); // 移除未使用的變數
           updateFilter('location', mockAddress);
           updateFilter('latitude', latitude);
           updateFilter('longitude', longitude);

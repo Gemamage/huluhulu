@@ -107,9 +107,9 @@ export function CallToAction({ className }: CallToActionProps) {
 
           {/* 信任指標 */}
           <div className='flex flex-wrap justify-center gap-8 mb-8'>
-            {trustIndicators.map((indicator, index) => (
+            {trustIndicators.map((indicator, i) => (
               <div
-                key={index}
+                key={i}
                 className='flex items-center gap-2 text-zinc-700'
               >
                 <div className='text-amber-600'>{indicator.icon}</div>

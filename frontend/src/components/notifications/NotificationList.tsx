@@ -1,7 +1,7 @@
 'use client';
 // 通知列表組件
 import React from 'react';
-import { Bell, Check, CheckCheck, Trash2, Settings } from 'lucide-react';
+import { Bell, CheckCheck, Settings } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -9,7 +9,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import { useNotifications } from '../../hooks/useNotifications';
 import { NotificationItem } from './NotificationItem';
-import { NotificationData, NotificationType } from '../../types/notification';
+
 
 interface NotificationListProps {
   onSettingsClick?: () => void;
@@ -26,7 +26,6 @@ export const NotificationList: React.FC<NotificationListProps> = ({
     notifications,
     loading,
     error,
-    pagination,
     markAsRead,
     markAllAsRead,
     refresh,
@@ -34,7 +33,7 @@ export const NotificationList: React.FC<NotificationListProps> = ({
     hasMore,
   } = useNotifications();
 
-  const unreadCount = notifications.filter(n => n.status === 'unread').length;
+  const unreadCount = notifications.filter(n => n.status === 'UNREAD').length;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {

@@ -6,13 +6,11 @@ import {
   CreatePetData,
   UpdatePetData,
   PetSearchResult,
-} from '@/types/pet';
-import {
   SearchFilters,
   AdvancedSearchResponse,
   SearchAnalytics,
   ElasticsearchHealth,
-} from '@/types/search';
+} from '@/types';
 import { errorHandler, ApiError, ApiErrorCode } from './errorHandler';
 import { authService } from './authService';
 import { searchService } from './searchService';
@@ -71,10 +69,18 @@ class PetService implements PetServiceMethods {
 
     try {
       const token = authService.getToken();
-      const headers: HeadersInit = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...options.headers,
       };
+      
+      // 安全地合併headers
+      if (options.headers) {
+        Object.entries(options.headers).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            headers[key] = value;
+          }
+        });
+      }
 
       if (token) {
         headers.Authorization = `Bearer ${token}`;
@@ -314,9 +320,49 @@ class PetService implements PetServiceMethods {
   async getFavoritePets(): Promise<PetSearchResult> {
     return this.makeRequest('/pets/favorites');
   }
+
+  async getPopularSearches(limit: number = 10): Promise<{
+    success: boolean;
+    data: { popularSearches: Array<{ _id: string; count: number }> };
+  }> {
+    // 模擬熱門搜尋數據
+    return {
+      success: true,
+      data: {
+        popularSearches: [
+          { _id: '黃金獵犬', count: 150 },
+          { _id: '拉布拉多', count: 120 },
+          { _id: '柴犬', count: 100 },
+          { _id: '貴賓犬', count: 85 },
+          { _id: '哈士奇', count: 70 },
+          { _id: '邊境牧羊犬', count: 65 },
+          { _id: '法國鬥牛犬', count: 55 },
+          { _id: '德國牧羊犬', count: 50 },
+        ].slice(0, limit),
+      },
+     };
+   }
+
+  async getSearchHistory(limit: number = 10): Promise<{
+    success: boolean;
+    data: { searchHistory: Array<any> };
+  }> {
+    // 模擬搜尋歷史數據
+    return {
+      success: true,
+      data: {
+        searchHistory: [].slice(0, limit), // 使用 limit 參數
+      },
+    };
+  }
+
+  async clearSearchHistory(): Promise<{ success: boolean }> {
+    // 模擬清除搜尋歷史
+    return { success: true };
+  }
 }
 
 export const petService = new PetService();
 export { PetService };
 // 導出 Pet 型別以供其他模組使用
-export { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types/pet';
+export type { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types';

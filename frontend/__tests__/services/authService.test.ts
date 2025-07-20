@@ -25,13 +25,18 @@ describe('authService', () => {
     localStorageMock.removeItem.mockClear()
   })
 
-  const mockUser: Omit<User, 'generateAuthToken' | 'generatePasswordResetToken'> = {
+  const mockUser: User = {
     _id: '1',
+    username: 'testuser',
     email: 'test@example.com',
     phone: '0912345678',
-    role: 'user',
+    isActive: true,
     isEmailVerified: true,
-    lastLoginAt: new Date('2023-01-01'),
+    privacySettings: {
+      showEmail: true,
+      showPhone: true,
+      allowMessages: true
+    },
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
   };
@@ -84,6 +89,7 @@ describe('authService', () => {
   describe('register', () => {
     it('registers user successfully', async () => {
       const registerData: RegisterData = {
+        username: 'testuser',
         email: 'test@example.com',
         password: 'password123',
         phone: '0912345678'
@@ -112,6 +118,7 @@ describe('authService', () => {
 
     it('handles duplicate email', async () => {
       const registerData: RegisterData = {
+        username: 'existinguser',
         email: 'existing@example.com',
         password: 'password123',
       };

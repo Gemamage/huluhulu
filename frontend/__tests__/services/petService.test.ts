@@ -301,9 +301,8 @@ describe('petService', () => {
 
     describe('advancedSearch', () => {
       it('delegates to searchService.advancedSearch', async () => {
-        const mockResult = { pets: [mockPet], total: 1, page: 1, totalPages: 1 };
+        const mockResult = { items: [mockPet], total: 1, page: 1, totalPages: 1, limit: 10 };
         const filters: SearchFilters = {
-          q: '小白',
           type: 'dog',
           status: 'lost'
         };

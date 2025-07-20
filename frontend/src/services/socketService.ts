@@ -67,7 +67,9 @@ class SocketService {
       this.reconnectAttempts = 0;
 
       // 加入用戶房間
-      this.joinUserRoom();
+      this.joinUserRoom().catch(error => {
+        console.error('Failed to join user room:', error);
+      });
     });
 
     // 連接失敗
@@ -124,12 +126,16 @@ class SocketService {
   /**
    * 加入用戶房間
    */
-  private joinUserRoom(): void {
-    const user = authService.getCurrentUser();
-    if (user && this.socket) {
-      this.socket.emit(SocketEvents.JOIN_ROOM, {
-        room: `user:${user._id}`,
-      });
+  private async joinUserRoom(): Promise<void> {
+    try {
+      const user = await authService.getCurrentUser();
+      if (user && this.socket) {
+        this.socket.emit(SocketEvents.JOIN_ROOM, {
+          room: `user:${user._id}`,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to join user room:', error);
     }
   }
 

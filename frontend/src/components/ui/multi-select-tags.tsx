@@ -71,7 +71,10 @@ export function MultiSelectTags({
       e.preventDefault();
       addTag(inputValue.trim());
     } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
-      removeTag(value[value.length - 1]);
+      const lastTag = value[value.length - 1];
+      if (lastTag) {
+        removeTag(lastTag);
+      }
     } else if (e.key === 'Escape') {
       setIsOpen(false);
       setInputValue('');

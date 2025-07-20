@@ -5,15 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+
 import { Separator } from '@/components/ui/separator';
-import { MapPin, User, Camera, Clock, AlertCircle } from 'lucide-react';
+import { User, Camera, Clock, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { MultiSelectTags } from '@/components/ui/multi-select-tags';
@@ -196,8 +190,8 @@ export function FoundPetForm({
       } else if (keys.length === 2) {
         return {
           ...prev,
-          [keys[0]]: {
-            ...prev[keys[0] as keyof FoundPetFormData],
+          [keys[0] as keyof FoundPetFormData]: {
+            ...(prev[keys[0] as keyof FoundPetFormData] as any),
             [keys[1]]: value,
           },
         };
@@ -314,6 +308,7 @@ export function FoundPetForm({
           <div>
             <Label htmlFor='breed'>品種</Label>
             <MultiSelectTags
+              label='品種'
               value={formData.breed}
               onChange={value => handleInputChange('breed', value)}
               options={getCurrentBreedOptions()}
@@ -370,6 +365,7 @@ export function FoundPetForm({
           <div className='md:col-span-2'>
             <Label htmlFor='color'>毛色/顏色</Label>
             <MultiSelectTags
+              label='毛色/顏色'
               value={formData.color}
               onChange={value => handleInputChange('color', value)}
               options={colorOptions}
@@ -391,6 +387,7 @@ export function FoundPetForm({
         <div>
           <Label htmlFor='description'>外觀特徵 *</Label>
           <MultiSelectTags
+            label='外觀特徵'
             value={formData.description}
             onChange={value => handleInputChange('description', value)}
             options={appearanceOptions}
@@ -452,6 +449,7 @@ export function FoundPetForm({
           <div className='md:col-span-2'>
             <Label htmlFor='foundLocation'>拾獲地點 *</Label>
             <CascadingLocationSelect
+              label='拾獲地點'
               value={formData.foundLocation}
               onChange={value => handleInputChange('foundLocation', value)}
               error={errors.foundLocation}
@@ -595,6 +593,7 @@ export function FoundPetForm({
           <div>
             <Label htmlFor='behaviorNotes'>個性特徵</Label>
             <MultiSelectTags
+              label='個性特徵'
               value={formData.behaviorNotes}
               onChange={value => handleInputChange('behaviorNotes', value)}
               options={personalityOptions}

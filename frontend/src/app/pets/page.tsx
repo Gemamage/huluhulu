@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { petService } from '@/services/petService';
-import { Pet } from '@/types/pet';
+import { Pet } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 
@@ -107,13 +107,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
       setIsLoading(false);
     }
   };
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-TW', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+
 
   const getStatusColor = (status: string) => {
     return status === 'lost' ? 'destructive' : 'secondary';
@@ -228,7 +222,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
               <Phone className='h-4 w-4' />
             </Button>
 
-            {pet.contactInfo.email && (
+            {pet.contactInfo?.email && (
               <Button size='sm' variant='outline'>
                 <Mail className='h-4 w-4' />
               </Button>
@@ -284,11 +278,11 @@ export default function PetsPage() {
   const router = useRouter();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams, setSearchParams] = useState<PetSearchParams>({
+  const [searchParams, setSearchParams] = useState({
     page: 1,
     limit: 12,
     sortBy: 'createdAt',
-    sortOrder: 'desc',
+    sortOrder: 'desc' as 'asc' | 'desc',
   });
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -575,7 +569,7 @@ export default function PetsPage() {
                 limit: searchParams.limit + 6,
               };
               setSearchParams(newParams);
-              loadPets(newParams);
+              loadPets();
             }}
           >
             載入更多案例

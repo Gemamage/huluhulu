@@ -152,11 +152,11 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
+  let timeout: number;
 
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
+    timeout = setTimeout(() => func(...args), wait) as unknown as number;
   };
 }
 
@@ -206,7 +206,7 @@ export function queryStringToObject(
   const params = new URLSearchParams(queryString);
   const result: Record<string, string | string[]> = {};
 
-  for (const [key, value] of params.entries()) {
+  params.forEach((value, key) => {
     if (result[key]) {
       if (Array.isArray(result[key])) {
         (result[key] as string[]).push(value);
@@ -216,7 +216,7 @@ export function queryStringToObject(
     } else {
       result[key] = value;
     }
-  }
+  });
 
   return result;
 }

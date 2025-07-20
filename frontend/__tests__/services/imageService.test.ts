@@ -42,7 +42,10 @@ const mockCreateElement = jest.fn((tagName) => {
     };
     return imgElement;
   }
-  return {};
+  return {
+    onload: null as ((event: Event) => void) | null,
+    onerror: null as ((event: Event) => void) | null,
+  };
 });
 
 // Mock document.createElement
@@ -63,8 +66,8 @@ Object.defineProperty(URL, 'revokeObjectURL', {
 const mockFileReader = {
   readAsDataURL: jest.fn(),
   result: 'data:image/jpeg;base64,mock-base64-data',
-  onload: null,
-  onerror: null,
+  onload: null as ((event: ProgressEvent<FileReader>) => void) | null,
+  onerror: null as ((event: ProgressEvent<FileReader>) => void) | null,
 };
 
 Object.defineProperty(window, 'FileReader', {
@@ -216,7 +219,7 @@ describe('imageService', () => {
       
       // Mock image loading
       setTimeout(() => {
-        const img = mockCreateElement('img');
+        const img = mockCreateElement('img') as any;
         if (img.onload) {
           img.onload({} as Event);
         }
@@ -233,7 +236,7 @@ describe('imageService', () => {
       const originalFile = createMockFile('original.jpg', 'image/jpeg', 2 * 1024 * 1024);
       
       setTimeout(() => {
-        const img = mockCreateElement('img');
+        const img = mockCreateElement('img') as any;
         if (img.onload) {
           img.onload({} as Event);
         }
@@ -250,7 +253,7 @@ describe('imageService', () => {
       const originalFile = createMockFile('original.jpg', 'image/jpeg', 2 * 1024 * 1024);
       
       setTimeout(() => {
-        const img = mockCreateElement('img');
+        const img = mockCreateElement('img') as any;
         if (img.onerror) {
           img.onerror({} as Event);
         }
@@ -338,7 +341,7 @@ describe('imageService', () => {
 
       // Mock successful compression
       setTimeout(() => {
-        const img = mockCreateElement('img');
+        const img = mockCreateElement('img') as any;
         if (img.onload) {
           img.onload({} as Event);
         }

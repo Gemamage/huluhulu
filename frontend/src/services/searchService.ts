@@ -1,7 +1,7 @@
 // 搜尋服務 - 專門處理 Elasticsearch 相關功能
 // 從 petService 中分離出來以提升程式碼組織性
 
-import { Pet, PetSearchResult } from '@/types/pet';
+import { Pet, PetSearchResult } from '@/types';
 import {
   SearchFilters,
   AdvancedSearchResponse,
@@ -35,19 +35,27 @@ class SearchService implements SearchServiceMethods {
   private baseUrl =
     process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-  private async makeRequest(
+  private async makeRequest<T = any>(
     url: string,
     options: RequestInit = {},
     context?: string
-  ): Promise<any> {
+  ): Promise<T> {
     const requestContext = context || `${options.method || 'GET'} ${url}`;
 
     try {
       const token = authService.getToken();
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      };
+      const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    // 安全地合併headers
+    if (options.headers) {
+      Object.entries(options.headers).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+          headers[key] = value;
+        }
+      });
+    }
 
       if (token) {
         headers.Authorization = `Bearer ${token}`;
@@ -112,7 +120,7 @@ class SearchService implements SearchServiceMethods {
       if (contentType && contentType.includes('application/json')) {
         return response.json();
       }
-      return response;
+      return response as unknown as T;
     } catch (error) {
       // 處理網路錯誤
       if (error instanceof ApiError) {
@@ -160,7 +168,7 @@ class SearchService implements SearchServiceMethods {
         'searchPets'
       );
     } catch (error) {
-      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '搜尋寵物失敗', {
+      throw new ApiError(ApiErrorCode.SERVER_ERROR, '搜尋寵物失敗', {
         query,
         filters,
         originalError: error,
@@ -188,7 +196,7 @@ class SearchService implements SearchServiceMethods {
         'advancedSearch'
       );
     } catch (error) {
-      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '進階搜尋失敗', {
+      throw new ApiError(ApiErrorCode.SERVER_ERROR, '進階搜尋失敗', {
         query,
         filters,
         originalError: error,
@@ -209,7 +217,7 @@ class SearchService implements SearchServiceMethods {
       );
       return response.suggestions || [];
     } catch (error) {
-      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '獲取搜尋建議失敗', {
+      throw new ApiError(ApiErrorCode.SERVER_ERROR, '獲取搜尋建議失敗', {
         query,
         originalError: error,
       });
@@ -229,7 +237,7 @@ class SearchService implements SearchServiceMethods {
       );
       return response.data || response;
     } catch (error) {
-      throw new ApiError(ApiErrorCode.SEARCH_ERROR, '獲取搜尋分析失敗', {
+      throw new ApiError(ApiErrorCode.SERVER_ERROR, '獲取搜尋分析失敗', {
         timeRange,
         originalError: error,
       });
@@ -241,7 +249,9 @@ class SearchService implements SearchServiceMethods {
     data: { elasticsearch: ElasticsearchHealth };
   }> {
     try {
-      return this.makeRequest(
+      return this.makeRequest<{
+        data: { elasticsearch: ElasticsearchHealth };
+      }>(
         '/advanced-search/health',
         {},
         'checkSearchHealth'

@@ -20,7 +20,7 @@ import {
   Eye,
   Share2,
 } from 'lucide-react';
-import { Pet } from '@/types/pet';
+import { Pet } from '@/types';
 
 function PetCard({
   pet,
@@ -181,7 +181,7 @@ export default function MyPetsPage() {
     try {
       setLoading(true);
       const response = await petService.getMyPets();
-      setPets(Array.isArray(response) ? response : response.data?.pets || []);
+      setPets(Array.isArray(response) ? response : response.pets || []);
     } catch (error) {
       console.error('獲取我的協尋案例失敗:', error);
       toast({

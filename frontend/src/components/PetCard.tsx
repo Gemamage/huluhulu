@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, Share2, MapPin, Calendar, Heart } from 'lucide-react';
 import { petService } from '@/services/petService';
 import { useToast } from '@/hooks/use-toast';
-import { Pet } from '@/types/pet';
+import { Pet } from '@/types';
 
 // 擴展 Pet 類型以包含收藏相關屬性
 interface ExtendedPet extends Pet {
@@ -133,7 +133,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
         <div className='relative w-full aspect-[3/4]'>
           {pet.images && pet.images.length > 0 ? (
             <Image
-              src={pet.images[0]}
+              src={pet.images[0] || '/placeholder-pet.jpg'}
               alt={pet.name}
               fill={true}
               className='object-cover rounded-t-lg'
@@ -193,7 +193,7 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
 
           <div className='flex items-center space-x-1 text-sm text-gray-600'>
             <MapPin className='h-4 w-4' />
-            <span>{pet.lastSeenLocation.address}</span>
+            <span>{pet.lastSeenLocation ? (typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address || '未知地點') : '未知地點'}</span>
           </div>
 
           <div className='flex justify-between items-center pt-2'>

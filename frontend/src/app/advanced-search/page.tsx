@@ -25,7 +25,7 @@ import {
   SearchAnalytics,
   ElasticsearchHealth,
 } from '@/types/search';
-import { Pet } from '@/types/pet';
+import { Pet } from '@/types';
 
 interface SearchState {
   query: string;
@@ -331,7 +331,11 @@ export default function AdvancedSearchPage() {
           {!state.loading && state.results.length > 0 && (
             <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
               {state.results.map(pet => (
-                <PetCard key={pet._id} pet={pet} currentUserId={user?.id} />
+                <PetCard 
+                  key={pet._id} 
+                  pet={pet} 
+                  {...(user?.id && { currentUserId: user.id })}
+                />
               ))}
             </div>
           )}

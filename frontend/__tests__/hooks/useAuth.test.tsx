@@ -264,7 +264,6 @@ describe('useAuth', () => {
     it('resets password successfully', async () => {
       const token = 'reset-token'
       const newPassword = 'newpassword123'
-      const confirmPassword = 'newpassword123'
       mockAuthService.resetPassword.mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useAuth(), {
@@ -272,10 +271,10 @@ describe('useAuth', () => {
       })
 
       await act(async () => {
-        await result.current.resetPassword(token, newPassword, confirmPassword)
+        await result.current.resetPassword(token, newPassword)
       })
 
-      expect(mockAuthService.resetPassword).toHaveBeenCalledWith({ token, password: newPassword, confirmPassword })
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith({ token, newPassword })
     })
   })
 
