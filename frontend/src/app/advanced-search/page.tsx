@@ -38,10 +38,10 @@ export default function AdvancedSearchPage() {
   const [state, setState] = useState<SearchState>({
     query: searchParams?.get('q') || '',
     filters: {
-      ...(searchParams?.get('type') && { type: searchParams.get('type')! }),
-      ...(searchParams?.get('status') && { status: searchParams.get('status')! }),
-      ...(searchParams?.get('breed') && { breed: searchParams.get('breed')! }),
-      ...(searchParams?.get('location') && { location: searchParams.get('location')! }),
+      ...(searchParams?.get('type') && { type: searchParams?.get('type')! }),
+      ...(searchParams?.get('status') && { status: searchParams?.get('status')! }),
+      ...(searchParams?.get('breed') && { breed: searchParams?.get('breed')! }),
+      ...(searchParams?.get('location') && { location: searchParams?.get('location')! }),
     },
     results: [],
     total: 0,

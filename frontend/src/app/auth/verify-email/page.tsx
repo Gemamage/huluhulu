@@ -8,8 +8,8 @@ import { Loader2 } from 'lucide-react';
 
 function EmailVerificationContent() {
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
+  const token = searchParams?.get('token');
+  const email = searchParams?.get('email');
 
   const props: { token?: string; email?: string } = {};
   if (token) props.token = token;
