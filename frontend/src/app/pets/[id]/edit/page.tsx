@@ -1,44 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
-import { PetForm } from '@/components/pets/pet-form';
 import { PetService } from '@/services/petService';
-import { ArrowLeft, Heart } from 'lucide-react';
-import Link from 'next/link';
-
-interface Pet {
-  id: string;
-  name: string;
-  type: 'dog' | 'cat' | 'other';
-  breed: string;
-  gender: 'male' | 'female' | 'unknown';
-  age: number;
-  size: 'small' | 'medium' | 'large';
-  color: string;
-  status: 'lost' | 'found';
-  description: string;
-  lastSeenLocation: string;
-  lastSeenDate: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  reward?: number;
-  specialMarks?: string;
-  personality?: string;
-  healthCondition?: string;
-  microchipId?: string;
-  isVaccinated?: boolean;
-  images: string[];
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-}
+import { PetForm } from '@/components/pets/pet-form';
+import { Pet } from '@/types/pet';
+import { Heart } from 'lucide-react';
 
 interface PetFormData {
   name: string;
@@ -74,7 +47,7 @@ export default function EditPetPage() {
   const [submitting, setSubmitting] = useState(false);
   const petService = new PetService();
 
-  const petId = params.id as string;
+  const petId = params?.id as string;
 
   useEffect(() => {
     if (isAuthenticated && petId) {
@@ -85,11 +58,10 @@ export default function EditPetPage() {
   const fetchPet = async () => {
     try {
       setLoading(true);
-      const response = await petService.getPetById(petId);
-      const petData = response.data;
+      const petData = await petService.getPetById(petId);
       
       // 檢查是否為當前用戶的寵物
-      if (petData.userId !== user?.id) {
+      if (petData.owner._id !== user?.id) {
         toast({
           title: '權限不足',
           description: '您只能編輯自己發布的協尋案例',

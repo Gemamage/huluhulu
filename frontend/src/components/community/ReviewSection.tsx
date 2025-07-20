@@ -25,7 +25,6 @@ import {
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
-  ThumbUp as ThumbUpIcon,
   Report as ReportIcon
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
@@ -310,7 +309,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
         <Card sx={{ mb: 2 }}>
           <CardContent>
             <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} component="div">
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="h4" color="primary">
                     {stats.averageRating.toFixed(1)}
@@ -322,7 +321,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 </Box>
               </Grid>
               
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} component="div">
                 <Stack spacing={1}>
                   {[5, 4, 3, 2, 1].map((rating) => (
                     <Box key={rating} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -343,7 +342,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 </Stack>
               </Grid>
               
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={4} component="div">
                 <Typography variant="subtitle2" gutterBottom>
                   常見標籤
                 </Typography>
