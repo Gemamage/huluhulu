@@ -26,7 +26,6 @@ import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
   ThumbUp as ThumbUpIcon,
-  ThumbDown as ThumbDownIcon,
   Report as ReportIcon
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
@@ -198,15 +197,23 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       setSubmitting(true);
       setError(null);
       
-      await reviewService.createReview({
+      const reviewData: any = {
         revieweeId: userId,
         rating: newReview.rating,
         content: newReview.content.trim(),
         tags: newReview.tags,
-        isAnonymous: newReview.isAnonymous,
-        petId,
-        conversationId
-      });
+        isAnonymous: newReview.isAnonymous
+      };
+      
+      if (petId) {
+        reviewData.petId = petId;
+      }
+      
+      if (conversationId) {
+        reviewData.conversationId = conversationId;
+      }
+      
+      await reviewService.createReview(reviewData);
       
       setSuccess('評價提交成功！');
       setWriteDialogOpen(false);
@@ -267,6 +274,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     if (user) {
       checkCanReview();
     }
+    return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, user]);
 
   // 清除成功訊息
@@ -275,6 +284,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
       const timer = setTimeout(() => setSuccess(null), 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [success]);
 
   return (
