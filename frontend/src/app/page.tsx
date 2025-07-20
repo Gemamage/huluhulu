@@ -30,6 +30,9 @@ export default function HomePage() {
         {/* 為什麼選擇呼嚕 */}
         <Features />
 
+        {/* 統計數據 */}
+        <Statistics />
+
         {/* 立即開始行動 */}
         <CallToAction />
       </main>
