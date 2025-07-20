@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import LostPetForm from '@/components/pets/lost-pet-form';
 import { petService } from '@/services/petService';
+import { CreatePetData } from '@/types/pet';
 
 export default function LostPetPage() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function LostPetPage() {
   const handleSubmit = async (formData: any) => {
     try {
       // 轉換表單數據格式以符合後端 API
-      const petData = {
+      const petData: CreatePetData = {
         name: formData.name,
         type: formData.type,
         breed: formData.breed,
@@ -22,35 +23,21 @@ export default function LostPetPage() {
         gender: formData.gender,
         size: formData.size,
         color: formData.color,
-        weight: formData.weight,
         description: formData.description,
-        personality: formData.personality,
-        specialMarks: formData.specialMarks,
-        microchipId: formData.microchipId,
-        hasCollar: formData.hasCollar,
-        collarDescription: formData.collarDescription,
-        healthCondition: formData.healthCondition,
-        medications: formData.medications,
-        veterinarian: formData.veterinarian,
-        images: formData.images,
         status: 'lost' as const,
-        location: {
-          address: formData.lostLocation.address,
-          latitude: formData.lostLocation.latitude,
-          longitude: formData.lostLocation.longitude,
+        lastSeenLocation: {
+          address: formData.lostLocation?.address || '',
+          coordinates: [
+            formData.lostLocation?.longitude || 0,
+            formData.lostLocation?.latitude || 0
+          ] as [number, number],
         },
-        lastSeenDate: formData.lostDate,
-        lastSeenTime: formData.lostTime,
-        circumstances: formData.circumstances,
-        contact: {
-          name: formData.ownerContact.name,
-          phone: formData.ownerContact.phone,
-          email: formData.ownerContact.email,
-          preferredContact: formData.ownerContact.preferredContact,
+        contactInfo: {
+          phone: formData.ownerContact?.phone || '',
+          email: formData.ownerContact?.email || '',
+          preferredContact: formData.ownerContact?.preferredContact || 'phone',
         },
-        reward: formData.reward,
-        rewardDescription: formData.rewardDescription,
-        additionalNotes: formData.additionalNotes,
+        images: formData.images || [],
       };
 
       const result = await petService.createPet(petData);

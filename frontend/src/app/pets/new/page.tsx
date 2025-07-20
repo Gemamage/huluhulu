@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FoundPetForm } from '@/components/pets/found-pet-form';
-import { petService, PetData } from '@/services/petService';
+import { petService } from '@/services/petService';
 import {
   Card,
   CardContent,

@@ -165,11 +165,10 @@ function PetCardSkeleton() {
 }
 
 export default function MyPetsPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState<string | null>(null);
   const petService = new PetService();
 
   useEffect(() => {
@@ -182,7 +181,7 @@ export default function MyPetsPage() {
     try {
       setLoading(true);
       const response = await petService.getMyPets();
-      setPets(response.data.pets);
+      setPets(Array.isArray(response) ? response : response.data?.pets || []);
     } catch (error) {
       console.error('獲取我的協尋案例失敗:', error);
       toast({
@@ -206,7 +205,6 @@ export default function MyPetsPage() {
     }
 
     try {
-      setDeleting(id);
       await petService.deletePet(id);
       setPets(pets.filter(pet => pet._id !== id));
       toast({
@@ -220,8 +218,6 @@ export default function MyPetsPage() {
         description: '刪除失敗，請稍後再試',
         variant: 'destructive',
       });
-    } finally {
-      setDeleting(null);
     }
   };
 

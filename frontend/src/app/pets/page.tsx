@@ -182,7 +182,7 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
 
           <div className='flex items-center gap-2'>
             <Calendar className='h-4 w-4' />
-            <span>發布時間: {formatDate(pet.createdAt)}</span>
+            <span>發布時間: {new Date(pet.createdAt).toLocaleDateString('zh-TW')}</span>
           </div>
 
           {pet.description && (
@@ -202,8 +202,8 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
       <CardFooter className='pt-3 border-t'>
         <div className='flex justify-between items-center w-full'>
           <div className='flex items-center gap-4 text-xs text-gray-500'>
-            <span>瀏覽 {pet.viewCount}</span>
-            <span>分享 {pet.shareCount}</span>
+            <span>瀏覽 {pet.views || 0}</span>
+            <span>分享 {pet.shares || 0}</span>
             <span>收藏 {favoriteCount}</span>
           </div>
 

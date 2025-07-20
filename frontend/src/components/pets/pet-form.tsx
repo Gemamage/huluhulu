@@ -74,14 +74,18 @@ interface PetFormProps {
   initialData?: Partial<PetFormData>;
   onSubmit: (data: PetFormData) => Promise<void>;
   isLoading?: boolean;
+  isSubmitting?: boolean;
   mode: 'create' | 'edit';
+  submitButtonText?: string;
 }
 
 export function PetForm({
   initialData,
   onSubmit,
   isLoading = false,
+  isSubmitting = false,
   mode,
+  submitButtonText,
 }: PetFormProps) {
   const [formData, setFormData] = useState<PetFormData>({
     name: initialData?.name || '',
@@ -616,15 +620,15 @@ export function PetForm({
           </div>
 
           <div className='flex justify-end space-x-4 pt-6'>
-            <Button type='button' variant='outline' disabled={isLoading}>
+            <Button type='button' variant='outline' disabled={isLoading || isSubmitting}>
               取消
             </Button>
-            <Button type='submit' disabled={isLoading}>
-              {isLoading
+            <Button type='submit' disabled={isLoading || isSubmitting}>
+              {isLoading || isSubmitting
                 ? '處理中...'
-                : mode === 'create'
+                : submitButtonText || (mode === 'create'
                   ? '新增寵物'
-                  : '更新資訊'}
+                  : '更新資訊')}
             </Button>
           </div>
         </form>

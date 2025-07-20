@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { petService, Pet } from '@/services/petService';
+import { petService } from '@/services/petService';
+import { Pet } from '@/types/pet';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -32,10 +33,8 @@ import {
   Phone,
   Mail,
   Share2,
-  Heart,
   AlertTriangle,
   Info,
-  Camera,
   Award,
   Edit,
   Trash2,
@@ -43,13 +42,8 @@ import {
 import Link from 'next/link';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
-import PetCard from '@/components/PetCard';
 
-interface PetDetailPageProps {
-  params: {
-    id: string;
-  };
-}
+
 
 function PetDetailSkeleton() {
   return (
@@ -108,7 +102,7 @@ export default function PetDetailPage() {
   const [similarPets, setSimilarPets] = useState<Pet[]>([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
 
-  const petId = params.id as string;
+  const petId = params?.id as string;
 
   useEffect(() => {
     if (petId) {
@@ -119,15 +113,16 @@ export default function PetDetailPage() {
   const loadSimilarPets = async (currentPet: Pet) => {
     try {
       setLoadingSimilar(true);
-      const response = await petService.searchSimilarPets({
-        type: currentPet.type,
-        location: currentPet.lastSeenLocation.address,
-        excludeId: currentPet._id,
-      });
+      // 暫時註解掉，因為 searchSimilarPets 方法不存在
+      // const response = await petService.searchSimilarPets({
+      //   type: currentPet.type,
+      //   location: currentPet.lastSeenLocation?.address || '',
+      //   excludeId: currentPet._id,
+      // });
 
-      if (response.success && response.data) {
-        setSimilarPets(response.data.similarPets.slice(0, 3)); // 只顯示前3個相似寵物
-      }
+      // if (response.success && response.data) {
+      //   setSimilarPets(response.data.similarPets.slice(0, 3));
+      // }
     } catch (error) {
       console.error('載入相似寵物失敗:', error);
     } finally {
@@ -140,9 +135,9 @@ export default function PetDetailPage() {
       setLoading(true);
       const response = await petService.getPetById(id);
 
-      if (response.success && response.data) {
-        setPet(response.data.pet);
-        loadSimilarPets(response.data.pet);
+      if (response) {
+        setPet(response);
+        loadSimilarPets(response);
       } else {
         toast({
           title: '載入失敗',
@@ -169,21 +164,21 @@ export default function PetDetailPage() {
 
     try {
       setSharing(true);
-      const response = await petService.sharePet(pet._id, platform);
+      // 暫時註解掉，因為 sharePet 方法不存在
+      // const response = await petService.sharePet(pet._id, platform);
 
-      if (response.success && response.data) {
-        // 複製分享連結到剪貼板
-        await navigator.clipboard.writeText(response.data.shareUrl);
-        toast({
-          title: '分享成功',
-          description: '分享連結已複製到剪貼板',
-        });
+      // 複製分享連結到剪貼板
+      const shareUrl = `${window.location.origin}/pets/${pet._id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: '分享成功',
+        description: '分享連結已複製到剪貼板',
+      });
 
-        // 更新分享次數
-        setPet(prev =>
-          prev ? { ...prev, shareCount: response.data.shareCount } : null
-        );
-      }
+      // 更新分享次數
+      setPet(prev =>
+        prev ? { ...prev, shares: (prev.shares || 0) + 1 } : null
+      );
     } catch (error) {
       console.error('分享失敗:', error);
       toast({
@@ -728,7 +723,7 @@ export default function PetDetailPage() {
                     asChild
                   >
                     <Link
-                      href={`/pets?type=${pet.type}&location=${encodeURIComponent(pet.lastSeenLocation.address)}`}
+                      href={`/pets?type=${pet.type}&location=${encodeURIComponent(pet.lastSeenLocation?.address || '')}`}
                     >
                       查看更多相似案例
                     </Link>
