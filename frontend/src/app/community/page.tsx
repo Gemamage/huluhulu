@@ -266,7 +266,7 @@ export default function CommunityPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ReviewSection userId={user._id} />
+              <ReviewSection userId={user.id} />
             </CardContent>
           </Card>
         </TabsContent>

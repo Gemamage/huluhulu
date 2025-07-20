@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { LostPetForm } from '@/components/pets/lost-pet-form';
+import LostPetForm from '@/components/pets/lost-pet-form';
 import { petService } from '@/services/petService';
 
 export default function LostPetPage() {
