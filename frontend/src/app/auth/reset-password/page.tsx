@@ -8,7 +8,7 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token');
 
   if (!token) {
     return (
