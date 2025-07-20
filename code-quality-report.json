@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-19T07:13:38.630Z",
+  "timestamp": "2025-07-20T02:25:07.484Z",
   "summary": {
-    "totalFiles": 287,
-    "totalLines": 69326,
-    "averageLines": 242
+    "totalFiles": 300,
+    "totalLines": 70019,
+    "averageLines": 233
   },
   "issues": {
     "oversized": [
@@ -78,10 +78,6 @@
       {
         "file": "frontend\\src\\components\\community\\ReportCenter.tsx",
         "lines": 895
-      },
-      {
-        "file": "frontend\\src\\components\\pets\\lost-pet-form.tsx",
-        "lines": 664
       }
     ],
     "warnings": [
@@ -166,8 +162,7 @@
         "frontend\\src\\app\\pets\\[id]\\page.tsx",
         "frontend\\src\\components\\community\\CommentSection.tsx",
         "frontend\\src\\components\\community\\MessageCenter.tsx",
-        "frontend\\src\\components\\community\\ReportCenter.tsx",
-        "frontend\\src\\components\\pets\\lost-pet-form.tsx"
+        "frontend\\src\\components\\community\\ReportCenter.tsx"
       ]
     },
     {
