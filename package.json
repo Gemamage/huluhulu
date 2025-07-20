@@ -91,10 +91,6 @@
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
-  "workspaces": [
-    "backend",
-    "frontend"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/your-username/huluhulu.git"
