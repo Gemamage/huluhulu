@@ -1,18 +1,18 @@
 {
-  "timestamp": "2025-07-20T02:28:45.741Z",
+  "timestamp": "2025-07-20T03:37:43.559Z",
   "summary": {
-    "totalFiles": 300,
-    "totalLines": 70019,
-    "averageLines": 233
+    "totalFiles": 331,
+    "totalLines": 77804,
+    "averageLines": 235
   },
   "issues": {
     "oversized": [
       {
-        "file": "backend\\src\\routes\\community.ts",
+        "file": "backend\\src\\routes\\community-backup.ts",
         "lines": 1057
       },
       {
-        "file": "backend\\src\\routes\\pets.ts",
+        "file": "backend\\src\\routes\\pets-backup.ts",
         "lines": 728
       },
       {
@@ -24,7 +24,7 @@
         "lines": 685
       },
       {
-        "file": "backend\\src\\services\\petSearchService.ts",
+        "file": "backend\\src\\services\\petSearchService-backup.ts",
         "lines": 674
       },
       {
@@ -32,11 +32,15 @@
         "lines": 685
       },
       {
-        "file": "backend\\src\\services\\smartNotificationService.ts",
+        "file": "backend\\src\\services\\search\\analytics.ts",
+        "lines": 624
+      },
+      {
+        "file": "backend\\src\\services\\smartNotificationService-backup.ts",
         "lines": 752
       },
       {
-        "file": "backend\\src\\services\\userService.ts",
+        "file": "backend\\src\\services\\userService-backup.ts",
         "lines": 693
       },
       {
@@ -104,7 +108,11 @@
         "count": 1
       },
       {
-        "file": "backend\\src\\routes\\pets.ts",
+        "file": "backend\\src\\routes\\pets\\images.ts",
+        "count": 2
+      },
+      {
+        "file": "backend\\src\\routes\\pets-backup.ts",
         "count": 1
       },
       {
@@ -112,11 +120,15 @@
         "count": 2
       },
       {
-        "file": "backend\\src\\services\\smartNotificationService.ts",
+        "file": "backend\\src\\services\\notifications\\geofence.ts",
         "count": 1
       },
       {
-        "file": "backend\\src\\services\\userService.ts",
+        "file": "backend\\src\\services\\smartNotificationService-backup.ts",
+        "count": 1
+      },
+      {
+        "file": "backend\\src\\services\\userService-backup.ts",
         "count": 1
       },
       {
@@ -145,14 +157,15 @@
       "type": "refactor",
       "description": "立即重構超過 600 行的文件",
       "files": [
-        "backend\\src\\routes\\community.ts",
-        "backend\\src\\routes\\pets.ts",
+        "backend\\src\\routes\\community-backup.ts",
+        "backend\\src\\routes\\pets-backup.ts",
         "backend\\src\\routes\\users.ts",
         "backend\\src\\services\\notificationService.ts",
-        "backend\\src\\services\\petSearchService.ts",
+        "backend\\src\\services\\petSearchService-backup.ts",
         "backend\\src\\services\\reportService.ts",
-        "backend\\src\\services\\smartNotificationService.ts",
-        "backend\\src\\services\\userService.ts",
+        "backend\\src\\services\\search\\analytics.ts",
+        "backend\\src\\services\\smartNotificationService-backup.ts",
+        "backend\\src\\services\\userService-backup.ts",
         "backend\\test\\routes\\admin.test.ts",
         "backend\\test\\routes\\matches.test.ts",
         "backend\\test\\routes\\notifications.test.ts",

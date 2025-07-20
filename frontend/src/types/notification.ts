@@ -54,19 +54,20 @@ export interface RealtimeNotificationData {
 // 通知偏好設定接口
 export interface NotificationPreferences {
   userId: string;
+  enabled: boolean;
+  doNotDisturb: boolean;
   channels: {
-    push: {
-      enabled: boolean;
-      types: NotificationType[];
-    };
-    email: {
-      enabled: boolean;
-      types: NotificationType[];
-    };
-    inApp: {
-      enabled: boolean;
-      types: NotificationType[];
-    };
+    push: boolean;
+    email: boolean;
+    sms: boolean;
+  };
+  types: {
+    pet_match: boolean;
+    pet_found: boolean;
+    pet_lost: boolean;
+    geofence: boolean;
+    reminder: boolean;
+    system: boolean;
   };
   quietHours: {
     enabled: boolean;
@@ -114,9 +115,11 @@ export enum SocketEvents {
 
 // 通知統計接口
 export interface NotificationStats {
-  total: number;
-  unread: number;
-  byType: Record<NotificationType, number>;
+  totalCount: number;
+  readCount: number;
+  unreadCount: number;
+  todayCount: number;
+  typeStats: Record<string, number>;
   byPriority: Record<NotificationPriority, number>;
 }
 
