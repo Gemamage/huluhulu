@@ -11,30 +11,41 @@ import { useAuth } from '@/contexts/auth-context';
 import { PetService } from '@/services/petService';
 import { PetForm } from '@/components/pets/pet-form';
 import { Pet } from '@/types/pet';
-import { Heart } from 'lucide-react';
+import { Heart, ArrowLeft } from 'lucide-react';
 
+// 使用與 PetForm 組件相同的介面定義
 interface PetFormData {
   name: string;
-  type: 'dog' | 'cat' | 'other';
-  breed: string;
+  type: 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other';
+  breed?: string;
   gender: 'male' | 'female' | 'unknown';
-  age: number;
-  size: 'small' | 'medium' | 'large';
-  color: string;
+  age?: number;
+  color?: string;
+  size?: 'small' | 'medium' | 'large';
   status: 'lost' | 'found';
-  description: string;
-  lastSeenLocation: string;
+  description?: string;
+  lastSeenLocation: {
+    address: string;
+    latitude?: number;
+    longitude?: number;
+  };
   lastSeenDate: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
+  contactInfo: {
+    name: string;
+    phone: string;
+    email?: string;
+    preferredContact: 'phone' | 'email';
+  };
+  images?: string[];
   reward?: number;
+  isUrgent: boolean;
+  microchipId?: string;
+  vaccinated?: boolean;
+  medicalConditions?: string;
   specialMarks?: string;
   personality?: string;
   healthCondition?: string;
-  microchipId?: string;
   isVaccinated?: boolean;
-  images: File[];
 }
 
 export default function EditPetPage() {
@@ -91,37 +102,40 @@ export default function EditPetPage() {
     try {
       setSubmitting(true);
 
-      // 準備更新數據
-      const updateData = {
+      // 準備更新數據 - 只包含有值的屬性
+      const updateData: any = {
         name: formData.name,
-        type: formData.type,
-        breed: formData.breed,
-        gender: formData.gender,
-        age: formData.age,
-        size: formData.size,
-        color: formData.color,
         status: formData.status,
         description: formData.description,
-        lastSeenLocation: formData.lastSeenLocation,
-        lastSeenDate: formData.lastSeenDate,
-        contactName: formData.contactName,
-        contactPhone: formData.contactPhone,
-        contactEmail: formData.contactEmail,
-        reward: formData.reward,
-        specialMarks: formData.specialMarks,
-        personality: formData.personality,
-        healthCondition: formData.healthCondition,
-        microchipId: formData.microchipId,
-        isVaccinated: formData.isVaccinated,
+        lastSeenLocation: formData.lastSeenLocation.latitude && formData.lastSeenLocation.longitude 
+          ? {
+              address: formData.lastSeenLocation.address,
+              coordinates: [formData.lastSeenLocation.longitude, formData.lastSeenLocation.latitude] as [number, number]
+            }
+          : {
+              address: formData.lastSeenLocation.address,
+              coordinates: [0, 0] as [number, number] // 預設座標
+            },
+        contactInfo: {
+          phone: formData.contactInfo.phone,
+          email: formData.contactInfo.email,
+          preferredContact: formData.contactInfo.preferredContact
+        }
       };
+
+      // 只添加有值的可選屬性
+      if (formData.breed) updateData.breed = formData.breed;
+      if (formData.age) updateData.age = formData.age;
+      if (formData.gender) updateData.gender = formData.gender;
+      if (formData.size) updateData.size = formData.size;
+      if (formData.color) updateData.color = formData.color;
 
       // 更新寵物資訊
       await petService.updatePet(pet._id, updateData);
 
-      // 如果有新圖片，上傳圖片
-      if (formData.images && formData.images.length > 0) {
-        await petService.uploadPetImages(pet._id, formData.images);
-      }
+      // 注意：在編輯模式下，圖片已經存在於伺服器上
+      // 如果需要新增或修改圖片，應該通過專門的圖片管理功能來處理
+      // 這裡暫時跳過圖片上傳邏輯
 
       toast({
         title: '成功',
@@ -208,26 +222,42 @@ export default function EditPetPage() {
   // 將 Pet 數據轉換為 PetFormData 格式
   const initialData: PetFormData = {
     name: pet.name,
-    type: pet.type,
-    breed: pet.breed,
-    gender: pet.gender,
-    age: pet.age,
-    size: pet.size,
-    color: pet.color,
-    status: pet.status,
-    description: pet.description,
-    lastSeenLocation: pet.lastSeenLocation,
-    lastSeenDate: pet.lastSeenDate,
-    contactName: pet.contactName,
-    contactPhone: pet.contactPhone,
-    contactEmail: pet.contactEmail,
-    reward: pet.reward,
-    specialMarks: pet.specialMarks,
-    personality: pet.personality,
-    healthCondition: pet.healthCondition,
-    microchipId: pet.microchipId,
-    isVaccinated: pet.isVaccinated,
-    images: [], // 編輯時不預填圖片
+    type: pet.type as 'dog' | 'cat' | 'other',
+    breed: pet.breed || '',
+    gender: pet.gender as 'male' | 'female' | 'unknown',
+    age: pet.age || 0,
+    size: pet.size as 'small' | 'medium' | 'large',
+    color: pet.color || '',
+    status: pet.status as 'lost' | 'found',
+    description: pet.description || '',
+    lastSeenLocation: {
+      address: typeof pet.lastSeenLocation === 'string'
+        ? pet.lastSeenLocation
+        : pet.lastSeenLocation?.address || '',
+      latitude: typeof pet.lastSeenLocation === 'object' && pet.lastSeenLocation?.coordinates
+        ? pet.lastSeenLocation.coordinates[1]
+        : 0,
+      longitude: typeof pet.lastSeenLocation === 'object' && pet.lastSeenLocation?.coordinates
+        ? pet.lastSeenLocation.coordinates[0]
+        : 0
+    },
+    lastSeenDate: new Date().toISOString().split('T')[0],
+    contactInfo: {
+      name: pet.owner.username || '',
+      phone: pet.contactInfo?.phone || '',
+      email: pet.contactInfo?.email || '',
+      preferredContact: (pet.contactInfo?.preferredContact as 'phone' | 'email') || 'phone',
+    },
+    images: [],
+    reward: 0,
+    isUrgent: false,
+    microchipId: '',
+    vaccinated: false,
+    medicalConditions: '',
+    specialMarks: '',
+    personality: '',
+    healthCondition: '',
+    isVaccinated: false
   };
 
   return (

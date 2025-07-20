@@ -50,7 +50,7 @@ export interface LostPetFormData {
   veterinarian?: string;
 
   // 獎金
-  reward?: number;
+  reward?: number | null;
   rewardDescription?: string;
 
   // 其他

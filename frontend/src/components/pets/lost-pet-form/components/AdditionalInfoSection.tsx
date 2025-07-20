@@ -42,18 +42,14 @@ export function AdditionalInfoSection({
               type='number'
               min='0'
               value={formData.reward || ''}
-              onChange={e =>
-                onInputChange(
-                  'reward',
-                  e.target.value ? Number(e.target.value) : undefined
-                )
-              }
-              onBlur={e =>
-                onFieldBlur(
-                  'reward',
-                  e.target.value ? Number(e.target.value) : undefined
-                )
-              }
+              onChange={e => {
+                const value = e.target.value;
+                onInputChange('reward', value ? Number(value) : null);
+              }}
+              onBlur={e => {
+                const value = e.target.value;
+                onFieldBlur('reward', value ? Number(value) : null);
+              }}
               placeholder='選填，例如：5000'
               className={errors.reward ? 'border-red-500' : ''}
             />
