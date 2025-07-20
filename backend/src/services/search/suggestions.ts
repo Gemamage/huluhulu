@@ -31,35 +31,33 @@ export class SearchSuggestionsService {
     try {
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getPetIndexName(),
-        body: {
-          suggest: {
-            name_suggest: {
-              prefix: query,
-              completion: {
-                field: "name.suggest",
-                size: limit,
-              },
+        suggest: {
+          name_suggest: {
+            prefix: query,
+            completion: {
+              field: "name.suggest",
+              size: limit,
             },
-            breed_suggest: {
-              prefix: query,
-              completion: {
-                field: "breed.suggest",
-                size: limit,
-              },
+          },
+          breed_suggest: {
+            prefix: query,
+            completion: {
+              field: "breed.suggest",
+              size: limit,
             },
-            location_suggest: {
-              prefix: query,
-              completion: {
-                field: "lastSeenLocation.suggest",
-                size: limit,
-              },
+          },
+          location_suggest: {
+            prefix: query,
+            completion: {
+              field: "lastSeenLocation.suggest",
+              size: limit,
             },
           },
         },
       });
 
       const suggestions: SearchSuggestion[] = [];
-      const suggest = response.body.suggest;
+      const suggest = response.suggest;
 
       // 處理名稱建議
       if (suggest.name_suggest && suggest.name_suggest[0]) {
@@ -136,21 +134,19 @@ export class SearchSuggestionsService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getPetIndexName(),
-        body: {
-          suggest: {
-            category_suggest: {
-              prefix: query,
-              completion: {
-                field: field,
-                size: limit,
-              },
+        suggest: {
+          category_suggest: {
+            prefix: query,
+            completion: {
+              field: field,
+              size: limit,
             },
           },
         },
       });
 
       const suggestions: SearchSuggestion[] = [];
-      const suggest = response.body.suggest;
+      const suggest = response.suggest;
 
       if (suggest.category_suggest && suggest.category_suggest[0]) {
         suggest.category_suggest[0].options.forEach((option: any) => {
@@ -201,11 +197,11 @@ export class SearchSuggestionsService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query,
+        ...query,
       });
 
       const popularSearches: PopularSearch[] = [];
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
 
       if (aggs && aggs.popular_queries) {
         aggs.popular_queries.buckets.forEach((bucket: any) => {
@@ -235,29 +231,27 @@ export class SearchSuggestionsService {
       // 使用 more_like_this 查詢找到相關的搜尋記錄
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: {
-          query: {
-            more_like_this: {
-              fields: ["query"],
-              like: [query],
-              min_term_freq: 1,
-              max_query_terms: 5,
-            },
+        query: {
+          more_like_this: {
+            fields: ["query"],
+            like: [query],
+            min_term_freq: 1,
+            max_query_terms: 5,
           },
-          aggs: {
-            related_queries: {
-              terms: {
-                field: "query.keyword",
-                size: limit,
-              },
-            },
-          },
-          size: 0,
         },
+        aggs: {
+          related_queries: {
+            terms: {
+              field: "query.keyword",
+              size: limit,
+            },
+          },
+        },
+        size: 0,
       });
 
       const relatedSearches: SearchSuggestion[] = [];
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
 
       if (aggs && aggs.related_queries) {
         aggs.related_queries.buckets.forEach((bucket: any) => {
@@ -289,32 +283,30 @@ export class SearchSuggestionsService {
     try {
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: {
-          query: {
-            term: { userId },
-          },
-          aggs: {
-            user_queries: {
-              terms: {
-                field: "query.keyword",
-                size: limit,
-                order: { latest: "desc" },
-              },
-              aggs: {
-                latest: {
-                  max: {
-                    field: "timestamp",
-                  },
+        query: {
+          term: { userId },
+        },
+        aggs: {
+          user_queries: {
+            terms: {
+              field: "query.keyword",
+              size: limit,
+              order: { latest: "desc" },
+            },
+            aggs: {
+              latest: {
+                max: {
+                  field: "timestamp",
                 },
               },
             },
           },
-          size: 0,
         },
+        size: 0,
       });
 
       const searchHistory: SearchSuggestion[] = [];
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
 
       if (aggs && aggs.user_queries) {
         aggs.user_queries.buckets.forEach((bucket: any) => {
@@ -384,18 +376,16 @@ export class SearchSuggestionsService {
 
       const response = await elasticsearchService.getClient().deleteByQuery({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: {
-          query: {
-            range: {
-              timestamp: {
-                lt: cutoffDate.toISOString(),
-              },
+        query: {
+          range: {
+            timestamp: {
+              lt: cutoffDate.toISOString(),
             },
           },
         },
       });
 
-      const deletedCount = response.body.deleted || 0;
+      const deletedCount = response.deleted || 0;
       logger.info(`清理了 ${deletedCount} 條過期搜尋記錄`);
 
       return { deletedCount };

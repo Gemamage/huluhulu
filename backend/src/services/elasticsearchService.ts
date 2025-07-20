@@ -100,7 +100,7 @@ class ElasticsearchService {
 
       await this.client.indices.putIndexTemplate({
         name: "pet_finder_template",
-        body: indexTemplateSettings,
+        ...indexTemplateSettings,
       });
 
       logger.info("索引模板設置成功");
@@ -202,18 +202,16 @@ class ElasticsearchService {
     try {
       if (!this.client) throw new Error("Elasticsearch 客戶端未初始化");
 
-      const exists = await this.client.indices.exists({ index: indexName });
+      const existsResponse = await this.client.indices.exists({ index: indexName });
 
-      if (!exists) {
+      if (!existsResponse) {
         await this.client.indices.create({
           index: indexName,
-          body: {
-            mappings: mapping,
-            settings: {
-              ...chineseAnalyzerSettings,
-              number_of_shards: 1,
-              number_of_replicas: 0,
-            },
+          mappings: mapping,
+          settings: {
+            ...chineseAnalyzerSettings,
+            number_of_shards: 1,
+            number_of_replicas: 0,
           },
         });
         logger.info(`索引 ${indexName} 創建成功`);
@@ -235,9 +233,9 @@ class ElasticsearchService {
    */
   public async deleteIndex(indexName: string): Promise<boolean> {
     try {
-      const exists = await this.client.indices.exists({ index: indexName });
+      const existsResponse = await this.client.indices.exists({ index: indexName });
 
-      if (exists) {
+      if (existsResponse) {
         await this.client.indices.delete({ index: indexName });
         logger.info(`索引 ${indexName} 刪除成功`);
       }
@@ -260,7 +258,7 @@ class ElasticsearchService {
       await this.client.index({
         index: indexName,
         id: id,
-        body: document,
+        document: document,
         refresh: "wait_for",
       });
       logger.debug(`文檔 ${id} 索引到 ${indexName} 成功`);
@@ -279,13 +277,13 @@ class ElasticsearchService {
     documents: Array<{ id: string; document: any }>,
   ): Promise<boolean> {
     try {
-      const body = documents.flatMap(({ id, document }) => [
+      const operations = documents.flatMap(({ id, document }) => [
         { index: { _index: indexName, _id: id } },
         document,
       ]);
 
       const response = await this.client.bulk({
-        body,
+        operations,
         refresh: "wait_for",
       });
 
@@ -332,9 +330,7 @@ class ElasticsearchService {
       await this.client.update({
         index: indexName,
         id: id,
-        body: {
-          doc: document,
-        },
+        doc: document,
         refresh: "wait_for",
       });
       logger.debug(`文檔 ${id} 在 ${indexName} 更新成功`);

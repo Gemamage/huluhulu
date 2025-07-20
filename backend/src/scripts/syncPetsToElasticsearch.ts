@@ -228,7 +228,7 @@ class PetSyncScript {
       const esResponse = await client.count({
         index: "pets",
       });
-      const esCount = esResponse.body.count;
+      const esCount = esResponse.count;
 
       logger.info(`MongoDB 寵物數量: ${mongoCount}`);
       logger.info(`Elasticsearch 寵物數量: ${esCount}`);

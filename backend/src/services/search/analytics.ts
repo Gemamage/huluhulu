@@ -57,7 +57,7 @@ export class SearchAnalyticsService {
     try {
       await elasticsearchService.getClient().index({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: {
+        document: {
           ...analytics,
           timestamp: analytics.timestamp || new Date(),
         },
@@ -79,7 +79,7 @@ export class SearchAnalyticsService {
     analyticsArray: SearchAnalytics[],
   ): Promise<void> {
     try {
-      const body = analyticsArray.flatMap((analytics) => [
+      const operations = analyticsArray.flatMap((analytics) => [
         { index: { _index: indexingService.getSearchAnalyticsIndexName() } },
         {
           ...analytics,
@@ -87,7 +87,7 @@ export class SearchAnalyticsService {
         },
       ]);
 
-      await elasticsearchService.getClient().bulk({ body });
+      await elasticsearchService.getClient().bulk({ operations });
       logger.debug(`批量記錄了 ${analyticsArray.length} 條搜尋分析數據`);
     } catch (error) {
       logger.error("批量記錄搜尋分析數據失敗:", error);
@@ -194,10 +194,10 @@ export class SearchAnalyticsService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query,
+        ...query,
       });
 
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
 
       return {
         totalSearches: aggs.total_searches.value || 0,
@@ -308,11 +308,11 @@ export class SearchAnalyticsService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query,
+        ...query,
       });
 
-      const aggs = response.body.aggregations;
-      const hits = response.body.hits.hits;
+      const aggs = response.aggregations;
+      const hits = response.hits.hits;
 
       return {
         totalSearches: aggs.total_searches.value || 0,
@@ -410,11 +410,11 @@ export class SearchAnalyticsService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query,
+        ...query,
       });
 
       const trends: SearchTrend[] = [];
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
 
       if (aggs && aggs.trends) {
         aggs.trends.buckets.forEach((bucket: any) => {
@@ -447,20 +447,18 @@ export class SearchAnalyticsService {
       await elasticsearchService.getClient().update({
         index: indexingService.getSearchAnalyticsIndexName(),
         id: searchId,
-        body: {
-          script: {
-            source: `
-              if (ctx._source.clickedResults == null) {
-                ctx._source.clickedResults = [];
-              }
-              ctx._source.clickedResults.add(params.click);
-            `,
-            params: {
-              click: {
-                petId,
-                position,
-                timestamp: new Date().toISOString(),
-              },
+        script: {
+          source: `
+            if (ctx._source.clickedResults == null) {
+              ctx._source.clickedResults = [];
+            }
+            ctx._source.clickedResults.add(params.click);
+          `,
+          params: {
+            click: {
+              petId,
+              position,
+              timestamp: new Date().toISOString(),
             },
           },
         },
@@ -488,64 +486,62 @@ export class SearchAnalyticsService {
     try {
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: {
-          size: 0,
-          aggs: {
-            total_searches: {
-              value_count: {
-                field: "query.keyword",
+        size: 0,
+        aggs: {
+          total_searches: {
+            value_count: {
+              field: "query.keyword",
+            },
+          },
+          searches_with_clicks: {
+            filter: {
+              exists: {
+                field: "clickedResults",
               },
             },
-            searches_with_clicks: {
-              filter: {
-                exists: {
-                  field: "clickedResults",
-                },
+          },
+          zero_result_queries: {
+            filter: {
+              term: {
+                resultCount: 0,
               },
             },
-            zero_result_queries: {
-              filter: {
-                term: {
-                  resultCount: 0,
-                },
-              },
-              aggs: {
-                queries: {
-                  terms: {
-                    field: "query.keyword",
-                    size: 10,
-                  },
+            aggs: {
+              queries: {
+                terms: {
+                  field: "query.keyword",
+                  size: 10,
                 },
               },
             },
-            query_performance: {
-              terms: {
-                field: "query.keyword",
-                size: 100,
+          },
+          query_performance: {
+            terms: {
+              field: "query.keyword",
+              size: 100,
+            },
+            aggs: {
+              total_searches: {
+                value_count: {
+                  field: "query.keyword",
+                },
               },
-              aggs: {
-                total_searches: {
-                  value_count: {
-                    field: "query.keyword",
+              searches_with_clicks: {
+                filter: {
+                  exists: {
+                    field: "clickedResults",
                   },
                 },
-                searches_with_clicks: {
-                  filter: {
-                    exists: {
-                      field: "clickedResults",
-                    },
-                  },
-                },
-                average_click_position: {
-                  avg: {
-                    script: {
-                      source: `
-                        if (doc['clickedResults'].size() > 0) {
-                          return doc['clickedResults'][0].position;
-                        }
-                        return null;
-                      `,
-                    },
+              },
+              average_click_position: {
+                avg: {
+                  script: {
+                    source: `
+                      if (doc['clickedResults'].size() > 0) {
+                        return doc['clickedResults'][0].position;
+                      }
+                      return null;
+                    `,
                   },
                 },
               },
@@ -554,7 +550,7 @@ export class SearchAnalyticsService {
         },
       });
 
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
       const totalSearches = aggs.total_searches.value;
       const searchesWithClicks = aggs.searches_with_clicks.doc_count;
       const clickThroughRate =
@@ -630,18 +626,16 @@ export class SearchAnalyticsService {
 
       const response = await elasticsearchService.getClient().deleteByQuery({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: {
-          query: {
-            range: {
-              timestamp: {
-                lt: cutoffDate.toISOString(),
-              },
+        query: {
+          range: {
+            timestamp: {
+              lt: cutoffDate.toISOString(),
             },
           },
         },
       });
 
-      const deletedCount = response.body.deleted || 0;
+      const deletedCount = response.deleted || 0;
       logger.info(`清理了 ${deletedCount} 條過期分析數據`);
 
       return { deletedCount };

@@ -1,23 +1,19 @@
 {
-  "timestamp": "2025-07-20T09:59:39.321Z",
+  "timestamp": "2025-07-20T11:13:41.294Z",
   "summary": {
-    "totalFiles": 337,
-    "totalLines": 82160,
-    "averageLines": 244
+    "totalFiles": 314,
+    "totalLines": 72132,
+    "averageLines": 230
   },
   "issues": {
     "oversized": [
-      {
-        "file": "backend\\src\\routes\\community-backup.ts",
-        "lines": 1193
-      },
       {
         "file": "backend\\src\\routes\\notifications.ts",
         "lines": 656
       },
       {
         "file": "backend\\src\\routes\\pets-backup.ts",
-        "lines": 795
+        "lines": 728
       },
       {
         "file": "backend\\src\\routes\\users.ts",
@@ -33,11 +29,7 @@
       },
       {
         "file": "backend\\src\\services\\petSearchService-backup.ts",
-        "lines": 699
-      },
-      {
-        "file": "backend\\src\\services\\reportService.ts",
-        "lines": 707
+        "lines": 674
       },
       {
         "file": "backend\\src\\services\\search\\analytics.ts",
@@ -45,11 +37,11 @@
       },
       {
         "file": "backend\\src\\services\\smartNotificationService-backup.ts",
-        "lines": 783
+        "lines": 752
       },
       {
         "file": "backend\\src\\services\\userService-backup.ts",
-        "lines": 732
+        "lines": 693
       },
       {
         "file": "backend\\test\\routes\\admin.test.ts",
@@ -78,22 +70,6 @@
       {
         "file": "frontend\\src\\app\\pets\\[id]\\page.tsx",
         "lines": 745
-      },
-      {
-        "file": "frontend\\src\\components\\community\\CommentSection.tsx",
-        "lines": 685
-      },
-      {
-        "file": "frontend\\src\\components\\community\\MessageCenter.tsx",
-        "lines": 747
-      },
-      {
-        "file": "frontend\\src\\components\\community\\ReportCenter.tsx",
-        "lines": 972
-      },
-      {
-        "file": "frontend\\src\\components\\community\\ReviewSection.tsx",
-        "lines": 655
       },
       {
         "file": "frontend\\src\\components\\pets\\found-pet-form.tsx",
@@ -191,14 +167,12 @@
       "type": "refactor",
       "description": "立即重構超過 600 行的文件",
       "files": [
-        "backend\\src\\routes\\community-backup.ts",
         "backend\\src\\routes\\notifications.ts",
         "backend\\src\\routes\\pets-backup.ts",
         "backend\\src\\routes\\users.ts",
         "backend\\src\\services\\aiService.ts",
         "backend\\src\\services\\notificationService.ts",
         "backend\\src\\services\\petSearchService-backup.ts",
-        "backend\\src\\services\\reportService.ts",
         "backend\\src\\services\\search\\analytics.ts",
         "backend\\src\\services\\smartNotificationService-backup.ts",
         "backend\\src\\services\\userService-backup.ts",
@@ -209,10 +183,6 @@
         "backend\\test\\services\\matchingService.test.ts",
         "frontend\\src\\app\\pets\\page.tsx",
         "frontend\\src\\app\\pets\\[id]\\page.tsx",
-        "frontend\\src\\components\\community\\CommentSection.tsx",
-        "frontend\\src\\components\\community\\MessageCenter.tsx",
-        "frontend\\src\\components\\community\\ReportCenter.tsx",
-        "frontend\\src\\components\\community\\ReviewSection.tsx",
         "frontend\\src\\components\\pets\\found-pet-form.tsx",
         "frontend\\src\\components\\pets\\pet-form.tsx"
       ]

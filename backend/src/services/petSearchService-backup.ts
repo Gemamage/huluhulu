@@ -440,10 +440,10 @@ class PetSearchService {
 
       const response = await elasticsearchService.getClient().search({
         index: this.PET_INDEX,
-        body: searchBody
+        ...searchBody
       });
 
-      const hits = response.body.hits.hits.map((hit: any) => ({
+      const hits = response.hits.hits.map((hit: any) => ({
         id: hit._id,
         score: hit._score,
         source: hit._source,
@@ -452,9 +452,9 @@ class PetSearchService {
 
       return {
         hits,
-        total: response.body.hits.total.value,
-        maxScore: response.body.hits.max_score,
-        took: response.body.took
+        total: response.hits.total.value,
+        maxScore: response.hits.max_score,
+        took: response.took
       };
     } catch (error) {
       logger.error('搜尋寵物失敗:', error);
@@ -469,35 +469,33 @@ class PetSearchService {
     try {
       const response = await elasticsearchService.getClient().search({
         index: this.PET_INDEX,
-        body: {
-          suggest: {
-            name_suggest: {
-              prefix: query,
-              completion: {
-                field: 'name.suggest',
-                size: limit
-              }
-            },
-            breed_suggest: {
-              prefix: query,
-              completion: {
-                field: 'breed.suggest',
-                size: limit
-              }
-            },
-            location_suggest: {
-              prefix: query,
-              completion: {
-                field: 'lastSeenLocation.suggest',
-                size: limit
-              }
+        suggest: {
+          name_suggest: {
+            prefix: query,
+            completion: {
+              field: 'name.suggest',
+              size: limit
+            }
+          },
+          breed_suggest: {
+            prefix: query,
+            completion: {
+              field: 'breed.suggest',
+              size: limit
+            }
+          },
+          location_suggest: {
+            prefix: query,
+            completion: {
+              field: 'lastSeenLocation.suggest',
+              size: limit
             }
           }
         }
       });
 
       const suggestions: SearchSuggestion[] = [];
-      const suggest = response.body.suggest;
+      const suggest = response.suggest;
 
       // 處理名稱建議
       suggest.name_suggest[0].options.forEach((option: any) => {
@@ -586,56 +584,54 @@ class PetSearchService {
 
       const response = await elasticsearchService.getClient().search({
         index: this.SEARCH_ANALYTICS_INDEX,
-        body: {
-          query: {
-            range: {
-              timestamp: {
-                gte: fromDate.toISOString()
-              }
+        query: {
+          range: {
+            timestamp: {
+              gte: fromDate.toISOString()
+            }
+          }
+        },
+        aggs: {
+          total_searches: {
+            value_count: {
+              field: 'query.keyword'
             }
           },
-          aggs: {
-            total_searches: {
-              value_count: {
-                field: 'query.keyword'
-              }
-            },
-            popular_queries: {
-              terms: {
-                field: 'query.keyword',
-                size: 10
-              }
-            },
-            popular_types: {
-              terms: {
-                field: 'filters.type',
-                size: 10
-              }
-            },
-            popular_locations: {
-              terms: {
-                field: 'filters.location',
-                size: 10
-              }
-            },
-            popular_breeds: {
-              terms: {
-                field: 'filters.breed',
-                size: 10
-              }
-            },
-            search_trends: {
-              date_histogram: {
-                field: 'timestamp',
-                calendar_interval: 'day'
-              }
+          popular_queries: {
+            terms: {
+              field: 'query.keyword',
+              size: 10
             }
           },
-          size: 0
-        }
+          popular_types: {
+            terms: {
+              field: 'filters.type',
+              size: 10
+            }
+          },
+          popular_locations: {
+            terms: {
+              field: 'filters.location',
+              size: 10
+            }
+          },
+          popular_breeds: {
+            terms: {
+              field: 'filters.breed',
+              size: 10
+            }
+          },
+          search_trends: {
+            date_histogram: {
+              field: 'timestamp',
+              calendar_interval: 'day'
+            }
+          }
+        },
+        size: 0
       });
 
-      const aggs = response.body.aggregations;
+      const aggs = response.aggregations;
 
       return {
         totalSearches: aggs.total_searches.value,

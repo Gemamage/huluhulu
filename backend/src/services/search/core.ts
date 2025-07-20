@@ -141,10 +141,10 @@ export class SearchCoreService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getPetIndexName(),
-        body: searchBody,
+        ...searchBody,
       });
 
-      const hits = response.body.hits.hits.map((hit: any) => ({
+      const hits = response.hits.hits.map((hit: any) => ({
         id: hit._id,
         score: hit._score,
         source: hit._source,
@@ -153,9 +153,9 @@ export class SearchCoreService {
 
       return {
         hits,
-        total: response.body.hits.total.value,
-        maxScore: response.body.hits.max_score,
-        took: response.body.took,
+        total: response.hits.total.value,
+        maxScore: response.hits.max_score,
+        took: response.took,
       };
     } catch (error) {
       logger.error("搜尋寵物失敗:", error);
@@ -366,10 +366,10 @@ export class SearchCoreService {
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getPetIndexName(),
-        body: searchBody,
+        ...searchBody,
       });
 
-      const hits = response.body.hits.hits.map((hit: any) => ({
+      const hits = response.hits.hits.map((hit: any) => ({
         id: hit._id,
         score: hit._score,
         source: hit._source,
@@ -378,13 +378,13 @@ export class SearchCoreService {
 
       const result: SearchResponse & { aggregations?: any } = {
         hits,
-        total: response.body.hits.total.value,
-        maxScore: response.body.hits.max_score,
-        took: response.body.took,
+        total: response.hits.total.value,
+        maxScore: response.hits.max_score,
+        took: response.took,
       };
 
-      if (response.body.aggregations) {
-        result.aggregations = response.body.aggregations;
+      if (response.aggregations) {
+        result.aggregations = response.aggregations;
       }
 
       return result;
@@ -404,25 +404,23 @@ export class SearchCoreService {
     try {
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getPetIndexName(),
-        body: {
-          query: {
-            more_like_this: {
-              fields: ["name", "breed", "description", "type", "color"],
-              like: [
-                {
-                  _index: indexingService.getPetIndexName(),
-                  _id: petId,
-                },
-              ],
-              min_term_freq: 1,
-              max_query_terms: 12,
-            },
+        query: {
+          more_like_this: {
+            fields: ["name", "breed", "description", "type", "color"],
+            like: [
+              {
+                _index: indexingService.getPetIndexName(),
+                _id: petId,
+              },
+            ],
+            min_term_freq: 1,
+            max_query_terms: 12,
           },
-          size: limit,
         },
+        size: limit,
       });
 
-      const hits = response.body.hits.hits.map((hit: any) => ({
+      const hits = response.hits.hits.map((hit: any) => ({
         id: hit._id,
         score: hit._score,
         source: hit._source,
@@ -431,9 +429,9 @@ export class SearchCoreService {
 
       return {
         hits,
-        total: response.body.hits.total.value,
-        maxScore: response.body.hits.max_score,
-        took: response.body.took,
+        total: response.hits.total.value,
+        maxScore: response.hits.max_score,
+        took: response.took,
       };
     } catch (error) {
       logger.error("相似寵物搜尋失敗:", error);

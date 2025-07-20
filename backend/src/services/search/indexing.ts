@@ -230,10 +230,10 @@ export class IndexingService {
    */
   public async indexExists(indexName: string): Promise<boolean> {
     try {
-      const response = await elasticsearchService.getClient().indices.exists({
+      const exists = await elasticsearchService.getClient().indices.exists({
         index: indexName,
       });
-      return response.body;
+      return exists;
     } catch (error) {
       logger.error(`檢查索引 ${indexName} 是否存在失敗:`, error);
       return false;
@@ -290,7 +290,7 @@ export class IndexingService {
       const response = await elasticsearchService.getClient().indices.stats({
         index: indexName,
       });
-      return response.body;
+      return response;
     } catch (error) {
       logger.error(`獲取索引 ${indexName} 統計信息失敗:`, error);
       return null;

@@ -274,7 +274,7 @@ export const createElasticsearchClient = (): Client => {
       logger.debug("Elasticsearch 請求:", {
         method: result?.meta?.request?.params?.method,
         path: result?.meta?.request?.params?.path,
-        body: result?.meta?.request?.params?.body,
+        body: result?.body,
       });
     }
   });
@@ -330,9 +330,9 @@ export const getClusterInfo = async (client: Client) => {
     ]);
 
     return {
-      health: health.body,
-      info: info.body,
-      stats: stats.body,
+      health,
+      info,
+      stats,
     };
   } catch (error) {
     logger.error("獲取 Elasticsearch 叢集資訊失敗:", error);
