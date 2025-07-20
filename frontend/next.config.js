@@ -27,8 +27,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  // Netlify 支援 SSR，不需要靜態導出
-  trailingSlash: false,
+  // 靜態導出設定 - 適用於 Netlify 部署
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
   // 壓縮設定
   compress: true,
   // 效能優化
