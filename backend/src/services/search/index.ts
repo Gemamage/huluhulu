@@ -1,14 +1,17 @@
-import { indexingService, IndexingService } from './indexing';
-import { searchCoreService, SearchCoreService } from './core';
-import { searchSuggestionsService, SearchSuggestionsService } from './suggestions';
-import { searchAnalyticsService, SearchAnalyticsService } from './analytics';
-import { logger } from '../../utils/logger';
+import { indexingService, IndexingService } from "./indexing";
+import { searchCoreService, SearchCoreService } from "./core";
+import {
+  searchSuggestionsService,
+  SearchSuggestionsService,
+} from "./suggestions";
+import { searchAnalyticsService, SearchAnalyticsService } from "./analytics";
+import { logger } from "../../utils/logger";
 
 // 重新導出介面和類型
-export * from './indexing';
-export * from './core';
-export * from './suggestions';
-export * from './analytics';
+export * from "./indexing";
+export * from "./core";
+export * from "./suggestions";
+export * from "./analytics";
 
 /**
  * 統一的寵物搜尋服務
@@ -33,16 +36,16 @@ export class PetSearchService {
    */
   public async initialize(): Promise<void> {
     try {
-      logger.info('正在初始化寵物搜尋服務...');
-      
+      logger.info("正在初始化寵物搜尋服務...");
+
       // 初始化索引
       await this.indexing.initializePetIndex();
       await this.indexing.initializeSearchAnalyticsIndex();
-      
+
       this.isInitialized = true;
-      logger.info('寵物搜尋服務初始化完成');
+      logger.info("寵物搜尋服務初始化完成");
     } catch (error) {
-      logger.error('寵物搜尋服務初始化失敗:', error);
+      logger.error("寵物搜尋服務初始化失敗:", error);
       throw error;
     }
   }
@@ -85,19 +88,25 @@ export class PetSearchService {
   /**
    * 搜尋寵物（帶分析記錄）
    */
-  public async searchPets(query: any, userId?: string, sessionId?: string, userAgent?: string, ipAddress?: string) {
+  public async searchPets(
+    query: any,
+    userId?: string,
+    sessionId?: string,
+    userAgent?: string,
+    ipAddress?: string,
+  ) {
     try {
       const startTime = Date.now();
-      
+
       // 執行搜尋
       const searchResult = await this.core.searchPets(query);
-      
+
       const searchDuration = Date.now() - startTime;
-      
+
       // 記錄搜尋分析
       if (query.query || Object.keys(query.filters || {}).length > 0) {
         await this.analytics.recordSearchAnalytics({
-          query: query.query || '',
+          query: query.query || "",
           filters: query.filters || {},
           userId,
           resultCount: searchResult.total,
@@ -106,13 +115,13 @@ export class PetSearchService {
           userAgent,
           ipAddress,
           searchDuration,
-          location: query.location
+          location: query.location,
         });
       }
-      
+
       return searchResult;
     } catch (error) {
-      logger.error('搜尋寵物失敗:', error);
+      logger.error("搜尋寵物失敗:", error);
       throw error;
     }
   }
@@ -123,24 +132,24 @@ export class PetSearchService {
   public async advancedSearch(query: any, userId?: string) {
     try {
       const startTime = Date.now();
-      
+
       const searchResult = await this.core.advancedSearch(query);
-      
+
       const searchDuration = Date.now() - startTime;
-      
+
       // 記錄搜尋分析
       await this.analytics.recordSearchAnalytics({
-        query: query.query || 'advanced_search',
+        query: query.query || "advanced_search",
         filters: query.filters || {},
         userId,
         resultCount: searchResult.total,
         timestamp: new Date(),
-        searchDuration
+        searchDuration,
       });
-      
+
       return searchResult;
     } catch (error) {
-      logger.error('高級搜尋失敗:', error);
+      logger.error("高級搜尋失敗:", error);
       throw error;
     }
   }
@@ -151,19 +160,19 @@ export class PetSearchService {
   public async findSimilarPets(petId: string, userId?: string) {
     try {
       const similarPets = await this.core.findSimilarPets(petId);
-      
+
       // 記錄搜尋分析
       await this.analytics.recordSearchAnalytics({
         query: `similar_to_${petId}`,
         filters: {},
         userId,
         resultCount: similarPets.length,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
-      
+
       return similarPets;
     } catch (error) {
-      logger.error('尋找相似寵物失敗:', error);
+      logger.error("尋找相似寵物失敗:", error);
       throw error;
     }
   }
@@ -178,7 +187,11 @@ export class PetSearchService {
   /**
    * 獲取智能建議
    */
-  public async getSmartSuggestions(query: string, userId?: string, limit?: number) {
+  public async getSmartSuggestions(
+    query: string,
+    userId?: string,
+    limit?: number,
+  ) {
     return this.suggestions.getSmartSuggestions(query, userId, limit);
   }
 
@@ -199,7 +212,11 @@ export class PetSearchService {
   /**
    * 記錄搜尋點擊
    */
-  public async recordSearchClick(searchId: string, petId: string, position: number) {
+  public async recordSearchClick(
+    searchId: string,
+    petId: string,
+    position: number,
+  ) {
     return this.analytics.recordSearchClick(searchId, petId, position);
   }
 
@@ -241,14 +258,22 @@ export class PetSearchService {
   /**
    * 獲取用戶搜尋統計
    */
-  public async getUserSearchStats(userId: string, startDate?: Date, endDate?: Date) {
+  public async getUserSearchStats(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
     return this.analytics.getUserSearchStats(userId, startDate, endDate);
   }
 
   /**
    * 獲取搜尋趨勢
    */
-  public async getSearchTrends(period: 'daily' | 'weekly' | 'monthly', startDate?: Date, endDate?: Date) {
+  public async getSearchTrends(
+    period: "daily" | "weekly" | "monthly",
+    startDate?: Date,
+    endDate?: Date,
+  ) {
     return this.analytics.getSearchTrends(period, startDate, endDate);
   }
 
@@ -283,24 +308,27 @@ export class PetSearchService {
   /**
    * 清理過期數據
    */
-  public async cleanupExpiredData(analyticsDays: number = 90, suggestionDays: number = 30) {
+  public async cleanupExpiredData(
+    analyticsDays: number = 90,
+    suggestionDays: number = 30,
+  ) {
     try {
       const [analyticsResult, suggestionsResult] = await Promise.all([
         this.analytics.cleanupAnalyticsData(analyticsDays),
-        this.suggestions.cleanupSuggestionCache(suggestionDays)
+        this.suggestions.cleanupSuggestionCache(suggestionDays),
       ]);
-      
-      logger.info('清理過期數據完成', {
+
+      logger.info("清理過期數據完成", {
         deletedAnalytics: analyticsResult.deletedCount,
-        deletedSuggestions: suggestionsResult.deletedCount
+        deletedSuggestions: suggestionsResult.deletedCount,
       });
-      
+
       return {
         deletedAnalytics: analyticsResult.deletedCount,
-        deletedSuggestions: suggestionsResult.deletedCount
+        deletedSuggestions: suggestionsResult.deletedCount,
       };
     } catch (error) {
-      logger.error('清理過期數據失敗:', error);
+      logger.error("清理過期數據失敗:", error);
       throw error;
     }
   }
@@ -310,28 +338,31 @@ export class PetSearchService {
    */
   public async getHealthStatus() {
     try {
-      const [petIndexExists, analyticsIndexExists, indexStats] = await Promise.all([
-        this.indexing.checkIndexExists(this.indexing.getPetIndexName()),
-        this.indexing.checkIndexExists(this.indexing.getSearchAnalyticsIndexName()),
-        this.indexing.getIndexStats()
-      ]);
-      
+      const [petIndexExists, analyticsIndexExists, indexStats] =
+        await Promise.all([
+          this.indexing.checkIndexExists(this.indexing.getPetIndexName()),
+          this.indexing.checkIndexExists(
+            this.indexing.getSearchAnalyticsIndexName(),
+          ),
+          this.indexing.getIndexStats(),
+        ]);
+
       return {
         isInitialized: this.isInitialized,
         petIndexExists,
         analyticsIndexExists,
         indexStats,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
-      logger.error('獲取服務健康狀態失敗:', error);
+      logger.error("獲取服務健康狀態失敗:", error);
       return {
         isInitialized: this.isInitialized,
         petIndexExists: false,
         analyticsIndexExists: false,
         indexStats: null,
         error: error.message,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   }
@@ -341,12 +372,12 @@ export class PetSearchService {
    */
   public async restart() {
     try {
-      logger.info('正在重啟寵物搜尋服務...');
+      logger.info("正在重啟寵物搜尋服務...");
       this.isInitialized = false;
       await this.initialize();
-      logger.info('寵物搜尋服務重啟完成');
+      logger.info("寵物搜尋服務重啟完成");
     } catch (error) {
-      logger.error('寵物搜尋服務重啟失敗:', error);
+      logger.error("寵物搜尋服務重啟失敗:", error);
       throw error;
     }
   }
@@ -360,7 +391,7 @@ export {
   indexingService,
   searchCoreService,
   searchSuggestionsService,
-  searchAnalyticsService
+  searchAnalyticsService,
 };
 
 // 默認導出

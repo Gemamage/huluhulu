@@ -1,10 +1,8 @@
-import { z } from 'zod';
-import { ErrorFactory } from './errors';
+import { z } from "zod";
+import { ErrorFactory } from "./errors";
 
 // 重新導出 schemas（為了向後兼容）
-export * from '../schemas';
-
-
+export * from "../schemas";
 
 // 驗證中介軟體輔助函數
 export const validateRequest = (schema: z.ZodSchema) => {
@@ -33,7 +31,7 @@ export const validateQuery = (schema: z.ZodSchema) => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const validationError = ErrorFactory.fromZodError(error);
-        validationError.message = '查詢參數驗證失敗';
+        validationError.message = "查詢參數驗證失敗";
         return next(validationError);
       }
       next(error);
@@ -51,7 +49,7 @@ export const validateParams = (schema: z.ZodSchema) => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const validationError = ErrorFactory.fromZodError(error);
-        validationError.message = '路徑參數驗證失敗';
+        validationError.message = "路徑參數驗證失敗";
         return next(validationError);
       }
       next(error);
@@ -66,24 +64,24 @@ export const validateFile = (
     maxSize?: number; // bytes
     allowedTypes?: string[];
     fieldName?: string;
-  } = {}
+  } = {},
 ) => {
   return (req: any, res: any, next: any) => {
     const {
       required = false,
       maxSize = 5 * 1024 * 1024, // 5MB
-      allowedTypes = ['image/jpeg', 'image/png', 'image/gif'],
-      fieldName = 'file'
+      allowedTypes = ["image/jpeg", "image/png", "image/gif"],
+      fieldName = "file",
     } = options;
 
     const file = req.file || req.files?.[fieldName];
 
     if (required && !file) {
       const error = ErrorFactory.createValidationError(
-        '檔案為必填項目',
+        "檔案為必填項目",
         fieldName,
         undefined,
-        'required'
+        "required",
       );
       return next(error);
     }
@@ -95,7 +93,7 @@ export const validateFile = (
           `檔案大小不能超過 ${Math.round(maxSize / 1024 / 1024)}MB`,
           fieldName,
           file.size,
-          'maxSize'
+          "maxSize",
         );
         return next(error);
       }
@@ -103,10 +101,10 @@ export const validateFile = (
       // 檢查檔案類型
       if (!allowedTypes.includes(file.mimetype)) {
         const error = ErrorFactory.createValidationError(
-          `不支援的檔案類型，僅支援: ${allowedTypes.join(', ')}`,
+          `不支援的檔案類型，僅支援: ${allowedTypes.join(", ")}`,
           fieldName,
           file.mimetype,
-          'fileType'
+          "fileType",
         );
         return next(error);
       }

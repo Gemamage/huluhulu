@@ -1,8 +1,8 @@
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { config } from './environment';
-import { IUser, User } from '../models/User';
-import { logger } from '../utils/logger';
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { config } from "./environment";
+import { IUser, User } from "../models/User";
+import { logger } from "../utils/logger";
 
 // 序列化用戶 - 將用戶 ID 存儲到 session
 passport.serializeUser((user: any, done) => {
@@ -15,7 +15,7 @@ passport.deserializeUser(async (id: string, done) => {
     const user = await User.findById(id);
     done(null, user);
   } catch (error) {
-    logger.error('用戶反序列化失敗', { error, userId: id });
+    logger.error("用戶反序列化失敗", { error, userId: id });
     done(error, null);
   }
 });
@@ -30,17 +30,17 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        logger.info('Google OAuth 回調觸發', { 
-          profileId: profile.id, 
-          email: profile.emails?.[0]?.value 
+        logger.info("Google OAuth 回調觸發", {
+          profileId: profile.id,
+          email: profile.emails?.[0]?.value,
         });
 
         // 檢查是否已存在該 Google 帳號的用戶
-        let user = await User.findOne({ 
+        let user = await User.findOne({
           $or: [
             { googleId: profile.id },
-            { email: profile.emails?.[0]?.value }
-          ]
+            { email: profile.emails?.[0]?.value },
+          ],
         });
 
         if (user) {
@@ -49,24 +49,28 @@ passport.use(
             user.googleId = profile.id;
             user.isEmailVerified = true; // Google 帳號預設已驗證
             await user.save();
-            logger.info('現有用戶已連結 Google 帳號', { userId: user._id, googleId: profile.id });
+            logger.info("現有用戶已連結 Google 帳號", {
+              userId: user._id,
+              googleId: profile.id,
+            });
           }
-          
+
           // 更新最後登入時間
           user.lastLoginAt = new Date();
           await user.save();
-          
+
           return done(null, user);
         }
 
         // 創建新用戶
         const email = profile.emails?.[0]?.value;
-        const name = profile.displayName || profile.name?.givenName || 'Google 用戶';
+        const name =
+          profile.displayName || profile.name?.givenName || "Google 用戶";
         const avatar = profile.photos?.[0]?.value;
 
         if (!email) {
-          logger.error('Google 帳號缺少電子郵件', { profileId: profile.id });
-          return done(new Error('無法從 Google 帳號獲取電子郵件地址'), false);
+          logger.error("Google 帳號缺少電子郵件", { profileId: profile.id });
+          return done(new Error("無法從 Google 帳號獲取電子郵件地址"), false);
         }
 
         user = new User({
@@ -77,13 +81,13 @@ passport.use(
           isEmailVerified: true, // Google 帳號預設已驗證
           password: Math.random().toString(36).slice(-8), // 生成隨機密碼（不會被使用）
           lastLoginAt: new Date(),
-          authProvider: 'google',
+          authProvider: "google",
           privacySettings: {
             showEmail: false,
             showPhone: true,
             allowDirectContact: true,
             showFullName: false,
-            profileVisibility: 'registered',
+            profileVisibility: "registered",
             emailNotifications: {
               newMatches: true,
               messages: true,
@@ -98,15 +102,19 @@ passport.use(
         });
 
         await user.save();
-        logger.info('新 Google 用戶創建成功', { userId: user._id, email, googleId: profile.id });
+        logger.info("新 Google 用戶創建成功", {
+          userId: user._id,
+          email,
+          googleId: profile.id,
+        });
 
         return done(null, user);
       } catch (error) {
-        logger.error('Google OAuth 處理失敗', { error, profileId: profile.id });
+        logger.error("Google OAuth 處理失敗", { error, profileId: profile.id });
         return done(error, false);
       }
-    }
-  )
+    },
+  ),
 );
 
 export default passport;

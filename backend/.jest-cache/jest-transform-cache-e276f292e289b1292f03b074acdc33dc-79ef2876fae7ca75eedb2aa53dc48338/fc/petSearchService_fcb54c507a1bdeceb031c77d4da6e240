@@ -1,0 +1,31 @@
+532ab21bee38e0b1b0df52c1231e89b7
+"use strict";
+// 重構後的寵物搜尋服務
+// 導出模組化的搜尋服務和相關介面
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = exports.SearchTrend = exports.SearchStats = exports.SearchAnalytics = exports.PopularSearch = exports.SearchSuggestion = exports.PetSearchQuery = exports.searchAnalyticsService = exports.searchSuggestionsService = exports.searchCoreService = exports.indexingService = exports.petSearchService = exports.SearchAnalyticsService = exports.SearchSuggestionsService = exports.SearchCoreService = exports.IndexingService = exports.PetSearchService = void 0;
+var search_1 = require("./search");
+Object.defineProperty(exports, "PetSearchService", { enumerable: true, get: function () { return search_1.PetSearchService; } });
+Object.defineProperty(exports, "IndexingService", { enumerable: true, get: function () { return search_1.IndexingService; } });
+Object.defineProperty(exports, "SearchCoreService", { enumerable: true, get: function () { return search_1.SearchCoreService; } });
+Object.defineProperty(exports, "SearchSuggestionsService", { enumerable: true, get: function () { return search_1.SearchSuggestionsService; } });
+Object.defineProperty(exports, "SearchAnalyticsService", { enumerable: true, get: function () { return search_1.SearchAnalyticsService; } });
+Object.defineProperty(exports, "petSearchService", { enumerable: true, get: function () { return search_1.petSearchService; } });
+Object.defineProperty(exports, "indexingService", { enumerable: true, get: function () { return search_1.indexingService; } });
+Object.defineProperty(exports, "searchCoreService", { enumerable: true, get: function () { return search_1.searchCoreService; } });
+Object.defineProperty(exports, "searchSuggestionsService", { enumerable: true, get: function () { return search_1.searchSuggestionsService; } });
+Object.defineProperty(exports, "searchAnalyticsService", { enumerable: true, get: function () { return search_1.searchAnalyticsService; } });
+// 介面和類型
+Object.defineProperty(exports, "PetSearchQuery", { enumerable: true, get: function () { return search_1.PetSearchQuery; } });
+Object.defineProperty(exports, "SearchSuggestion", { enumerable: true, get: function () { return search_1.SearchSuggestion; } });
+Object.defineProperty(exports, "PopularSearch", { enumerable: true, get: function () { return search_1.PopularSearch; } });
+Object.defineProperty(exports, "SearchAnalytics", { enumerable: true, get: function () { return search_1.SearchAnalytics; } });
+Object.defineProperty(exports, "SearchStats", { enumerable: true, get: function () { return search_1.SearchStats; } });
+Object.defineProperty(exports, "SearchTrend", { enumerable: true, get: function () { return search_1.SearchTrend; } });
+// 默認導出主服務實例（向後兼容）
+var search_2 = require("./search");
+Object.defineProperty(exports, "default", { enumerable: true, get: function () { return __importDefault(search_2).default; } });
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHNlcnZpY2VzXFxwZXRTZWFyY2hTZXJ2aWNlLnRzIiwibWFwcGluZ3MiOiI7QUFBQSxhQUFhO0FBQ2Isa0JBQWtCOzs7Ozs7QUFFbEIsbUNBa0JrQjtBQWpCaEIsMEdBQUEsZ0JBQWdCLE9BQUE7QUFDaEIseUdBQUEsZUFBZSxPQUFBO0FBQ2YsMkdBQUEsaUJBQWlCLE9BQUE7QUFDakIsa0hBQUEsd0JBQXdCLE9BQUE7QUFDeEIsZ0hBQUEsc0JBQXNCLE9BQUE7QUFDdEIsMEdBQUEsZ0JBQWdCLE9BQUE7QUFDaEIseUdBQUEsZUFBZSxPQUFBO0FBQ2YsMkdBQUEsaUJBQWlCLE9BQUE7QUFDakIsa0hBQUEsd0JBQXdCLE9BQUE7QUFDeEIsZ0hBQUEsc0JBQXNCLE9BQUE7QUFDdEIsUUFBUTtBQUNSLHdHQUFBLGNBQWMsT0FBQTtBQUNkLDBHQUFBLGdCQUFnQixPQUFBO0FBQ2hCLHVHQUFBLGFBQWEsT0FBQTtBQUNiLHlHQUFBLGVBQWUsT0FBQTtBQUNmLHFHQUFBLFdBQVcsT0FBQTtBQUNYLHFHQUFBLFdBQVcsT0FBQTtBQUdiLGtCQUFrQjtBQUNsQixtQ0FBbUM7QUFBMUIsa0hBQUEsT0FBTyxPQUFBIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkM6XFxVc2Vyc1xcVXNlclxcRGVza3RvcFxcdHJhZXByb2plY3RcXHRlc3QyXFxwZXQtZmluZGVyLWFwcFxcYmFja2VuZFxcc3JjXFxzZXJ2aWNlc1xccGV0U2VhcmNoU2VydmljZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyDph43mp4vlvoznmoTlr7XnianmkJzlsIvmnI3li5lcbi8vIOWwjuWHuuaooee1hOWMlueahOaQnOWwi+acjeWLmeWSjOebuOmXnOS7i+mdolxuXG5leHBvcnQge1xuICBQZXRTZWFyY2hTZXJ2aWNlLFxuICBJbmRleGluZ1NlcnZpY2UsXG4gIFNlYXJjaENvcmVTZXJ2aWNlLFxuICBTZWFyY2hTdWdnZXN0aW9uc1NlcnZpY2UsXG4gIFNlYXJjaEFuYWx5dGljc1NlcnZpY2UsXG4gIHBldFNlYXJjaFNlcnZpY2UsXG4gIGluZGV4aW5nU2VydmljZSxcbiAgc2VhcmNoQ29yZVNlcnZpY2UsXG4gIHNlYXJjaFN1Z2dlc3Rpb25zU2VydmljZSxcbiAgc2VhcmNoQW5hbHl0aWNzU2VydmljZSxcbiAgLy8g5LuL6Z2i5ZKM6aGe5Z6LXG4gIFBldFNlYXJjaFF1ZXJ5LFxuICBTZWFyY2hTdWdnZXN0aW9uLFxuICBQb3B1bGFyU2VhcmNoLFxuICBTZWFyY2hBbmFseXRpY3MsXG4gIFNlYXJjaFN0YXRzLFxuICBTZWFyY2hUcmVuZFxufSBmcm9tICcuL3NlYXJjaCc7XG5cbi8vIOm7mOiqjeWwjuWHuuS4u+acjeWLmeWvpuS+i++8iOWQkeW+jOWFvOWuue+8iVxuZXhwb3J0IHsgZGVmYXVsdCB9IGZyb20gJy4vc2VhcmNoJzsiXSwidmVyc2lvbiI6M30=

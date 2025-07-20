@@ -1,9 +1,9 @@
-import { ImageAnnotatorClient } from '@google-cloud/vision';
-import sharp from 'sharp';
-import { config } from '../config/environment';
-import { logger } from '../utils/logger';
-import { AppError } from '../utils/errors';
-import crypto from 'crypto';
+import { ImageAnnotatorClient } from "@google-cloud/vision";
+import sharp from "sharp";
+import { config } from "../config/environment";
+import { logger } from "../utils/logger";
+import { AppError } from "../utils/errors";
+import crypto from "crypto";
 
 // Google Vision AI 客戶端
 let visionClient: ImageAnnotatorClient;
@@ -15,21 +15,45 @@ try {
     projectId: config.google?.projectId,
   });
 } catch (error) {
-  logger.warn('Google Vision AI 初始化失敗，將使用備用方案', { error });
+  logger.warn("Google Vision AI 初始化失敗，將使用備用方案", { error });
 }
 
 // 寵物品種映射表
 const PET_BREEDS = {
   dogs: [
-    '拉布拉多', '黃金獵犬', '德國牧羊犬', '法國鬥牛犬', '貴賓犬',
-    '柴犬', '哈士奇', '邊境牧羊犬', '比格犬', '吉娃娃',
-    '博美犬', '約克夏', '馬爾濟斯', '雪納瑞', '柯基犬'
+    "拉布拉多",
+    "黃金獵犬",
+    "德國牧羊犬",
+    "法國鬥牛犬",
+    "貴賓犬",
+    "柴犬",
+    "哈士奇",
+    "邊境牧羊犬",
+    "比格犬",
+    "吉娃娃",
+    "博美犬",
+    "約克夏",
+    "馬爾濟斯",
+    "雪納瑞",
+    "柯基犬",
   ],
   cats: [
-    '英國短毛貓', '美國短毛貓', '波斯貓', '暹羅貓', '緬因貓',
-    '布偶貓', '俄羅斯藍貓', '蘇格蘭摺耳貓', '阿比西尼亞貓', '孟加拉貓',
-    '挪威森林貓', '土耳其安哥拉貓', '埃及貓', '曼島貓', '混種貓'
-  ]
+    "英國短毛貓",
+    "美國短毛貓",
+    "波斯貓",
+    "暹羅貓",
+    "緬因貓",
+    "布偶貓",
+    "俄羅斯藍貓",
+    "蘇格蘭摺耳貓",
+    "阿比西尼亞貓",
+    "孟加拉貓",
+    "挪威森林貓",
+    "土耳其安哥拉貓",
+    "埃及貓",
+    "曼島貓",
+    "混種貓",
+  ],
 };
 
 // 圖像特徵向量介面
@@ -42,7 +66,7 @@ interface ImageFeatures {
 
 // AI 分析結果介面
 interface AIAnalysisResult {
-  petType: 'dog' | 'cat' | 'other' | 'unknown';
+  petType: "dog" | "cat" | "other" | "unknown";
   breed: string;
   confidence: number;
   features: ImageFeatures;
@@ -64,33 +88,33 @@ export class AIService {
       maxWidth?: number;
       maxHeight?: number;
       quality?: number;
-      format?: 'jpeg' | 'png' | 'webp';
-    } = {}
+      format?: "jpeg" | "png" | "webp";
+    } = {},
   ): Promise<{ buffer: Buffer; metadata: any }> {
     try {
       const {
         maxWidth = 1200,
         maxHeight = 1200,
         quality = 85,
-        format = 'jpeg'
+        format = "jpeg",
       } = options;
 
       let pipeline = sharp(imageBuffer)
         .resize(maxWidth, maxHeight, {
-          fit: 'inside',
-          withoutEnlargement: true
+          fit: "inside",
+          withoutEnlargement: true,
         })
         .rotate(); // 自動旋轉
 
       // 根據格式設置輸出選項
       switch (format) {
-        case 'jpeg':
+        case "jpeg":
           pipeline = pipeline.jpeg({ quality, progressive: true });
           break;
-        case 'png':
+        case "png":
           pipeline = pipeline.png({ compressionLevel: 8 });
           break;
-        case 'webp':
+        case "webp":
           pipeline = pipeline.webp({ quality });
           break;
       }
@@ -98,21 +122,26 @@ export class AIService {
       const optimizedBuffer = await pipeline.toBuffer();
       const metadata = await sharp(optimizedBuffer).metadata();
 
-      logger.info('圖像優化完成', {
+      logger.info("圖像優化完成", {
         originalSize: imageBuffer.length,
         optimizedSize: optimizedBuffer.length,
-        compressionRatio: ((imageBuffer.length - optimizedBuffer.length) / imageBuffer.length * 100).toFixed(2) + '%',
+        compressionRatio:
+          (
+            ((imageBuffer.length - optimizedBuffer.length) /
+              imageBuffer.length) *
+            100
+          ).toFixed(2) + "%",
         format,
-        dimensions: `${metadata.width}x${metadata.height}`
+        dimensions: `${metadata.width}x${metadata.height}`,
       });
 
       return {
         buffer: optimizedBuffer,
-        metadata
+        metadata,
       };
     } catch (error) {
-      logger.error('圖像優化失敗', { error });
-      throw new AppError('圖像處理失敗', 500);
+      logger.error("圖像優化失敗", { error });
+      throw new AppError("圖像處理失敗", 500);
     }
   }
 
@@ -126,31 +155,33 @@ export class AIService {
       y: number;
       width: number;
       height: number;
-    }
+    },
   ): Promise<Buffer> {
     try {
       const { x, y, width, height } = cropOptions;
-      
+
       const croppedBuffer = await sharp(imageBuffer)
         .extract({ left: x, top: y, width, height })
         .toBuffer();
 
-      logger.info('圖像裁剪完成', { cropOptions });
+      logger.info("圖像裁剪完成", { cropOptions });
       return croppedBuffer;
     } catch (error) {
-      logger.error('圖像裁剪失敗', { error });
-      throw new AppError('圖像裁剪失敗', 500);
+      logger.error("圖像裁剪失敗", { error });
+      throw new AppError("圖像裁剪失敗", 500);
     }
   }
 
   /**
    * 提取圖像特徵向量（簡化版）
    */
-  static async extractImageFeatures(imageBuffer: Buffer): Promise<ImageFeatures> {
+  static async extractImageFeatures(
+    imageBuffer: Buffer,
+  ): Promise<ImageFeatures> {
     try {
       // 使用 Sharp 獲取基本圖像信息
       const metadata = await sharp(imageBuffer).metadata();
-      
+
       // 生成簡化的特徵向量
       const colorHistogram = this.generateSimpleColorHistogram(metadata);
       const textureFeatures = this.generateSimpleTextureFeatures(metadata);
@@ -161,11 +192,11 @@ export class AIService {
         colorHistogram,
         textureFeatures,
         shapeFeatures,
-        dominantColors
+        dominantColors,
       };
     } catch (error) {
-      logger.error('特徵提取失敗', { error });
-      throw new AppError('圖像特徵提取失敗', 500);
+      logger.error("特徵提取失敗", { error });
+      throw new AppError("圖像特徵提取失敗", 500);
     }
   }
 
@@ -174,37 +205,34 @@ export class AIService {
    */
   static calculateImageSimilarity(
     features1: ImageFeatures,
-    features2: ImageFeatures
+    features2: ImageFeatures,
   ): number {
     try {
       // 計算顏色直方圖相似度
       const colorSimilarity = AIService.calculateHistogramSimilarity(
         features1.colorHistogram,
-        features2.colorHistogram
+        features2.colorHistogram,
       );
-      
+
       // 計算紋理相似度
       const textureSimilarity = AIService.calculateVectorSimilarity(
         features1.textureFeatures,
-        features2.textureFeatures
+        features2.textureFeatures,
       );
-      
+
       // 計算形狀相似度
       const shapeSimilarity = AIService.calculateVectorSimilarity(
         features1.shapeFeatures,
-        features2.shapeFeatures
+        features2.shapeFeatures,
       );
-      
+
       // 加權平均
-      const similarity = (
-        colorSimilarity * 0.4 +
-        textureSimilarity * 0.3 +
-        shapeSimilarity * 0.3
-      );
-      
+      const similarity =
+        colorSimilarity * 0.4 + textureSimilarity * 0.3 + shapeSimilarity * 0.3;
+
       return Math.max(0, Math.min(1, similarity));
     } catch (error) {
-      logger.error('相似度計算失敗', { error });
+      logger.error("相似度計算失敗", { error });
       return 0;
     }
   }
@@ -212,24 +240,27 @@ export class AIService {
   /**
    * Google Vision AI 圖像分析
    */
-  static async analyzeImageWithVision(imageBuffer: Buffer): Promise<AIAnalysisResult> {
+  static async analyzeImageWithVision(
+    imageBuffer: Buffer,
+  ): Promise<AIAnalysisResult> {
     try {
       if (!visionClient) {
-        throw new AppError('Google Vision AI 未初始化', 500);
+        throw new AppError("Google Vision AI 未初始化", 500);
       }
 
       const [result] = await visionClient.annotateImage({
-        image: { content: imageBuffer.toString('base64') },
+        image: { content: imageBuffer.toString("base64") },
         features: [
-          { type: 'LABEL_DETECTION', maxResults: 10 },
-          { type: 'SAFE_SEARCH_DETECTION' },
-          { type: 'IMAGE_PROPERTIES' }
+          { type: "LABEL_DETECTION", maxResults: 10 },
+          { type: "SAFE_SEARCH_DETECTION" },
+          { type: "IMAGE_PROPERTIES" },
         ],
       });
 
-      const labels = result.labelAnnotations?.map(label => label.description || '') || [];
+      const labels =
+        result.labelAnnotations?.map((label) => label.description || "") || [];
       const safeSearch = result.safeSearchAnnotation || {};
-      
+
       // 分析寵物類型和品種
       const petAnalysis = AIService.analyzePetFromLabels(labels);
 
@@ -243,14 +274,14 @@ export class AIService {
         features,
         labels,
         safeSearch: {
-          adult: String(safeSearch.adult || 'UNKNOWN'),
-          violence: String(safeSearch.violence || 'UNKNOWN'),
-          racy: String(safeSearch.racy || 'UNKNOWN')
-        }
+          adult: String(safeSearch.adult || "UNKNOWN"),
+          violence: String(safeSearch.violence || "UNKNOWN"),
+          racy: String(safeSearch.racy || "UNKNOWN"),
+        },
       };
     } catch (error) {
-      logger.error('Vision AI 分析失敗', { error });
-      
+      logger.error("Vision AI 分析失敗", { error });
+
       // 備用方案：使用本地分析
       return AIService.analyzeImageLocally(imageBuffer);
     }
@@ -259,25 +290,27 @@ export class AIService {
   /**
    * 本地圖像分析（備用方案）
    */
-  static async analyzeImageLocally(imageBuffer: Buffer): Promise<AIAnalysisResult> {
+  static async analyzeImageLocally(
+    imageBuffer: Buffer,
+  ): Promise<AIAnalysisResult> {
     try {
       const features = await AIService.extractImageFeatures(imageBuffer);
-      
+
       return {
-        petType: 'unknown',
-        breed: '未知品種',
+        petType: "unknown",
+        breed: "未知品種",
         confidence: 0.5,
         features,
-        labels: ['寵物', '動物'],
+        labels: ["寵物", "動物"],
         safeSearch: {
-          adult: 'VERY_UNLIKELY',
-          violence: 'VERY_UNLIKELY',
-          racy: 'VERY_UNLIKELY'
-        }
+          adult: "VERY_UNLIKELY",
+          violence: "VERY_UNLIKELY",
+          racy: "VERY_UNLIKELY",
+        },
       };
     } catch (error) {
-      logger.error('本地圖像分析失敗', { error });
-      throw new AppError('圖像分析失敗', 500);
+      logger.error("本地圖像分析失敗", { error });
+      throw new AppError("圖像分析失敗", 500);
     }
   }
 
@@ -285,47 +318,63 @@ export class AIService {
    * 從標籤分析寵物類型和品種
    */
   private static analyzePetFromLabels(labels: string[]): {
-    type: 'dog' | 'cat' | 'other' | 'unknown';
+    type: "dog" | "cat" | "other" | "unknown";
     breed: string;
     confidence: number;
   } {
-    const lowerLabels = labels.map(label => label.toLowerCase());
-    
+    const lowerLabels = labels.map((label) => label.toLowerCase());
+
     // 檢測寵物類型
-    let petType: 'dog' | 'cat' | 'other' | 'unknown' = 'unknown';
+    let petType: "dog" | "cat" | "other" | "unknown" = "unknown";
     let confidence = 0;
-    
-    if (lowerLabels.some(label => label.includes('dog') || label.includes('puppy'))) {
-      petType = 'dog';
+
+    if (
+      lowerLabels.some(
+        (label) => label.includes("dog") || label.includes("puppy"),
+      )
+    ) {
+      petType = "dog";
       confidence = 0.8;
-    } else if (lowerLabels.some(label => label.includes('cat') || label.includes('kitten'))) {
-      petType = 'cat';
+    } else if (
+      lowerLabels.some(
+        (label) => label.includes("cat") || label.includes("kitten"),
+      )
+    ) {
+      petType = "cat";
       confidence = 0.8;
-    } else if (lowerLabels.some(label => label.includes('pet') || label.includes('animal'))) {
-      petType = 'other';
+    } else if (
+      lowerLabels.some(
+        (label) => label.includes("pet") || label.includes("animal"),
+      )
+    ) {
+      petType = "other";
       confidence = 0.6;
     }
-    
+
     // 嘗試識別品種
-    let breed = '混種';
-    if (petType === 'dog') {
+    let breed = "混種";
+    if (petType === "dog") {
       for (const dogBreed of PET_BREEDS.dogs) {
-        if (lowerLabels.some(label => label.includes(dogBreed.toLowerCase()))) {
+        if (
+          lowerLabels.some((label) => label.includes(dogBreed.toLowerCase()))
+        ) {
           breed = dogBreed;
           confidence = Math.min(confidence + 0.1, 0.9);
           break;
         }
       }
-    } else if (petType === 'cat') {
+    } else if (petType === "cat") {
       for (const catBreed of PET_BREEDS.cats) {
-        if (lowerLabels.some(label => label.includes(catBreed.toLowerCase()))) {
+        if (
+          lowerLabels.some((label) => label.includes(catBreed.toLowerCase()))
+        ) {
           breed = catBreed;
           confidence = Math.min(confidence + 0.1, 0.9);
           break;
         }
       }
     }
-    
+
     return { type: petType, breed, confidence };
   }
 
@@ -334,15 +383,15 @@ export class AIService {
     // 基於圖像元數據生成簡化的顏色直方圖
     const histogram = new Array(256).fill(0);
     const seed = (metadata.width || 100) * (metadata.height || 100);
-    
+
     // 生成偽隨機但一致的直方圖
     for (let i = 0; i < 256; i++) {
       histogram[i] = Math.sin(seed + i) * 0.5 + 0.5;
     }
-    
+
     // 正規化
     const total = histogram.reduce((sum, val) => sum + val, 0);
-    return histogram.map(val => val / total);
+    return histogram.map((val) => val / total);
   }
 
   private static generateSimpleTextureFeatures(metadata: any): number[] {
@@ -353,7 +402,7 @@ export class AIService {
       width / 1000,
       height / 1000,
       (width * height) / 1000000,
-      metadata.channels || 3
+      metadata.channels || 3,
     ];
   }
 
@@ -367,12 +416,15 @@ export class AIService {
 
   private static generateSimpleDominantColors(): string[] {
     // 返回常見的寵物顏色
-    return ['#8B4513', '#D2691E', '#000000', '#FFFFFF', '#808080'];
+    return ["#8B4513", "#D2691E", "#000000", "#FFFFFF", "#808080"];
   }
 
-  private static calculateHistogramSimilarity(hist1: number[], hist2: number[]): number {
+  private static calculateHistogramSimilarity(
+    hist1: number[],
+    hist2: number[],
+  ): number {
     if (hist1.length !== hist2.length) return 0;
-    
+
     let similarity = 0;
     for (let i = 0; i < hist1.length; i++) {
       const val1 = hist1[i];
@@ -384,13 +436,16 @@ export class AIService {
     return similarity;
   }
 
-  private static calculateVectorSimilarity(vec1: number[], vec2: number[]): number {
+  private static calculateVectorSimilarity(
+    vec1: number[],
+    vec2: number[],
+  ): number {
     if (vec1.length !== vec2.length) return 0;
-    
+
     let dotProduct = 0;
     let norm1 = 0;
     let norm2 = 0;
-    
+
     for (let i = 0; i < vec1.length; i++) {
       const val1 = vec1[i];
       const val2 = vec2[i];
@@ -400,7 +455,7 @@ export class AIService {
         norm2 += val2 * val2;
       }
     }
-    
+
     return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
   }
 
@@ -414,32 +469,32 @@ export class AIService {
       if (!response.ok) {
         throw new AppError(`無法下載圖像: ${response.statusText}`, 400);
       }
-      
+
       const arrayBuffer = await response.arrayBuffer();
       const imageBuffer = Buffer.from(arrayBuffer);
-      
+
       // 使用 Vision AI 分析圖像
       return await this.analyzeImageWithVision(imageBuffer);
     } catch (error) {
-      logger.error('圖像分析失敗', { imageUrl, error });
-      
+      logger.error("圖像分析失敗", { imageUrl, error });
+
       // 如果分析失敗，返回基本結果
       return {
-        petType: 'unknown',
-        breed: '未識別',
+        petType: "unknown",
+        breed: "未識別",
         confidence: 0.5,
         features: {
           colorHistogram: [],
           textureFeatures: [],
           shapeFeatures: [],
-          dominantColors: []
+          dominantColors: [],
         },
-        labels: ['寵物'],
+        labels: ["寵物"],
         safeSearch: {
-          adult: 'VERY_UNLIKELY',
-          violence: 'VERY_UNLIKELY',
-          racy: 'VERY_UNLIKELY'
-        }
+          adult: "VERY_UNLIKELY",
+          violence: "VERY_UNLIKELY",
+          racy: "VERY_UNLIKELY",
+        },
       };
     }
   }
@@ -457,7 +512,7 @@ export class AIService {
         factors++;
         if (pet1.breed === pet2.breed) {
           similarity += 0.3;
-        } else if (pet1.breed.includes('混種') || pet2.breed.includes('混種')) {
+        } else if (pet1.breed.includes("混種") || pet2.breed.includes("混種")) {
           similarity += 0.15;
         }
       }
@@ -480,7 +535,7 @@ export class AIService {
         if (pet1.size === pet2.size) {
           similarity += 0.2;
         } else {
-          const sizes = ['小型', '中型', '大型'];
+          const sizes = ["小型", "中型", "大型"];
           const index1 = sizes.indexOf(pet1.size);
           const index2 = sizes.indexOf(pet2.size);
           if (index1 !== -1 && index2 !== -1) {
@@ -515,7 +570,7 @@ export class AIService {
       if (pet1.imageFeatures && pet2.imageFeatures) {
         const imageSimilarity = AIService.calculateImageSimilarity(
           pet1.imageFeatures,
-          pet2.imageFeatures
+          pet2.imageFeatures,
         );
         similarity += imageSimilarity * 0.3; // 圖像相似度權重 30%
         factors++;
@@ -524,7 +579,7 @@ export class AIService {
       // 正規化相似度分數
       return factors > 0 ? Math.min(similarity, 1) : 0;
     } catch (error) {
-      logger.error('相似度計算失敗', { error });
+      logger.error("相似度計算失敗", { error });
       return 0;
     }
   }
@@ -534,24 +589,27 @@ export class AIService {
    */
   static generateSearchSuggestions(analysisResult: AIAnalysisResult): string[] {
     const suggestions: string[] = [];
-    
+
     // 基於寵物類型的建議
-    if (analysisResult.petType !== 'unknown') {
-      suggestions.push(analysisResult.petType === 'dog' ? '狗' : '貓');
+    if (analysisResult.petType !== "unknown") {
+      suggestions.push(analysisResult.petType === "dog" ? "狗" : "貓");
     }
-    
+
     // 基於品種的建議
-    if (analysisResult.breed !== '混種' && analysisResult.breed !== '未知品種') {
+    if (
+      analysisResult.breed !== "混種" &&
+      analysisResult.breed !== "未知品種"
+    ) {
       suggestions.push(analysisResult.breed);
     }
-    
+
     // 基於標籤的建議
-    analysisResult.labels.forEach(label => {
+    analysisResult.labels.forEach((label) => {
       if (label.length > 1 && !suggestions.includes(label)) {
         suggestions.push(label);
       }
     });
-    
+
     return suggestions.slice(0, 5); // 限制為 5 個建議
   }
 }

@@ -1,6 +1,6 @@
-import nodemailer from 'nodemailer';
-import { config } from '../config/environment';
-import { logger } from '../utils/logger';
+import nodemailer from "nodemailer";
+import { config } from "../config/environment";
+import { logger } from "../utils/logger";
 
 /**
  * 電子郵件服務類別
@@ -23,7 +23,7 @@ export class EmailService {
     to: string,
     subject: string,
     html: string,
-    text?: string
+    text?: string,
   ): Promise<void> {
     try {
       const mailOptions = {
@@ -31,27 +31,27 @@ export class EmailService {
         to,
         subject,
         html,
-        text: text || html.replace(/<[^>]*>/g, ''), // 如果沒有提供純文本，則從 HTML 中移除標籤
+        text: text || html.replace(/<[^>]*>/g, ""), // 如果沒有提供純文本，則從 HTML 中移除標籤
       };
 
       // 在開發環境中記錄郵件內容
-      if (config.env !== 'production') {
-        logger.debug('準備發送電子郵件', {
+      if (config.env !== "production") {
+        logger.debug("準備發送電子郵件", {
           to,
           subject,
-          html: html.substring(0, 100) + '...',
+          html: html.substring(0, 100) + "...",
         });
       }
 
       // 發送郵件
       const info = await this.transporter.sendMail(mailOptions);
-      logger.info('電子郵件發送成功', {
+      logger.info("電子郵件發送成功", {
         messageId: info.messageId,
         to,
         subject,
       });
     } catch (error) {
-      logger.error('電子郵件發送失敗', { error, to, subject });
+      logger.error("電子郵件發送失敗", { error, to, subject });
       throw error;
     }
   }
@@ -62,10 +62,10 @@ export class EmailService {
   static async sendVerificationEmail(
     to: string,
     token: string,
-    userName: string
+    userName: string,
   ): Promise<void> {
     const verificationUrl = `${config.clientUrl}/verify-email?token=${token}`;
-    const subject = '呼嚕寵物協尋網站 - 請驗證您的電子郵件';
+    const subject = "呼嚕寵物協尋網站 - 請驗證您的電子郵件";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -94,10 +94,10 @@ export class EmailService {
   static async sendPasswordResetEmail(
     to: string,
     token: string,
-    userName: string
+    userName: string,
   ): Promise<void> {
     const resetUrl = `${config.clientUrl}/reset-password?token=${token}`;
-    const subject = '呼嚕寵物協尋網站 - 密碼重設請求';
+    const subject = "呼嚕寵物協尋網站 - 密碼重設請求";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -124,7 +124,7 @@ export class EmailService {
    * 發送歡迎郵件
    */
   static async sendWelcomeEmail(to: string, userName: string): Promise<void> {
-    const subject = '歡迎加入呼嚕寵物協尋網站';
+    const subject = "歡迎加入呼嚕寵物協尋網站";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -158,7 +158,7 @@ export class EmailService {
     to: string,
     subject: string,
     message: string,
-    userName: string
+    userName: string,
   ): Promise<void> {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

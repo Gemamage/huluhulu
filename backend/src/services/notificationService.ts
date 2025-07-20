@@ -1,11 +1,20 @@
-import mongoose, { Types } from 'mongoose';
-import { Notification, NotificationType, NotificationPriority, NotificationStatus, INotification } from '../models/Notification';
-import { NotificationPreference, INotificationPreference } from '../models/NotificationPreference';
-import { FirebaseService, PushNotificationPayload } from './firebaseService';
-import { EmailService } from './emailService';
-import { SocketService, RealtimeNotificationData } from './socketService';
-import { logger } from '../utils/logger';
-import { config } from '../config/environment';
+import mongoose, { Types } from "mongoose";
+import {
+  Notification,
+  NotificationType,
+  NotificationPriority,
+  NotificationStatus,
+  INotification,
+} from "../models/Notification";
+import {
+  NotificationPreference,
+  INotificationPreference,
+} from "../models/NotificationPreference";
+import { FirebaseService, PushNotificationPayload } from "./firebaseService";
+import { EmailService } from "./emailService";
+import { SocketService, RealtimeNotificationData } from "./socketService";
+import { logger } from "../utils/logger";
+import { config } from "../config/environment";
 
 /**
  * 通知發送選項
@@ -89,7 +98,9 @@ export class NotificationService {
   /**
    * 發送單一通知
    */
-  static async sendNotification(options: NotificationOptions): Promise<NotificationResult> {
+  static async sendNotification(
+    options: NotificationOptions,
+  ): Promise<NotificationResult> {
     const result: NotificationResult = {
       success: false,
       channels: {
@@ -101,14 +112,22 @@ export class NotificationService {
 
     try {
       // 取得用戶通知偏好
-      const preferences = await NotificationPreference.findByUserId(options.userId);
+      const preferences = await NotificationPreference.findByUserId(
+        options.userId,
+      );
       if (!preferences) {
-        throw new Error('找不到用戶通知偏好設定');
+        throw new Error("找不到用戶通知偏好設定");
       }
 
       // 檢查是否應該發送通知
-      if (!this.shouldSendNotification(preferences, options.type, options.priority)) {
-        logger.info('根據用戶偏好設定跳過通知', {
+      if (
+        !this.shouldSendNotification(
+          preferences,
+          options.type,
+          options.priority,
+        )
+      ) {
+        logger.info("根據用戶偏好設定跳過通知", {
           userId: options.userId,
           type: options.type,
           priority: options.priority,
@@ -128,25 +147,35 @@ export class NotificationService {
         imageUrl: options.imageUrl,
         channels: {
           push: {
-            enabled: options.channels?.push !== false && preferences.preferences[options.type]?.push,
+            enabled:
+              options.channels?.push !== false &&
+              preferences.preferences[options.type]?.push,
             sent: false,
           },
           email: {
-            enabled: options.channels?.email !== false && preferences.preferences[options.type]?.email,
+            enabled:
+              options.channels?.email !== false &&
+              preferences.preferences[options.type]?.email,
             sent: false,
           },
           inApp: {
-            enabled: options.channels?.inApp !== false && preferences.preferences[options.type]?.inApp,
+            enabled:
+              options.channels?.inApp !== false &&
+              preferences.preferences[options.type]?.inApp,
             sent: false,
           },
         },
         scheduledAt: options.scheduledAt,
         expiresAt: options.expiresAt,
-        status: options.scheduledAt ? NotificationStatus.SCHEDULED : NotificationStatus.PENDING,
+        status: options.scheduledAt
+          ? NotificationStatus.SCHEDULED
+          : NotificationStatus.PENDING,
       });
 
       await notification.save();
-      result.notificationId = (notification._id as mongoose.Types.ObjectId).toString();
+      result.notificationId = (
+        notification._id as mongoose.Types.ObjectId
+      ).toString();
 
       // 如果是排程通知，直接返回
       if (options.scheduledAt && options.scheduledAt > new Date()) {
@@ -158,14 +187,18 @@ export class NotificationService {
       await this.sendToChannels(notification, preferences, result);
 
       // 更新通知狀態
-      const hasSuccessfulChannel = Object.values(result.channels).some(channel => channel.sent);
-      notification.status = hasSuccessfulChannel ? NotificationStatus.SENT : NotificationStatus.FAILED;
+      const hasSuccessfulChannel = Object.values(result.channels).some(
+        (channel) => channel.sent,
+      );
+      notification.status = hasSuccessfulChannel
+        ? NotificationStatus.SENT
+        : NotificationStatus.FAILED;
       notification.sentAt = hasSuccessfulChannel ? new Date() : undefined;
       await notification.save();
 
       result.success = hasSuccessfulChannel;
 
-      logger.info('通知發送完成', {
+      logger.info("通知發送完成", {
         userId: options.userId,
         notificationId: result.notificationId,
         type: options.type,
@@ -175,7 +208,7 @@ export class NotificationService {
 
       return result;
     } catch (error) {
-      logger.error('發送通知失敗', {
+      logger.error("發送通知失敗", {
         error,
         userId: options.userId,
         type: options.type,
@@ -189,7 +222,10 @@ export class NotificationService {
             status: NotificationStatus.FAILED,
           });
         } catch (updateError) {
-          logger.error('更新通知狀態失敗', { updateError, notificationId: result.notificationId });
+          logger.error("更新通知狀態失敗", {
+            updateError,
+            notificationId: result.notificationId,
+          });
         }
       }
 
@@ -200,7 +236,9 @@ export class NotificationService {
   /**
    * 批次發送通知
    */
-  static async sendBatchNotification(options: BatchNotificationOptions): Promise<BatchNotificationResult> {
+  static async sendBatchNotification(
+    options: BatchNotificationOptions,
+  ): Promise<BatchNotificationResult> {
     const result: BatchNotificationResult = {
       totalUsers: options.userIds.length,
       successCount: 0,
@@ -213,7 +251,7 @@ export class NotificationService {
       },
     };
 
-    logger.info('開始批次發送通知', {
+    logger.info("開始批次發送通知", {
       totalUsers: options.userIds.length,
       type: options.type,
       title: options.title,
@@ -244,14 +282,16 @@ export class NotificationService {
           }
 
           // 更新渠道統計
-          Object.entries(notificationResult.channels).forEach(([channel, channelResult]) => {
-            const channelKey = channel as keyof typeof result.channelStats;
-            if (channelResult.sent) {
-              result.channelStats[channelKey].sent++;
-            } else {
-              result.channelStats[channelKey].failed++;
-            }
-          });
+          Object.entries(notificationResult.channels).forEach(
+            ([channel, channelResult]) => {
+              const channelKey = channel as keyof typeof result.channelStats;
+              if (channelResult.sent) {
+                result.channelStats[channelKey].sent++;
+              } else {
+                result.channelStats[channelKey].failed++;
+              }
+            },
+          );
 
           result.results.push(userResult);
           return userResult;
@@ -259,7 +299,7 @@ export class NotificationService {
           const userResult = {
             userId,
             success: false,
-            error: error instanceof Error ? error.message : '未知錯誤',
+            error: error instanceof Error ? error.message : "未知錯誤",
           };
 
           result.failureCount++;
@@ -271,7 +311,7 @@ export class NotificationService {
       await Promise.all(promises);
     }
 
-    logger.info('批次通知發送完成', {
+    logger.info("批次通知發送完成", {
       totalUsers: result.totalUsers,
       successCount: result.successCount,
       failureCount: result.failureCount,
@@ -287,7 +327,7 @@ export class NotificationService {
   private static async sendToChannels(
     notification: INotification,
     preferences: INotificationPreference,
-    result: NotificationResult
+    result: NotificationResult,
   ): Promise<void> {
     const userId = notification.userId.toString();
 
@@ -304,11 +344,14 @@ export class NotificationService {
           type: notification.type,
         };
 
-        const allTokens = [...preferences.deviceTokens.fcm, ...preferences.deviceTokens.apns];
+        const allTokens = [
+          ...preferences.deviceTokens.fcm,
+          ...preferences.deviceTokens.apns,
+        ];
         if (allTokens.length > 0) {
           const pushResult = await FirebaseService.sendToMultipleDevices(
             allTokens,
-            pushPayload
+            pushPayload,
           );
 
           if (pushResult.successCount > 0) {
@@ -316,7 +359,7 @@ export class NotificationService {
             notification.channels.push.sent = true;
             notification.channels.push.sentAt = new Date();
           } else {
-            result.channels.push.error = '所有裝置推播發送失敗';
+            result.channels.push.error = "所有裝置推播發送失敗";
           }
 
           // 清理無效的 token
@@ -324,11 +367,16 @@ export class NotificationService {
             await preferences.removeDeviceTokens(pushResult.invalidTokens);
           }
         } else {
-          result.channels.push.error = '沒有可用的裝置 token';
+          result.channels.push.error = "沒有可用的裝置 token";
         }
       } catch (error) {
-        result.channels.push.error = error instanceof Error ? error.message : '推播發送失敗';
-        logger.error('推播通知發送失敗', { error, userId, notificationId: notification._id });
+        result.channels.push.error =
+          error instanceof Error ? error.message : "推播發送失敗";
+        logger.error("推播通知發送失敗", {
+          error,
+          userId,
+          notificationId: notification._id,
+        });
       }
     }
 
@@ -340,15 +388,20 @@ export class NotificationService {
           preferences.userId.toString(), // 這裡需要用戶的 email 地址
           notification.title,
           notification.message,
-          notification.actionUrl || ''
+          notification.actionUrl || "",
         );
 
         result.channels.email.sent = true;
         notification.channels.email.sent = true;
         notification.channels.email.sentAt = new Date();
       } catch (error) {
-        result.channels.email.error = error instanceof Error ? error.message : 'Email 發送失敗';
-        logger.error('Email 通知發送失敗', { error, userId, notificationId: notification._id });
+        result.channels.email.error =
+          error instanceof Error ? error.message : "Email 發送失敗";
+        logger.error("Email 通知發送失敗", {
+          error,
+          userId,
+          notificationId: notification._id,
+        });
       }
     }
 
@@ -367,18 +420,26 @@ export class NotificationService {
           imageUrl: notification.imageUrl,
         };
 
-        const socketResult = await SocketService.sendNotificationToUser(userId, realtimeData);
-        
+        const socketResult = await SocketService.sendNotificationToUser(
+          userId,
+          realtimeData,
+        );
+
         if (socketResult) {
           result.channels.inApp.sent = true;
           notification.channels.inApp.sent = true;
           notification.channels.inApp.sentAt = new Date();
         } else {
-          result.channels.inApp.error = '即時通知發送失敗';
+          result.channels.inApp.error = "即時通知發送失敗";
         }
       } catch (error) {
-        result.channels.inApp.error = error instanceof Error ? error.message : '即時通知發送失敗';
-        logger.error('即時通知發送失敗', { error, userId, notificationId: notification._id });
+        result.channels.inApp.error =
+          error instanceof Error ? error.message : "即時通知發送失敗";
+        logger.error("即時通知發送失敗", {
+          error,
+          userId,
+          notificationId: notification._id,
+        });
       }
     }
   }
@@ -389,10 +450,13 @@ export class NotificationService {
   private static shouldSendNotification(
     preferences: INotificationPreference,
     type: NotificationType,
-    priority?: NotificationPriority
+    priority?: NotificationPriority,
   ): boolean {
     // 檢查全域設定
-    if (!preferences.globalSettings.pushEnabled && !preferences.globalSettings.emailEnabled) {
+    if (
+      !preferences.globalSettings.pushEnabled &&
+      !preferences.globalSettings.emailEnabled
+    ) {
       return false;
     }
 
@@ -421,13 +485,10 @@ export class NotificationService {
       const scheduledNotifications = await Notification.find({
         status: NotificationStatus.SCHEDULED,
         scheduledAt: { $lte: now },
-        $or: [
-          { expiresAt: { $exists: false } },
-          { expiresAt: { $gt: now } },
-        ],
+        $or: [{ expiresAt: { $exists: false } }, { expiresAt: { $gt: now } }],
       }).limit(100); // 限制每次處理的數量
 
-      logger.info('處理排程通知', { count: scheduledNotifications.length });
+      logger.info("處理排程通知", { count: scheduledNotifications.length });
 
       for (const notification of scheduledNotifications) {
         try {
@@ -449,7 +510,7 @@ export class NotificationService {
 
           await this.sendNotification(options);
         } catch (error) {
-          logger.error('處理排程通知失敗', {
+          logger.error("處理排程通知失敗", {
             error,
             notificationId: notification._id,
           });
@@ -460,7 +521,7 @@ export class NotificationService {
         }
       }
     } catch (error) {
-      logger.error('處理排程通知時發生錯誤', { error });
+      logger.error("處理排程通知時發生錯誤", { error });
     }
   }
 
@@ -472,21 +533,26 @@ export class NotificationService {
       const now = new Date();
       const result = await Notification.deleteMany({
         expiresAt: { $lt: now },
-        status: { $in: [NotificationStatus.SCHEDULED, NotificationStatus.PENDING] },
+        status: {
+          $in: [NotificationStatus.SCHEDULED, NotificationStatus.PENDING],
+        },
       });
 
       if (result.deletedCount > 0) {
-        logger.info('清理過期通知完成', { deletedCount: result.deletedCount });
+        logger.info("清理過期通知完成", { deletedCount: result.deletedCount });
       }
     } catch (error) {
-      logger.error('清理過期通知失敗', { error });
+      logger.error("清理過期通知失敗", { error });
     }
   }
 
   /**
    * 標記通知為已讀
    */
-  static async markAsRead(notificationId: string, userId: string): Promise<boolean> {
+  static async markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<boolean> {
     try {
       const result = await Notification.findOneAndUpdate(
         {
@@ -497,12 +563,12 @@ export class NotificationService {
         {
           readAt: new Date(),
           status: NotificationStatus.READ,
-        }
+        },
       );
 
       return !!result;
     } catch (error) {
-      logger.error('標記通知為已讀失敗', { error, notificationId, userId });
+      logger.error("標記通知為已讀失敗", { error, notificationId, userId });
       return false;
     }
   }
@@ -518,7 +584,7 @@ export class NotificationService {
         readAt: { $exists: false },
       });
     } catch (error) {
-      logger.error('取得未讀通知數量失敗', { error, userId });
+      logger.error("取得未讀通知數量失敗", { error, userId });
       return 0;
     }
   }
@@ -529,11 +595,15 @@ export class NotificationService {
   static async getUserNotifications(
     userId: string,
     page: number = 1,
-    limit: number = 20
-  ): Promise<{ notifications: INotification[]; total: number; hasMore: boolean }> {
+    limit: number = 20,
+  ): Promise<{
+    notifications: INotification[];
+    total: number;
+    hasMore: boolean;
+  }> {
     try {
       const skip = (page - 1) * limit;
-      
+
       const [notifications, total] = await Promise.all([
         Notification.find({
           userId: new Types.ObjectId(userId),
@@ -553,7 +623,7 @@ export class NotificationService {
 
       return { notifications, total, hasMore };
     } catch (error) {
-      logger.error('取得用戶通知列表失敗', { error, userId });
+      logger.error("取得用戶通知列表失敗", { error, userId });
       return { notifications: [], total: 0, hasMore: false };
     }
   }
@@ -581,8 +651,10 @@ export class NotificationService {
     byPriority: Record<NotificationPriority, number>;
   }> {
     try {
-      const matchCondition = userId ? { userId: new Types.ObjectId(userId) } : {};
-      
+      const matchCondition = userId
+        ? { userId: new Types.ObjectId(userId) }
+        : {};
+
       const [stats] = await Notification.aggregate([
         { $match: matchCondition },
         {
@@ -591,24 +663,24 @@ export class NotificationService {
             total: { $sum: 1 },
             sent: {
               $sum: {
-                $cond: [{ $eq: ['$status', NotificationStatus.SENT] }, 1, 0],
+                $cond: [{ $eq: ["$status", NotificationStatus.SENT] }, 1, 0],
               },
             },
             read: {
               $sum: {
-                $cond: [{ $eq: ['$status', NotificationStatus.READ] }, 1, 0],
+                $cond: [{ $eq: ["$status", NotificationStatus.READ] }, 1, 0],
               },
             },
             failed: {
               $sum: {
-                $cond: [{ $eq: ['$status', NotificationStatus.FAILED] }, 1, 0],
+                $cond: [{ $eq: ["$status", NotificationStatus.FAILED] }, 1, 0],
               },
             },
             byType: {
-              $push: '$type',
+              $push: "$type",
             },
             byPriority: {
-              $push: '$priority',
+              $push: "$priority",
             },
           },
         },
@@ -626,15 +698,21 @@ export class NotificationService {
       }
 
       // 統計各類型和優先級的數量
-      const byType = stats.byType.reduce((acc: Record<string, number>, type: string) => {
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-      }, {});
+      const byType = stats.byType.reduce(
+        (acc: Record<string, number>, type: string) => {
+          acc[type] = (acc[type] || 0) + 1;
+          return acc;
+        },
+        {},
+      );
 
-      const byPriority = stats.byPriority.reduce((acc: Record<string, number>, priority: string) => {
-        acc[priority] = (acc[priority] || 0) + 1;
-        return acc;
-      }, {});
+      const byPriority = stats.byPriority.reduce(
+        (acc: Record<string, number>, priority: string) => {
+          acc[priority] = (acc[priority] || 0) + 1;
+          return acc;
+        },
+        {},
+      );
 
       return {
         total: stats.total,
@@ -645,7 +723,7 @@ export class NotificationService {
         byPriority,
       };
     } catch (error) {
-      logger.error('取得通知統計失敗', { error, userId });
+      logger.error("取得通知統計失敗", { error, userId });
       throw error;
     }
   }
@@ -659,7 +737,7 @@ export class NotificationService {
       try {
         await this.processScheduledNotifications();
       } catch (error) {
-        logger.error('處理排程通知任務失敗', { error });
+        logger.error("處理排程通知任務失敗", { error });
       }
     }, 60000); // 1分鐘
 
@@ -668,11 +746,11 @@ export class NotificationService {
       try {
         await this.cleanupExpiredNotifications();
       } catch (error) {
-        logger.error('清理過期通知任務失敗', { error });
+        logger.error("清理過期通知任務失敗", { error });
       }
     }, 3600000); // 1小時
 
-    logger.info('通知排程任務已啟動');
+    logger.info("通知排程任務已啟動");
   }
 
   /**
@@ -680,6 +758,6 @@ export class NotificationService {
    */
   static stopScheduledTasks(): void {
     // 這裡可以實現停止定時器的邏輯
-    logger.info('通知排程任務已停止');
+    logger.info("通知排程任務已停止");
   }
 }

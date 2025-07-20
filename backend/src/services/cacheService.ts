@@ -1,5 +1,5 @@
 // 快取服務 - 提供請求快取和去重功能
-import { logger } from '../utils/logger';
+import { logger } from "../utils/logger";
 
 // 快取項目介面
 interface CacheItem<T> {
@@ -33,7 +33,7 @@ export class CacheService {
       defaultTTL: 5 * 60 * 1000, // 5分鐘
       maxSize: 1000, // 最多1000個快取項目
       cleanupInterval: 60 * 1000, // 每分鐘清理一次
-      ...config
+      ...config,
     };
 
     // 啟動定期清理
@@ -45,10 +45,10 @@ export class CacheService {
    */
   static getInstance(config?: Partial<CacheConfig>): CacheService {
     // 在測試環境中，允許創建新實例
-    if (process.env.NODE_ENV === 'test' && config) {
+    if (process.env.NODE_ENV === "test" && config) {
       return new CacheService(config);
     }
-    
+
     if (!CacheService.instance) {
       CacheService.instance = new CacheService(config);
     }
@@ -59,7 +59,7 @@ export class CacheService {
    * 重置單例實例（僅用於測試）
    */
   static resetInstance(): void {
-    if (process.env.NODE_ENV === 'test') {
+    if (process.env.NODE_ENV === "test") {
       if (CacheService.instance) {
         CacheService.instance.stopCleanup();
       }
@@ -71,9 +71,9 @@ export class CacheService {
    * 生成快取鍵
    */
   private generateKey(prefix: string, params: any[]): string {
-    const paramStr = params.map(p => 
-      typeof p === 'object' ? JSON.stringify(p) : String(p)
-    ).join('|');
+    const paramStr = params
+      .map((p) => (typeof p === "object" ? JSON.stringify(p) : String(p)))
+      .join("|");
     return `${prefix}:${paramStr}`;
   }
 
@@ -114,7 +114,7 @@ export class CacheService {
     const item: CacheItem<T> = {
       data,
       timestamp: Date.now(),
-      ttl: ttl || this.config.defaultTTL
+      ttl: ttl || this.config.defaultTTL,
     };
 
     this.cache.set(key, item);
@@ -138,7 +138,7 @@ export class CacheService {
   clear(): void {
     this.cache.clear();
     this.pendingRequests.clear();
-    logger.info('所有快取已清空');
+    logger.info("所有快取已清空");
   }
 
   /**
@@ -147,7 +147,7 @@ export class CacheService {
   async withCache<T>(
     cacheKey: string,
     asyncFunction: () => Promise<T>,
-    ttl?: number
+    ttl?: number,
   ): Promise<T> {
     // 檢查快取
     const cached = this.get<T>(cacheKey);
@@ -166,7 +166,7 @@ export class CacheService {
     const promise = asyncFunction();
     this.pendingRequests.set(cacheKey, {
       promise,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     try {
@@ -189,7 +189,7 @@ export class CacheService {
   deletePattern(pattern: string): number {
     let deletedCount = 0;
     const regex = new RegExp(pattern);
-    
+
     for (const key of this.cache.keys()) {
       if (regex.test(key)) {
         this.cache.delete(key);
@@ -282,7 +282,7 @@ export class CacheService {
       cacheSize: this.cache.size,
       pendingRequests: this.pendingRequests.size,
       maxSize: this.config.maxSize,
-      defaultTTL: this.config.defaultTTL
+      defaultTTL: this.config.defaultTTL,
     };
   }
 }
@@ -290,4 +290,4 @@ export class CacheService {
 // 預設快取實例
 export const cacheService = CacheService.getInstance();
 
-console.log('✅ CacheService 已載入');
+console.log("✅ CacheService 已載入");

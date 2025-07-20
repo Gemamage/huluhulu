@@ -1,10 +1,19 @@
-import { BasicUserService, RegisterUserData, LoginUserData, UpdateUserData } from './basic';
-import { PasswordService } from './password';
-import { VerificationService } from './verification';
-import { AdminUserService, AdminUpdateUserData, UserQueryOptions } from './admin';
-import { UserQueryService, UserListResult } from './query';
-import { IUser } from '../../models/User';
-import { logger } from '../../utils/logger';
+import {
+  BasicUserService,
+  RegisterUserData,
+  LoginUserData,
+  UpdateUserData,
+} from "./basic";
+import { PasswordService } from "./password";
+import { VerificationService } from "./verification";
+import {
+  AdminUserService,
+  AdminUpdateUserData,
+  UserQueryOptions,
+} from "./admin";
+import { UserQueryService, UserListResult } from "./query";
+import { IUser } from "../../models/User";
+import { logger } from "../../utils/logger";
 
 /**
  * 統一的用戶服務 - 整合所有用戶相關功能
@@ -34,14 +43,16 @@ export class UserService {
     token: string;
   }> {
     const result = await this.basicService.register(userData);
-    
+
     // 自動發送郵件驗證
     try {
-      await this.verificationService.sendEmailVerification(result.user._id.toString());
+      await this.verificationService.sendEmailVerification(
+        result.user._id.toString(),
+      );
     } catch (error) {
-      logger.warn('註冊後發送驗證郵件失敗', { error, userId: result.user._id });
+      logger.warn("註冊後發送驗證郵件失敗", { error, userId: result.user._id });
     }
-    
+
     return result;
   }
 
@@ -91,9 +102,13 @@ export class UserService {
   async changePassword(
     userId: string,
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void> {
-    return this.passwordService.changePassword(userId, currentPassword, newPassword);
+    return this.passwordService.changePassword(
+      userId,
+      currentPassword,
+      newPassword,
+    );
   }
 
   /**
@@ -182,8 +197,8 @@ export class UserService {
     options: {
       limit?: number;
       includeInactive?: boolean;
-      role?: 'user' | 'admin';
-    } = {}
+      role?: "user" | "admin";
+    } = {},
   ): Promise<IUser[]> {
     return this.queryService.searchUsers(searchTerm, options);
   }
@@ -192,12 +207,12 @@ export class UserService {
    * 根據角色獲取用戶列表
    */
   async getUsersByRole(
-    role: 'user' | 'admin',
+    role: "user" | "admin",
     options: {
       page?: number;
       limit?: number;
       isActive?: boolean;
-    } = {}
+    } = {},
   ): Promise<UserListResult> {
     return this.queryService.getUsersByRole(role, options);
   }
@@ -212,11 +227,13 @@ export class UserService {
   /**
    * 獲取活躍用戶列表
    */
-  async getActiveUsers(options: {
-    page?: number;
-    limit?: number;
-    sortBy?: 'lastLogin' | 'createdAt';
-  } = {}): Promise<UserListResult> {
+  async getActiveUsers(
+    options: {
+      page?: number;
+      limit?: number;
+      sortBy?: "lastLogin" | "createdAt";
+    } = {},
+  ): Promise<UserListResult> {
     return this.queryService.getActiveUsers(options);
   }
 
@@ -243,7 +260,10 @@ export class UserService {
   /**
    * 檢查用戶是否存在
    */
-  async userExists(identifier: string, type: 'id' | 'email' = 'id'): Promise<boolean> {
+  async userExists(
+    identifier: string,
+    type: "id" | "email" = "id",
+  ): Promise<boolean> {
     return this.queryService.userExists(identifier, type);
   }
 
@@ -275,7 +295,7 @@ export class UserService {
   async adminUpdateUser(
     userId: string,
     updateData: AdminUpdateUserData,
-    adminUser: IUser
+    adminUser: IUser,
   ): Promise<IUser> {
     return this.adminService.adminUpdateUser(userId, updateData, adminUser);
   }
@@ -290,7 +310,10 @@ export class UserService {
   /**
    * 管理員重設用戶密碼
    */
-  async adminResetUserPassword(userId: string, adminUser: IUser): Promise<string> {
+  async adminResetUserPassword(
+    userId: string,
+    adminUser: IUser,
+  ): Promise<string> {
     return this.adminService.adminResetUserPassword(userId, adminUser);
   }
 
@@ -300,9 +323,13 @@ export class UserService {
   async adminBatchUpdateUsers(
     userIds: string[],
     updateData: Partial<AdminUpdateUserData>,
-    adminUser: IUser
+    adminUser: IUser,
   ): Promise<{ successCount: number; failedCount: number; errors: string[] }> {
-    return this.adminService.adminBatchUpdateUsers(userIds, updateData, adminUser);
+    return this.adminService.adminBatchUpdateUsers(
+      userIds,
+      updateData,
+      adminUser,
+    );
   }
 
   /**
@@ -328,7 +355,7 @@ export class UserService {
     options: {
       limit?: number;
       includeInactive?: boolean;
-    } = {}
+    } = {},
   ): Promise<IUser[]> {
     return this.adminService.adminSearchUsers(searchTerm, options);
   }
@@ -339,15 +366,20 @@ export class UserService {
    * 清理過期令牌
    */
   async cleanupExpiredTokens(): Promise<{ deletedCount: number }> {
-    const [passwordTokens, verificationTokens, queryTokens] = await Promise.all([
-      this.passwordService.cleanupExpiredResetTokens(),
-      this.verificationService.cleanupExpiredVerificationTokens(),
-      this.queryService.cleanupExpiredTokens(),
-    ]);
+    const [passwordTokens, verificationTokens, queryTokens] = await Promise.all(
+      [
+        this.passwordService.cleanupExpiredResetTokens(),
+        this.verificationService.cleanupExpiredVerificationTokens(),
+        this.queryService.cleanupExpiredTokens(),
+      ],
+    );
 
-    const totalDeleted = passwordTokens.deletedCount + verificationTokens.deletedCount + queryTokens.deletedCount;
-    
-    logger.info('清理過期令牌完成', {
+    const totalDeleted =
+      passwordTokens.deletedCount +
+      verificationTokens.deletedCount +
+      queryTokens.deletedCount;
+
+    logger.info("清理過期令牌完成", {
       passwordTokens: passwordTokens.deletedCount,
       verificationTokens: verificationTokens.deletedCount,
       queryTokens: queryTokens.deletedCount,

@@ -18,8 +18,8 @@ export {
   PopularSearch,
   SearchAnalytics,
   SearchStats,
-  SearchTrend
-} from './search';
+  SearchTrend,
+} from "./search";
 
 // 默認導出主服務實例（向後兼容）
-export { default } from './search';
+export { default } from "./search";

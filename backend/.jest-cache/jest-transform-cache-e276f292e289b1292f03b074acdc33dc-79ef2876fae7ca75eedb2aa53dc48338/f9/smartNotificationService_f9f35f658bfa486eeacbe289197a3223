@@ -1,0 +1,24 @@
+3cf775fb5bfccb5695f14421a359ea10
+"use strict";
+// 重構後的智能通知服務 - 模組化架構
+// 原始文件已備份為 smartNotificationService-backup.ts
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserNotificationStats = exports.SmartNotificationStats = exports.ReminderConfig = exports.GeofenceArea = exports.GeofenceConfig = exports.AIMatchingConfig = exports.SmartNotificationConfig = exports.NotificationStatisticsService = exports.ReminderService = exports.GeofenceService = exports.AIMatchingService = exports.smartNotificationService = exports.SmartNotificationService = void 0;
+var notifications_1 = require("./notifications");
+Object.defineProperty(exports, "SmartNotificationService", { enumerable: true, get: function () { return notifications_1.SmartNotificationService; } });
+Object.defineProperty(exports, "smartNotificationService", { enumerable: true, get: function () { return notifications_1.smartNotificationService; } });
+Object.defineProperty(exports, "AIMatchingService", { enumerable: true, get: function () { return notifications_1.AIMatchingService; } });
+Object.defineProperty(exports, "GeofenceService", { enumerable: true, get: function () { return notifications_1.GeofenceService; } });
+Object.defineProperty(exports, "ReminderService", { enumerable: true, get: function () { return notifications_1.ReminderService; } });
+Object.defineProperty(exports, "NotificationStatisticsService", { enumerable: true, get: function () { return notifications_1.NotificationStatisticsService; } });
+Object.defineProperty(exports, "SmartNotificationConfig", { enumerable: true, get: function () { return notifications_1.SmartNotificationConfig; } });
+Object.defineProperty(exports, "AIMatchingConfig", { enumerable: true, get: function () { return notifications_1.AIMatchingConfig; } });
+Object.defineProperty(exports, "GeofenceConfig", { enumerable: true, get: function () { return notifications_1.GeofenceConfig; } });
+Object.defineProperty(exports, "GeofenceArea", { enumerable: true, get: function () { return notifications_1.GeofenceArea; } });
+Object.defineProperty(exports, "ReminderConfig", { enumerable: true, get: function () { return notifications_1.ReminderConfig; } });
+Object.defineProperty(exports, "SmartNotificationStats", { enumerable: true, get: function () { return notifications_1.SmartNotificationStats; } });
+Object.defineProperty(exports, "UserNotificationStats", { enumerable: true, get: function () { return notifications_1.UserNotificationStats; } });
+// 為了向後兼容，也導出默認實例
+const notifications_2 = require("./notifications");
+exports.default = notifications_2.smartNotificationService;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHNlcnZpY2VzXFxzbWFydE5vdGlmaWNhdGlvblNlcnZpY2UudHMiLCJtYXBwaW5ncyI6IjtBQUFBLHFCQUFxQjtBQUNyQiw4Q0FBOEM7OztBQUU5QyxpREFjeUI7QUFidkIseUhBQUEsd0JBQXdCLE9BQUE7QUFDeEIseUhBQUEsd0JBQXdCLE9BQUE7QUFDeEIsa0hBQUEsaUJBQWlCLE9BQUE7QUFDakIsZ0hBQUEsZUFBZSxPQUFBO0FBQ2YsZ0hBQUEsZUFBZSxPQUFBO0FBQ2YsOEhBQUEsNkJBQTZCLE9BQUE7QUFDN0Isd0hBQUEsdUJBQXVCLE9BQUE7QUFDdkIsaUhBQUEsZ0JBQWdCLE9BQUE7QUFDaEIsK0dBQUEsY0FBYyxPQUFBO0FBQ2QsNkdBQUEsWUFBWSxPQUFBO0FBQ1osK0dBQUEsY0FBYyxPQUFBO0FBQ2QsdUhBQUEsc0JBQXNCLE9BQUE7QUFDdEIsc0hBQUEscUJBQXFCLE9BQUE7QUFHdkIsaUJBQWlCO0FBQ2pCLG1EQUEyRDtBQUMzRCxrQkFBZSx3Q0FBd0IsQ0FBQyIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXFVzZXJcXERlc2t0b3BcXHRyYWVwcm9qZWN0XFx0ZXN0MlxccGV0LWZpbmRlci1hcHBcXGJhY2tlbmRcXHNyY1xcc2VydmljZXNcXHNtYXJ0Tm90aWZpY2F0aW9uU2VydmljZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyDph43mp4vlvoznmoTmmbrog73pgJrnn6XmnI3li5kgLSDmqKHntYTljJbmnrbmp4tcbi8vIOWOn+Wni+aWh+S7tuW3suWCmeS7veeCuiBzbWFydE5vdGlmaWNhdGlvblNlcnZpY2UtYmFja3VwLnRzXG5cbmV4cG9ydCB7XG4gIFNtYXJ0Tm90aWZpY2F0aW9uU2VydmljZSxcbiAgc21hcnROb3RpZmljYXRpb25TZXJ2aWNlLFxuICBBSU1hdGNoaW5nU2VydmljZSxcbiAgR2VvZmVuY2VTZXJ2aWNlLFxuICBSZW1pbmRlclNlcnZpY2UsXG4gIE5vdGlmaWNhdGlvblN0YXRpc3RpY3NTZXJ2aWNlLFxuICBTbWFydE5vdGlmaWNhdGlvbkNvbmZpZyxcbiAgQUlNYXRjaGluZ0NvbmZpZyxcbiAgR2VvZmVuY2VDb25maWcsXG4gIEdlb2ZlbmNlQXJlYSxcbiAgUmVtaW5kZXJDb25maWcsXG4gIFNtYXJ0Tm90aWZpY2F0aW9uU3RhdHMsXG4gIFVzZXJOb3RpZmljYXRpb25TdGF0c1xufSBmcm9tICcuL25vdGlmaWNhdGlvbnMnO1xuXG4vLyDngrrkuoblkJHlvozlhbzlrrnvvIzkuZ/lsI7lh7rpu5joqo3lr6bkvotcbmltcG9ydCB7IHNtYXJ0Tm90aWZpY2F0aW9uU2VydmljZSB9IGZyb20gJy4vbm90aWZpY2F0aW9ucyc7XG5leHBvcnQgZGVmYXVsdCBzbWFydE5vdGlmaWNhdGlvblNlcnZpY2U7Il0sInZlcnNpb24iOjN9

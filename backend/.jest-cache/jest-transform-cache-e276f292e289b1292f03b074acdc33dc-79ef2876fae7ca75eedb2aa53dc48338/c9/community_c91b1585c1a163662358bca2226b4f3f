@@ -1,0 +1,19 @@
+00be7869cdeb55bc78b1d3c4fc750ae0
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const comments_1 = __importDefault(require("./comments"));
+const messages_1 = __importDefault(require("./messages"));
+const reviews_1 = __importDefault(require("./reviews"));
+const reports_1 = __importDefault(require("./reports"));
+const router = express_1.default.Router();
+// 掛載子路由
+router.use('/comments', comments_1.default);
+router.use('/messages', messages_1.default);
+router.use('/reviews', reviews_1.default);
+router.use('/reports', reports_1.default);
+exports.default = router;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHJvdXRlc1xcY29tbXVuaXR5LnRzIiwibWFwcGluZ3MiOiI7Ozs7O0FBQUEsc0RBQThCO0FBQzlCLDBEQUF3QztBQUN4QywwREFBd0M7QUFDeEMsd0RBQXNDO0FBQ3RDLHdEQUFzQztBQUV0QyxNQUFNLE1BQU0sR0FBRyxpQkFBTyxDQUFDLE1BQU0sRUFBRSxDQUFDO0FBRWhDLFFBQVE7QUFDUixNQUFNLENBQUMsR0FBRyxDQUFDLFdBQVcsRUFBRSxrQkFBYyxDQUFDLENBQUM7QUFDeEMsTUFBTSxDQUFDLEdBQUcsQ0FBQyxXQUFXLEVBQUUsa0JBQWMsQ0FBQyxDQUFDO0FBQ3hDLE1BQU0sQ0FBQyxHQUFHLENBQUMsVUFBVSxFQUFFLGlCQUFhLENBQUMsQ0FBQztBQUN0QyxNQUFNLENBQUMsR0FBRyxDQUFDLFVBQVUsRUFBRSxpQkFBYSxDQUFDLENBQUM7QUFFdEMsa0JBQWUsTUFBTSxDQUFDIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkM6XFxVc2Vyc1xcVXNlclxcRGVza3RvcFxcdHJhZXByb2plY3RcXHRlc3QyXFxwZXQtZmluZGVyLWFwcFxcYmFja2VuZFxcc3JjXFxyb3V0ZXNcXGNvbW11bml0eS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgZXhwcmVzcyBmcm9tICdleHByZXNzJztcbmltcG9ydCBjb21tZW50c1JvdXRlciBmcm9tICcuL2NvbW1lbnRzJztcbmltcG9ydCBtZXNzYWdlc1JvdXRlciBmcm9tICcuL21lc3NhZ2VzJztcbmltcG9ydCByZXZpZXdzUm91dGVyIGZyb20gJy4vcmV2aWV3cyc7XG5pbXBvcnQgcmVwb3J0c1JvdXRlciBmcm9tICcuL3JlcG9ydHMnO1xuXG5jb25zdCByb3V0ZXIgPSBleHByZXNzLlJvdXRlcigpO1xuXG4vLyDmjpvovInlrZDot6/nlLFcbnJvdXRlci51c2UoJy9jb21tZW50cycsIGNvbW1lbnRzUm91dGVyKTtcbnJvdXRlci51c2UoJy9tZXNzYWdlcycsIG1lc3NhZ2VzUm91dGVyKTtcbnJvdXRlci51c2UoJy9yZXZpZXdzJywgcmV2aWV3c1JvdXRlcik7XG5yb3V0ZXIudXNlKCcvcmVwb3J0cycsIHJlcG9ydHNSb3V0ZXIpO1xuXG5leHBvcnQgZGVmYXVsdCByb3V0ZXI7Il0sInZlcnNpb24iOjN9

@@ -1,14 +1,14 @@
-import { elasticsearchService } from '../elasticsearchService';
-import { logger } from '../../utils/logger';
-import { IPet } from '../../models/Pet';
+import { elasticsearchService } from "../elasticsearchService";
+import { logger } from "../../utils/logger";
+import { IPet } from "../../models/Pet";
 
 /**
  * 索引管理服務
  * 負責處理 Elasticsearch 索引的初始化、文檔的增刪改查等基本操作
  */
 export class IndexingService {
-  private readonly PET_INDEX = 'pets';
-  private readonly SEARCH_ANALYTICS_INDEX = 'search_analytics';
+  private readonly PET_INDEX = "pets";
+  private readonly SEARCH_ANALYTICS_INDEX = "search_analytics";
 
   /**
    * 初始化寵物搜尋索引
@@ -17,88 +17,88 @@ export class IndexingService {
     const mapping = {
       properties: {
         name: {
-          type: 'text',
-          analyzer: 'chinese_analyzer',
+          type: "text",
+          analyzer: "chinese_analyzer",
           fields: {
-            keyword: { type: 'keyword' },
+            keyword: { type: "keyword" },
             suggest: {
-              type: 'completion',
-              analyzer: 'simple'
-            }
-          }
+              type: "completion",
+              analyzer: "simple",
+            },
+          },
         },
-        type: { type: 'keyword' },
+        type: { type: "keyword" },
         breed: {
-          type: 'text',
-          analyzer: 'chinese_analyzer',
+          type: "text",
+          analyzer: "chinese_analyzer",
           fields: {
-            keyword: { type: 'keyword' },
+            keyword: { type: "keyword" },
             suggest: {
-              type: 'completion',
-              analyzer: 'simple'
-            }
-          }
+              type: "completion",
+              analyzer: "simple",
+            },
+          },
         },
-        gender: { type: 'keyword' },
-        age: { type: 'integer' },
+        gender: { type: "keyword" },
+        age: { type: "integer" },
         color: {
-          type: 'text',
-          analyzer: 'chinese_analyzer',
+          type: "text",
+          analyzer: "chinese_analyzer",
           fields: {
-            keyword: { type: 'keyword' }
-          }
+            keyword: { type: "keyword" },
+          },
         },
-        size: { type: 'keyword' },
-        status: { type: 'keyword' },
+        size: { type: "keyword" },
+        status: { type: "keyword" },
         description: {
-          type: 'text',
-          analyzer: 'chinese_analyzer'
+          type: "text",
+          analyzer: "chinese_analyzer",
         },
         lastSeenLocation: {
-          type: 'text',
-          analyzer: 'chinese_analyzer',
+          type: "text",
+          analyzer: "chinese_analyzer",
           fields: {
-            keyword: { type: 'keyword' },
+            keyword: { type: "keyword" },
             suggest: {
-              type: 'completion',
-              analyzer: 'simple'
-            }
-          }
+              type: "completion",
+              analyzer: "simple",
+            },
+          },
         },
         location: {
-          type: 'geo_point'
+          type: "geo_point",
         },
-        lastSeenDate: { type: 'date' },
+        lastSeenDate: { type: "date" },
         contactInfo: {
           properties: {
             name: {
-              type: 'text',
-              analyzer: 'chinese_analyzer'
+              type: "text",
+              analyzer: "chinese_analyzer",
             },
-            phone: { type: 'keyword' },
-            email: { type: 'keyword' }
-          }
+            phone: { type: "keyword" },
+            email: { type: "keyword" },
+          },
         },
-        images: { type: 'keyword' },
-        reward: { type: 'integer' },
-        isUrgent: { type: 'boolean' },
-        microchipId: { type: 'keyword' },
-        vaccinations: { type: 'keyword' },
-        medicalConditions: { type: 'keyword' },
+        images: { type: "keyword" },
+        reward: { type: "integer" },
+        isUrgent: { type: "boolean" },
+        microchipId: { type: "keyword" },
+        vaccinations: { type: "keyword" },
+        medicalConditions: { type: "keyword" },
         specialMarks: {
-          type: 'text',
-          analyzer: 'chinese_analyzer'
+          type: "text",
+          analyzer: "chinese_analyzer",
         },
-        personality: { type: 'keyword' },
-        viewCount: { type: 'integer' },
-        shareCount: { type: 'integer' },
-        userId: { type: 'keyword' },
-        aiTags: { type: 'keyword' },
-        aiBreedPrediction: { type: 'keyword' },
-        aiConfidence: { type: 'float' },
-        createdAt: { type: 'date' },
-        updatedAt: { type: 'date' }
-      }
+        personality: { type: "keyword" },
+        viewCount: { type: "integer" },
+        shareCount: { type: "integer" },
+        userId: { type: "keyword" },
+        aiTags: { type: "keyword" },
+        aiBreedPrediction: { type: "keyword" },
+        aiConfidence: { type: "float" },
+        createdAt: { type: "date" },
+        updatedAt: { type: "date" },
+      },
     };
 
     return await elasticsearchService.createIndex(this.PET_INDEX, mapping);
@@ -111,32 +111,35 @@ export class IndexingService {
     const mapping = {
       properties: {
         query: {
-          type: 'text',
-          analyzer: 'chinese_analyzer',
+          type: "text",
+          analyzer: "chinese_analyzer",
           fields: {
-            keyword: { type: 'keyword' }
-          }
+            keyword: { type: "keyword" },
+          },
         },
         filters: {
           properties: {
-            type: { type: 'keyword' },
-            status: { type: 'keyword' },
-            location: { type: 'keyword' },
-            breed: { type: 'keyword' },
-            size: { type: 'keyword' },
-            gender: { type: 'keyword' }
-          }
+            type: { type: "keyword" },
+            status: { type: "keyword" },
+            location: { type: "keyword" },
+            breed: { type: "keyword" },
+            size: { type: "keyword" },
+            gender: { type: "keyword" },
+          },
         },
-        userId: { type: 'keyword' },
-        resultCount: { type: 'integer' },
-        timestamp: { type: 'date' },
-        sessionId: { type: 'keyword' },
-        userAgent: { type: 'text' },
-        ipAddress: { type: 'ip' }
-      }
+        userId: { type: "keyword" },
+        resultCount: { type: "integer" },
+        timestamp: { type: "date" },
+        sessionId: { type: "keyword" },
+        userAgent: { type: "text" },
+        ipAddress: { type: "ip" },
+      },
     };
 
-    return await elasticsearchService.createIndex(this.SEARCH_ANALYTICS_INDEX, mapping);
+    return await elasticsearchService.createIndex(
+      this.SEARCH_ANALYTICS_INDEX,
+      mapping,
+    );
   }
 
   /**
@@ -171,7 +174,7 @@ export class IndexingService {
       aiBreedPrediction: pet.aiBreedPrediction,
       aiConfidence: pet.aiConfidence,
       createdAt: pet.createdAt,
-      updatedAt: pet.updatedAt
+      updatedAt: pet.updatedAt,
     };
   }
 
@@ -183,7 +186,7 @@ export class IndexingService {
     return await elasticsearchService.indexDocument(
       this.PET_INDEX,
       pet._id.toString(),
-      document
+      document,
     );
   }
 
@@ -191,9 +194,9 @@ export class IndexingService {
    * 批量索引寵物文檔
    */
   public async bulkIndexPets(pets: IPet[]): Promise<boolean> {
-    const documents = pets.map(pet => ({
+    const documents = pets.map((pet) => ({
       id: pet._id.toString(),
-      document: this.petToDocument(pet)
+      document: this.petToDocument(pet),
     }));
 
     return await elasticsearchService.bulkIndex(this.PET_INDEX, documents);
@@ -212,13 +215,13 @@ export class IndexingService {
   public async updatePet(pet: IPet): Promise<boolean> {
     const document = {
       ...this.petToDocument(pet),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     return await elasticsearchService.updateDocument(
       this.PET_INDEX,
       pet._id.toString(),
-      document
+      document,
     );
   }
 
@@ -228,7 +231,7 @@ export class IndexingService {
   public async indexExists(indexName: string): Promise<boolean> {
     try {
       const response = await elasticsearchService.getClient().indices.exists({
-        index: indexName
+        index: indexName,
       });
       return response.body;
     } catch (error) {
@@ -243,7 +246,7 @@ export class IndexingService {
   public async deleteIndex(indexName: string): Promise<boolean> {
     try {
       await elasticsearchService.getClient().indices.delete({
-        index: indexName
+        index: indexName,
       });
       logger.info(`索引 ${indexName} 已刪除`);
       return true;
@@ -265,16 +268,16 @@ export class IndexingService {
 
       // 重新創建索引
       const result = await this.initializePetIndex();
-      
+
       if (result) {
-        logger.info('寵物索引重建成功');
+        logger.info("寵物索引重建成功");
       } else {
-        logger.error('寵物索引重建失敗');
+        logger.error("寵物索引重建失敗");
       }
-      
+
       return result;
     } catch (error) {
-      logger.error('重建寵物索引失敗:', error);
+      logger.error("重建寵物索引失敗:", error);
       return false;
     }
   }
@@ -285,7 +288,7 @@ export class IndexingService {
   public async getIndexStats(indexName: string): Promise<any> {
     try {
       const response = await elasticsearchService.getClient().indices.stats({
-        index: indexName
+        index: indexName,
       });
       return response.body;
     } catch (error) {

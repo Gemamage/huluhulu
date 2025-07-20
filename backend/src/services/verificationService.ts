@@ -1,8 +1,8 @@
-import crypto from 'crypto';
-import { User, IUser } from '../models/User';
-import { EmailService } from './emailService';
-import { AppError } from '../utils/errors';
-import { logger } from '../utils/logger';
+import crypto from "crypto";
+import { User, IUser } from "../models/User";
+import { EmailService } from "./emailService";
+import { AppError } from "../utils/errors";
+import { logger } from "../utils/logger";
 
 export interface VerificationResult {
   success: boolean;
@@ -22,10 +22,10 @@ export interface ResendResult {
 export class VerificationService {
   // 驗證令牌有效期（24小時）
   private static readonly TOKEN_EXPIRY_HOURS = 24;
-  
+
   // 重發郵件冷卻時間（5分鐘）
   private static readonly RESEND_COOLDOWN_MINUTES = 5;
-  
+
   // 每日最大重發次數
   private static readonly MAX_DAILY_RESENDS = 5;
 
@@ -33,7 +33,7 @@ export class VerificationService {
    * 生成驗證令牌
    */
   private static generateVerificationToken(): string {
-    return crypto.randomBytes(32).toString('hex');
+    return crypto.randomBytes(32).toString("hex");
   }
 
   /**
@@ -63,17 +63,17 @@ export class VerificationService {
       // 發送驗證郵件
       await EmailService.sendVerificationEmail(user.email, token, user.name);
 
-      logger.info('驗證郵件發送成功', {
+      logger.info("驗證郵件發送成功", {
         userId: user._id,
         email: user.email,
       });
     } catch (error) {
-      logger.error('發送驗證郵件失敗', {
+      logger.error("發送驗證郵件失敗", {
         userId: user._id,
         email: user.email,
         error,
       });
-      throw new AppError('發送驗證郵件失敗，請稍後再試', 500);
+      throw new AppError("發送驗證郵件失敗，請稍後再試", 500);
     }
   }
 
@@ -86,12 +86,12 @@ export class VerificationService {
       const user = await User.findOne({
         emailVerificationToken: token,
         emailVerificationExpires: { $gt: new Date() },
-      }).select('+emailVerificationToken +emailVerificationExpires');
+      }).select("+emailVerificationToken +emailVerificationExpires");
 
       if (!user) {
         return {
           success: false,
-          message: '驗證令牌無效或已過期',
+          message: "驗證令牌無效或已過期",
         };
       }
 
@@ -99,7 +99,7 @@ export class VerificationService {
       if (user.isEmailVerified) {
         return {
           success: true,
-          message: '您的郵箱已經驗證過了',
+          message: "您的郵箱已經驗證過了",
           user,
         };
       }
@@ -115,25 +115,25 @@ export class VerificationService {
         await EmailService.sendWelcomeEmail(user.email, user.name);
       } catch (error) {
         // 歡迎郵件發送失敗不應該影響驗證流程
-        logger.warn('歡迎郵件發送失敗', {
+        logger.warn("歡迎郵件發送失敗", {
           userId: user._id,
           error,
         });
       }
 
-      logger.info('郵箱驗證成功', {
+      logger.info("郵箱驗證成功", {
         userId: user._id,
         email: user.email,
       });
 
       return {
         success: true,
-        message: '郵箱驗證成功！歡迎加入呼嚕寵物協尋網站',
+        message: "郵箱驗證成功！歡迎加入呼嚕寵物協尋網站",
         user,
       };
     } catch (error) {
-      logger.error('郵箱驗證失敗', { token, error });
-      throw new AppError('驗證過程中發生錯誤，請稍後再試', 500);
+      logger.error("郵箱驗證失敗", { token, error });
+      throw new AppError("驗證過程中發生錯誤，請稍後再試", 500);
     }
   }
 
@@ -144,13 +144,13 @@ export class VerificationService {
     try {
       // 查找用戶
       const user = await User.findOne({ email }).select(
-        '+emailVerificationToken +emailVerificationExpires'
+        "+emailVerificationToken +emailVerificationExpires",
       );
 
       if (!user) {
         return {
           success: false,
-          message: '找不到該郵箱對應的用戶',
+          message: "找不到該郵箱對應的用戶",
         };
       }
 
@@ -158,7 +158,7 @@ export class VerificationService {
       if (user.isEmailVerified) {
         return {
           success: false,
-          message: '您的郵箱已經驗證過了',
+          message: "您的郵箱已經驗證過了",
         };
       }
 
@@ -177,7 +177,7 @@ export class VerificationService {
       if (!dailyLimitResult.canResend) {
         return {
           success: false,
-          message: '今日重發次數已達上限，請明天再試',
+          message: "今日重發次數已達上限，請明天再試",
         };
       }
 
@@ -189,11 +189,11 @@ export class VerificationService {
 
       return {
         success: true,
-        message: '驗證郵件已重新發送，請檢查您的郵箱',
+        message: "驗證郵件已重新發送，請檢查您的郵箱",
       };
     } catch (error) {
-      logger.error('重發驗證郵件失敗', { email, error });
-      throw new AppError('重發驗證郵件失敗，請稍後再試', 500);
+      logger.error("重發驗證郵件失敗", { email, error });
+      throw new AppError("重發驗證郵件失敗，請稍後再試", 500);
     }
   }
 
@@ -201,7 +201,7 @@ export class VerificationService {
    * 檢查重發冷卻時間
    */
   private static async checkResendCooldown(
-    user: IUser
+    user: IUser,
   ): Promise<{ canResend: boolean; remainingMinutes: number }> {
     if (!user.emailVerificationExpires) {
       return { canResend: true, remainingMinutes: 0 };
@@ -209,10 +209,11 @@ export class VerificationService {
 
     const now = new Date();
     const tokenCreatedAt = new Date(
-      user.emailVerificationExpires.getTime() - this.TOKEN_EXPIRY_HOURS * 60 * 60 * 1000
+      user.emailVerificationExpires.getTime() -
+        this.TOKEN_EXPIRY_HOURS * 60 * 60 * 1000,
     );
     const cooldownEnd = new Date(
-      tokenCreatedAt.getTime() + this.RESEND_COOLDOWN_MINUTES * 60 * 1000
+      tokenCreatedAt.getTime() + this.RESEND_COOLDOWN_MINUTES * 60 * 1000,
     );
 
     if (now < cooldownEnd) {
@@ -228,7 +229,7 @@ export class VerificationService {
    * 檢查每日重發限制
    */
   private static async checkDailyResendLimit(
-    user: IUser
+    user: IUser,
   ): Promise<{ canResend: boolean; attemptsToday: number }> {
     // 這裡可以實現更複雜的限制邏輯，比如使用 Redis 或數據庫記錄
     // 暫時簡化實現
@@ -241,7 +242,7 @@ export class VerificationService {
   private static async recordResendAttempt(user: IUser): Promise<void> {
     // 這裡可以記錄重發嘗試到數據庫或 Redis
     // 暫時簡化實現
-    logger.info('記錄重發嘗試', {
+    logger.info("記錄重發嘗試", {
       userId: user._id,
       email: user.email,
       timestamp: new Date(),
@@ -264,10 +265,13 @@ export class VerificationService {
     }
 
     const userWithToken = await User.findById(user._id).select(
-      '+emailVerificationToken +emailVerificationExpires'
+      "+emailVerificationToken +emailVerificationExpires",
     );
 
-    if (!userWithToken?.emailVerificationToken || !userWithToken.emailVerificationExpires) {
+    if (
+      !userWithToken?.emailVerificationToken ||
+      !userWithToken.emailVerificationExpires
+    ) {
       return {
         needsVerification: true,
         hasValidToken: false,
@@ -299,16 +303,16 @@ export class VerificationService {
             emailVerificationToken: 1,
             emailVerificationExpires: 1,
           },
-        }
+        },
       );
 
-      logger.info('清理過期驗證令牌', {
+      logger.info("清理過期驗證令牌", {
         cleanedCount: result.modifiedCount,
       });
 
       return result.modifiedCount;
     } catch (error) {
-      logger.error('清理過期驗證令牌失敗', { error });
+      logger.error("清理過期驗證令牌失敗", { error });
       throw error;
     }
   }

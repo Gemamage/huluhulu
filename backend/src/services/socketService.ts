@@ -1,40 +1,40 @@
-import { Server as SocketIOServer, Socket } from 'socket.io';
-import { Server as HTTPServer } from 'http';
-import jwt from 'jsonwebtoken';
-import { config } from '../config/environment';
-import { logger } from '../utils/logger';
-import { NotificationType, NotificationPriority } from '../models/Notification';
+import { Server as SocketIOServer, Socket } from "socket.io";
+import { Server as HTTPServer } from "http";
+import jwt from "jsonwebtoken";
+import { config } from "../config/environment";
+import { logger } from "../utils/logger";
+import { NotificationType, NotificationPriority } from "../models/Notification";
 
 /**
  * Socket 事件類型
  */
 export enum SocketEvents {
   // 連接相關
-  CONNECTION = 'connection',
-  DISCONNECT = 'disconnect',
-  JOIN_ROOM = 'join_room',
-  LEAVE_ROOM = 'leave_room',
-  
+  CONNECTION = "connection",
+  DISCONNECT = "disconnect",
+  JOIN_ROOM = "join_room",
+  LEAVE_ROOM = "leave_room",
+
   // 通知相關
-  NOTIFICATION = 'notification',
-  NOTIFICATION_READ = 'notification_read',
-  NOTIFICATION_DELIVERED = 'notification_delivered',
-  
+  NOTIFICATION = "notification",
+  NOTIFICATION_READ = "notification_read",
+  NOTIFICATION_DELIVERED = "notification_delivered",
+
   // 聊天相關
-  MESSAGE = 'message',
-  MESSAGE_DELIVERED = 'message_delivered',
-  MESSAGE_READ = 'message_read',
-  TYPING_START = 'typing_start',
-  TYPING_STOP = 'typing_stop',
-  
+  MESSAGE = "message",
+  MESSAGE_DELIVERED = "message_delivered",
+  MESSAGE_READ = "message_read",
+  TYPING_START = "typing_start",
+  TYPING_STOP = "typing_stop",
+
   // 寵物協尋相關
-  PET_STATUS_UPDATE = 'pet_status_update',
-  MATCH_FOUND = 'match_found',
-  
+  PET_STATUS_UPDATE = "pet_status_update",
+  MATCH_FOUND = "match_found",
+
   // 系統相關
-  SYSTEM_ANNOUNCEMENT = 'system_announcement',
-  USER_ONLINE = 'user_online',
-  USER_OFFLINE = 'user_offline',
+  SYSTEM_ANNOUNCEMENT = "system_announcement",
+  USER_ONLINE = "user_online",
+  USER_OFFLINE = "user_offline",
 }
 
 /**
@@ -77,29 +77,31 @@ export class SocketService {
     this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: config.cors.allowedOrigins,
-        methods: ['GET', 'POST'],
+        methods: ["GET", "POST"],
         credentials: true,
       },
-      transports: ['websocket', 'polling'],
+      transports: ["websocket", "polling"],
     });
 
     // 中介軟體：驗證 JWT Token
     this.io.use(async (socket, next) => {
       try {
-        const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.replace('Bearer ', '');
-        
+        const token =
+          socket.handshake.auth.token ||
+          socket.handshake.headers.authorization?.replace("Bearer ", "");
+
         if (!token) {
-          return next(new Error('未提供認證 token'));
+          return next(new Error("未提供認證 token"));
         }
 
         const decoded = jwt.verify(token, config.jwt.secret) as any;
         socket.data.userId = decoded.userId;
         socket.data.user = decoded;
-        
+
         next();
       } catch (error) {
-        logger.error('Socket 認證失敗', { error });
-        next(new Error('認證失敗'));
+        logger.error("Socket 認證失敗", { error });
+        next(new Error("認證失敗"));
       }
     });
 
@@ -108,7 +110,7 @@ export class SocketService {
       this.handleConnection(socket);
     });
 
-    logger.info('Socket.IO 服務初始化成功');
+    logger.info("Socket.IO 服務初始化成功");
     return this.io;
   }
 
@@ -134,7 +136,7 @@ export class SocketService {
     // 加入用戶個人房間
     socket.join(`user:${userId}`);
 
-    logger.info('用戶連接成功', {
+    logger.info("用戶連接成功", {
       userId,
       socketId: socket.id,
       totalConnections: this.userSockets.get(userId)!.length,
@@ -149,13 +151,13 @@ export class SocketService {
     // 處理加入房間
     socket.on(SocketEvents.JOIN_ROOM, (roomId: string) => {
       socket.join(roomId);
-      logger.debug('用戶加入房間', { userId, socketId: socket.id, roomId });
+      logger.debug("用戶加入房間", { userId, socketId: socket.id, roomId });
     });
 
     // 處理離開房間
     socket.on(SocketEvents.LEAVE_ROOM, (roomId: string) => {
       socket.leave(roomId);
-      logger.debug('用戶離開房間', { userId, socketId: socket.id, roomId });
+      logger.debug("用戶離開房間", { userId, socketId: socket.id, roomId });
     });
 
     // 處理通知已讀
@@ -201,16 +203,18 @@ export class SocketService {
    */
   private static handleDisconnection(socket: Socket, reason: string): void {
     const userId = this.socketUsers.get(socket.id);
-    
+
     if (userId) {
       // 移除 socket 記錄
       const userSocketList = this.userSockets.get(userId);
       if (userSocketList) {
-        const index = userSocketList.findIndex(info => info.socketId === socket.id);
+        const index = userSocketList.findIndex(
+          (info) => info.socketId === socket.id,
+        );
         if (index !== -1) {
           userSocketList.splice(index, 1);
         }
-        
+
         // 如果用戶沒有其他連接，則清理記錄並通知下線
         if (userSocketList.length === 0) {
           this.userSockets.delete(userId);
@@ -220,10 +224,10 @@ export class SocketService {
           });
         }
       }
-      
+
       this.socketUsers.delete(socket.id);
-      
-      logger.info('用戶斷線', {
+
+      logger.info("用戶斷線", {
         userId,
         socketId: socket.id,
         reason,
@@ -237,27 +241,31 @@ export class SocketService {
    */
   static async sendNotificationToUser(
     userId: string,
-    notification: RealtimeNotificationData
+    notification: RealtimeNotificationData,
   ): Promise<boolean> {
     try {
       if (!this.io) {
-        logger.warn('Socket.IO 尚未初始化');
+        logger.warn("Socket.IO 尚未初始化");
         return false;
       }
 
       const room = `user:${userId}`;
       this.io.to(room).emit(SocketEvents.NOTIFICATION, notification);
-      
-      logger.debug('即時通知已發送', {
+
+      logger.debug("即時通知已發送", {
         userId,
         notificationId: notification.id,
         type: notification.type,
         title: notification.title,
       });
-      
+
       return true;
     } catch (error) {
-      logger.error('發送即時通知失敗', { error, userId, notificationId: notification.id });
+      logger.error("發送即時通知失敗", {
+        error,
+        userId,
+        notificationId: notification.id,
+      });
       return false;
     }
   }
@@ -267,7 +275,7 @@ export class SocketService {
    */
   static async sendNotificationToUsers(
     userIds: string[],
-    notification: RealtimeNotificationData
+    notification: RealtimeNotificationData,
   ): Promise<{ successCount: number; failureCount: number }> {
     let successCount = 0;
     let failureCount = 0;
@@ -294,7 +302,7 @@ export class SocketService {
     actionUrl?: string;
   }): void {
     if (!this.io) {
-      logger.warn('Socket.IO 尚未初始化');
+      logger.warn("Socket.IO 尚未初始化");
       return;
     }
 
@@ -303,7 +311,7 @@ export class SocketService {
       timestamp: new Date(),
     });
 
-    logger.info('系統公告已廣播', { title: announcement.title });
+    logger.info("系統公告已廣播", { title: announcement.title });
   }
 
   /**
@@ -313,10 +321,10 @@ export class SocketService {
     userId: string,
     petId: string,
     status: string,
-    message: string
+    message: string,
   ): void {
     if (!this.io) {
-      logger.warn('Socket.IO 尚未初始化');
+      logger.warn("Socket.IO 尚未初始化");
       return;
     }
 
@@ -328,14 +336,16 @@ export class SocketService {
       timestamp: new Date(),
     });
 
-    logger.debug('寵物狀態更新已發送', { userId, petId, status });
+    logger.debug("寵物狀態更新已發送", { userId, petId, status });
   }
 
   /**
    * 檢查用戶是否在線
    */
   static isUserOnline(userId: string): boolean {
-    return this.userSockets.has(userId) && this.userSockets.get(userId)!.length > 0;
+    return (
+      this.userSockets.has(userId) && this.userSockets.get(userId)!.length > 0
+    );
   }
 
   /**
@@ -355,16 +365,22 @@ export class SocketService {
   /**
    * 處理通知已讀
    */
-  private static handleNotificationRead(userId: string, notificationId: string): void {
-    logger.debug('通知已讀', { userId, notificationId });
+  private static handleNotificationRead(
+    userId: string,
+    notificationId: string,
+  ): void {
+    logger.debug("通知已讀", { userId, notificationId });
     // 這裡可以更新資料庫中的通知狀態
   }
 
   /**
    * 處理通知送達確認
    */
-  private static handleNotificationDelivered(userId: string, notificationId: string): void {
-    logger.debug('通知送達確認', { userId, notificationId });
+  private static handleNotificationDelivered(
+    userId: string,
+    notificationId: string,
+  ): void {
+    logger.debug("通知送達確認", { userId, notificationId });
     // 這裡可以更新資料庫中的通知送達狀態
   }
 
@@ -373,8 +389,8 @@ export class SocketService {
    */
   private static handleMessage(socket: Socket, data: any): void {
     const userId = socket.data.userId;
-    logger.debug('收到訊息', { userId, messageData: data });
-    
+    logger.debug("收到訊息", { userId, messageData: data });
+
     // 轉發訊息給目標用戶
     if (data.targetUserId) {
       const targetRoom = `user:${data.targetUserId}`;
@@ -391,8 +407,8 @@ export class SocketService {
    */
   private static handleMessageRead(socket: Socket, data: any): void {
     const userId = socket.data.userId;
-    logger.debug('訊息已讀', { userId, messageData: data });
-    
+    logger.debug("訊息已讀", { userId, messageData: data });
+
     // 通知發送者訊息已被讀取
     if (data.fromUserId) {
       const senderRoom = `user:${data.fromUserId}`;
@@ -407,13 +423,19 @@ export class SocketService {
   /**
    * 處理輸入狀態
    */
-  private static handleTyping(socket: Socket, data: any, isTyping: boolean): void {
+  private static handleTyping(
+    socket: Socket,
+    data: any,
+    isTyping: boolean,
+  ): void {
     const userId = socket.data.userId;
-    
+
     if (data.targetUserId) {
       const targetRoom = `user:${data.targetUserId}`;
-      const event = isTyping ? SocketEvents.TYPING_START : SocketEvents.TYPING_STOP;
-      
+      const event = isTyping
+        ? SocketEvents.TYPING_START
+        : SocketEvents.TYPING_STOP;
+
       socket.to(targetRoom).emit(event, {
         fromUserId: userId,
         timestamp: new Date(),
@@ -427,7 +449,9 @@ export class SocketService {
   private static updateLastActivity(userId: string, socketId: string): void {
     const userSocketList = this.userSockets.get(userId);
     if (userSocketList) {
-      const socketInfo = userSocketList.find(info => info.socketId === socketId);
+      const socketInfo = userSocketList.find(
+        (info) => info.socketId === socketId,
+      );
       if (socketInfo) {
         socketInfo.lastActivity = new Date();
       }
@@ -437,25 +461,33 @@ export class SocketService {
   /**
    * 清理非活躍連接
    */
-  static cleanupInactiveConnections(inactiveThresholdMinutes: number = 30): void {
-    const threshold = new Date(Date.now() - inactiveThresholdMinutes * 60 * 1000);
+  static cleanupInactiveConnections(
+    inactiveThresholdMinutes: number = 30,
+  ): void {
+    const threshold = new Date(
+      Date.now() - inactiveThresholdMinutes * 60 * 1000,
+    );
     let cleanedCount = 0;
 
     for (const [userId, socketList] of this.userSockets.entries()) {
-      const activeConnections = socketList.filter(info => info.lastActivity > threshold);
-      
+      const activeConnections = socketList.filter(
+        (info) => info.lastActivity > threshold,
+      );
+
       if (activeConnections.length !== socketList.length) {
-        const inactiveConnections = socketList.filter(info => info.lastActivity <= threshold);
-        
+        const inactiveConnections = socketList.filter(
+          (info) => info.lastActivity <= threshold,
+        );
+
         // 斷開非活躍連接
-        inactiveConnections.forEach(info => {
+        inactiveConnections.forEach((info) => {
           const socket = this.io?.sockets.sockets.get(info.socketId);
           if (socket) {
             socket.disconnect(true);
             cleanedCount++;
           }
         });
-        
+
         // 更新記錄
         if (activeConnections.length > 0) {
           this.userSockets.set(userId, activeConnections);
@@ -466,7 +498,10 @@ export class SocketService {
     }
 
     if (cleanedCount > 0) {
-      logger.info('清理非活躍連接完成', { cleanedCount, thresholdMinutes: inactiveThresholdMinutes });
+      logger.info("清理非活躍連接完成", {
+        cleanedCount,
+        thresholdMinutes: inactiveThresholdMinutes,
+      });
     }
   }
 
@@ -478,15 +513,19 @@ export class SocketService {
     onlineUsers: number;
     averageConnectionsPerUser: number;
   } {
-    const totalConnections = Array.from(this.userSockets.values())
-      .reduce((sum, connections) => sum + connections.length, 0);
+    const totalConnections = Array.from(this.userSockets.values()).reduce(
+      (sum, connections) => sum + connections.length,
+      0,
+    );
     const onlineUsers = this.userSockets.size;
-    const averageConnectionsPerUser = onlineUsers > 0 ? totalConnections / onlineUsers : 0;
+    const averageConnectionsPerUser =
+      onlineUsers > 0 ? totalConnections / onlineUsers : 0;
 
     return {
       totalConnections,
       onlineUsers,
-      averageConnectionsPerUser: Math.round(averageConnectionsPerUser * 100) / 100,
+      averageConnectionsPerUser:
+        Math.round(averageConnectionsPerUser * 100) / 100,
     };
   }
 }

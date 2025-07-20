@@ -3,8 +3,8 @@
  * 用於在沒有 Elasticsearch 環境時提供模擬搜尋功能
  */
 
-import { Pet } from '../models/Pet';
-import { SearchResult, SearchResponse } from './elasticsearchService';
+import { Pet } from "../models/Pet";
+import { SearchResult, SearchResponse } from "./elasticsearchService";
 
 export interface MockSearchQuery {
   query?: string;
@@ -18,13 +18,13 @@ export interface MockSearchQuery {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface MockSearchSuggestion {
   text: string;
   score: number;
-  type: 'breed' | 'location' | 'description' | 'name';
+  type: "breed" | "location" | "description" | "name";
 }
 
 export interface MockSearchAnalytics {
@@ -47,14 +47,18 @@ export interface MockSearchAnalytics {
 }
 
 class MockElasticsearchService {
-  private searchHistory: Array<{ query: string; timestamp: Date; filters: any }> = [];
+  private searchHistory: Array<{
+    query: string;
+    timestamp: Date;
+    filters: any;
+  }> = [];
 
   /**
    * 模擬 Elasticsearch 連接檢查
    */
   async checkConnection(): Promise<boolean> {
     // 模擬連接延遲
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     return true;
   }
 
@@ -63,8 +67,8 @@ class MockElasticsearchService {
    */
   async getHealth(): Promise<any> {
     return {
-      status: 'green',
-      cluster_name: 'mock-cluster',
+      status: "green",
+      cluster_name: "mock-cluster",
       number_of_nodes: 1,
       number_of_data_nodes: 1,
       active_primary_shards: 5,
@@ -76,7 +80,7 @@ class MockElasticsearchService {
       number_of_pending_tasks: 0,
       number_of_in_flight_fetch: 0,
       task_max_waiting_in_queue_millis: 0,
-      active_shards_percent_as_number: 100.0
+      active_shards_percent_as_number: 100.0,
     };
   }
 
@@ -85,25 +89,25 @@ class MockElasticsearchService {
    */
   async searchPets(searchQuery: MockSearchQuery): Promise<SearchResponse> {
     const startTime = Date.now();
-    
+
     // 記錄搜尋歷史
     this.searchHistory.push({
-      query: searchQuery.query || '',
+      query: searchQuery.query || "",
       timestamp: new Date(),
-      filters: searchQuery
+      filters: searchQuery,
     });
 
     try {
       // 建構 MongoDB 查詢
       const mongoQuery: any = {};
-      
+
       // 文字搜尋
       if (searchQuery.query) {
         mongoQuery.$or = [
-          { name: { $regex: searchQuery.query, $options: 'i' } },
-          { description: { $regex: searchQuery.query, $options: 'i' } },
-          { lastSeenLocation: { $regex: searchQuery.query, $options: 'i' } },
-          { breed: { $regex: searchQuery.query, $options: 'i' } }
+          { name: { $regex: searchQuery.query, $options: "i" } },
+          { description: { $regex: searchQuery.query, $options: "i" } },
+          { lastSeenLocation: { $regex: searchQuery.query, $options: "i" } },
+          { breed: { $regex: searchQuery.query, $options: "i" } },
         ];
       }
 
@@ -115,7 +119,10 @@ class MockElasticsearchService {
       if (searchQuery.gender) mongoQuery.gender = searchQuery.gender;
       if (searchQuery.color) mongoQuery.color = searchQuery.color;
       if (searchQuery.location) {
-        mongoQuery.lastSeenLocation = { $regex: searchQuery.location, $options: 'i' };
+        mongoQuery.lastSeenLocation = {
+          $regex: searchQuery.location,
+          $options: "i",
+        };
       }
 
       // 分頁設定
@@ -124,8 +131,8 @@ class MockElasticsearchService {
       const skip = (page - 1) * limit;
 
       // 排序設定
-      const sortBy = searchQuery.sortBy || 'createdAt';
-      const sortOrder = searchQuery.sortOrder === 'asc' ? 1 : -1;
+      const sortBy = searchQuery.sortBy || "createdAt";
+      const sortOrder = searchQuery.sortOrder === "asc" ? 1 : -1;
       const sort: any = { [sortBy]: sortOrder };
 
       // 執行查詢
@@ -134,9 +141,9 @@ class MockElasticsearchService {
           .sort(sort)
           .skip(skip)
           .limit(limit)
-          .populate('userId', 'username email')
+          .populate("userId", "username email")
           .lean(),
-        Pet.countDocuments(mongoQuery)
+        Pet.countDocuments(mongoQuery),
       ]);
 
       const took = Date.now() - startTime;
@@ -144,20 +151,19 @@ class MockElasticsearchService {
       // 轉換為 Elasticsearch 格式
       const hits: SearchResult[] = pets.map((pet, index) => ({
         id: pet._id.toString(),
-        score: 1.0 - (index * 0.1), // 模擬相關性分數
+        score: 1.0 - index * 0.1, // 模擬相關性分數
         source: pet,
-        highlights: this.generateHighlights(pet, searchQuery.query)
+        highlights: this.generateHighlights(pet, searchQuery.query),
       }));
 
       return {
         hits,
         total,
         maxScore: hits.length > 0 ? hits[0].score : 0,
-        took
+        took,
       };
-
     } catch (error) {
-      console.error('Mock search error:', error);
+      console.error("Mock search error:", error);
       throw error;
     }
   }
@@ -174,44 +180,43 @@ class MockElasticsearchService {
 
     try {
       // 品種建議
-      const breeds = await Pet.distinct('breed', {
-        breed: { $regex: query, $options: 'i' }
+      const breeds = await Pet.distinct("breed", {
+        breed: { $regex: query, $options: "i" },
       });
-      breeds.slice(0, 3).forEach(breed => {
+      breeds.slice(0, 3).forEach((breed) => {
         suggestions.push({
           text: breed,
           score: 0.9,
-          type: 'breed'
+          type: "breed",
         });
       });
 
       // 地點建議
-      const locations = await Pet.distinct('lastSeenLocation', {
-        lastSeenLocation: { $regex: query, $options: 'i' }
+      const locations = await Pet.distinct("lastSeenLocation", {
+        lastSeenLocation: { $regex: query, $options: "i" },
       });
-      locations.slice(0, 3).forEach(location => {
+      locations.slice(0, 3).forEach((location) => {
         suggestions.push({
           text: location,
           score: 0.8,
-          type: 'location'
+          type: "location",
         });
       });
 
       // 名稱建議
       const names = await Pet.find(
-        { name: { $regex: query, $options: 'i' } },
-        { name: 1 }
+        { name: { $regex: query, $options: "i" } },
+        { name: 1 },
       ).limit(3);
-      names.forEach(pet => {
+      names.forEach((pet) => {
         suggestions.push({
           text: pet.name,
           score: 0.7,
-          type: 'name'
+          type: "name",
         });
       });
-
     } catch (error) {
-      console.error('Mock suggestions error:', error);
+      console.error("Mock suggestions error:", error);
     }
 
     return suggestions.sort((a, b) => b.score - a.score);
@@ -220,18 +225,20 @@ class MockElasticsearchService {
   /**
    * 模擬搜尋分析
    */
-  async getSearchAnalytics(timeRange: string = '7d'): Promise<MockSearchAnalytics> {
-    const days = parseInt(timeRange.replace('d', '')) || 7;
+  async getSearchAnalytics(
+    timeRange: string = "7d",
+  ): Promise<MockSearchAnalytics> {
+    const days = parseInt(timeRange.replace("d", "")) || 7;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
     const recentSearches = this.searchHistory.filter(
-      search => search.timestamp >= startDate
+      (search) => search.timestamp >= startDate,
     );
 
     // 熱門查詢
     const queryCount: { [key: string]: number } = {};
-    recentSearches.forEach(search => {
+    recentSearches.forEach((search) => {
       if (search.query) {
         queryCount[search.query] = (queryCount[search.query] || 0) + 1;
       }
@@ -247,15 +254,18 @@ class MockElasticsearchService {
     const locationCount: { [key: string]: number } = {};
     const breedCount: { [key: string]: number } = {};
 
-    recentSearches.forEach(search => {
+    recentSearches.forEach((search) => {
       if (search.filters.type) {
-        typeCount[search.filters.type] = (typeCount[search.filters.type] || 0) + 1;
+        typeCount[search.filters.type] =
+          (typeCount[search.filters.type] || 0) + 1;
       }
       if (search.filters.location) {
-        locationCount[search.filters.location] = (locationCount[search.filters.location] || 0) + 1;
+        locationCount[search.filters.location] =
+          (locationCount[search.filters.location] || 0) + 1;
       }
       if (search.filters.breed) {
-        breedCount[search.filters.breed] = (breedCount[search.filters.breed] || 0) + 1;
+        breedCount[search.filters.breed] =
+          (breedCount[search.filters.breed] || 0) + 1;
       }
     });
 
@@ -264,13 +274,13 @@ class MockElasticsearchService {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      const count = recentSearches.filter(search => {
-        const searchDate = search.timestamp.toISOString().split('T')[0];
+      const dateStr = date.toISOString().split("T")[0];
+
+      const count = recentSearches.filter((search) => {
+        const searchDate = search.timestamp.toISOString().split("T")[0];
         return searchDate === dateStr;
       }).length;
-      
+
       searchTrends.push({ date: dateStr, count });
     }
 
@@ -278,13 +288,22 @@ class MockElasticsearchService {
       totalSearches: recentSearches.length,
       popularQueries,
       popularFilters: {
-        types: Object.entries(typeCount).map(([key, count]) => ({ key, count })),
-        locations: Object.entries(locationCount).map(([key, count]) => ({ key, count })),
-        breeds: Object.entries(breedCount).map(([key, count]) => ({ key, count }))
+        types: Object.entries(typeCount).map(([key, count]) => ({
+          key,
+          count,
+        })),
+        locations: Object.entries(locationCount).map(([key, count]) => ({
+          key,
+          count,
+        })),
+        breeds: Object.entries(breedCount).map(([key, count]) => ({
+          key,
+          count,
+        })),
       },
       searchTrends,
       averageResponseTime: 150, // 模擬平均回應時間
-      successRate: 99.5 // 模擬成功率
+      successRate: 99.5, // 模擬成功率
     };
   }
 
@@ -295,7 +314,7 @@ class MockElasticsearchService {
     if (!query) return {};
 
     const highlights: any = {};
-    const regex = new RegExp(query, 'gi');
+    const regex = new RegExp(query, "gi");
 
     if (pet.name && regex.test(pet.name)) {
       highlights.name = [pet.name.replace(regex, `<em>${query}</em>`)];
@@ -305,7 +324,9 @@ class MockElasticsearchService {
       highlights.description = [snippet.replace(regex, `<em>${query}</em>`)];
     }
     if (pet.lastSeenLocation && regex.test(pet.lastSeenLocation)) {
-      highlights.lastSeenLocation = [pet.lastSeenLocation.replace(regex, `<em>${query}</em>`)];
+      highlights.lastSeenLocation = [
+        pet.lastSeenLocation.replace(regex, `<em>${query}</em>`),
+      ];
     }
 
     return highlights;
@@ -315,14 +336,18 @@ class MockElasticsearchService {
    * 模擬索引初始化
    */
   async initializeIndex(): Promise<boolean> {
-    console.log('Mock Elasticsearch: 索引初始化完成');
+    console.log("Mock Elasticsearch: 索引初始化完成");
     return true;
   }
 
   /**
    * 模擬文檔索引
    */
-  async indexDocument(index: string, id: string, document: any): Promise<boolean> {
+  async indexDocument(
+    index: string,
+    id: string,
+    document: any,
+  ): Promise<boolean> {
     console.log(`Mock Elasticsearch: 文檔已索引 - ${index}/${id}`);
     return true;
   }
@@ -337,35 +362,39 @@ class MockElasticsearchService {
       errors: false,
       items: operations.map((_, index) => ({
         index: {
-          _index: 'pets',
+          _index: "pets",
           _id: `mock_${index}`,
           _version: 1,
-          result: 'created',
-          status: 201
-        }
-      }))
+          result: "created",
+          status: 201,
+        },
+      })),
     };
   }
 
   /**
    * 模擬重新索引
    */
-  async reindexAllPets(): Promise<{ success: boolean; indexed: number; failed: number }> {
+  async reindexAllPets(): Promise<{
+    success: boolean;
+    indexed: number;
+    failed: number;
+  }> {
     try {
       const totalPets = await Pet.countDocuments();
       console.log(`Mock Elasticsearch: 重新索引 ${totalPets} 個寵物文檔`);
-      
+
       return {
         success: true,
         indexed: totalPets,
-        failed: 0
+        failed: 0,
       };
     } catch (error) {
-      console.error('Mock reindex error:', error);
+      console.error("Mock reindex error:", error);
       return {
         success: false,
         indexed: 0,
-        failed: 1
+        failed: 1,
       };
     }
   }
@@ -379,7 +408,7 @@ class MockElasticsearchService {
       averageResponseTime: 150,
       successRate: 99.5,
       errorRate: 0.5,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
   }
 }

@@ -1,6 +1,6 @@
-import { elasticsearchService } from '../elasticsearchService';
-import { logger } from '../../utils/logger';
-import { indexingService } from './indexing';
+import { elasticsearchService } from "../elasticsearchService";
+import { logger } from "../../utils/logger";
+import { indexingService } from "./indexing";
 
 // 搜尋分析介面
 export interface SearchAnalytics {
@@ -51,97 +51,107 @@ export class SearchAnalyticsService {
   /**
    * 記錄搜尋分析數據
    */
-  public async recordSearchAnalytics(analytics: SearchAnalytics): Promise<void> {
+  public async recordSearchAnalytics(
+    analytics: SearchAnalytics,
+  ): Promise<void> {
     try {
       await elasticsearchService.getClient().index({
         index: indexingService.getSearchAnalyticsIndexName(),
         body: {
           ...analytics,
-          timestamp: analytics.timestamp || new Date()
-        }
+          timestamp: analytics.timestamp || new Date(),
+        },
       });
 
-      logger.debug('搜尋分析數據已記錄', { query: analytics.query, userId: analytics.userId });
+      logger.debug("搜尋分析數據已記錄", {
+        query: analytics.query,
+        userId: analytics.userId,
+      });
     } catch (error) {
-      logger.error('記錄搜尋分析數據失敗:', error);
+      logger.error("記錄搜尋分析數據失敗:", error);
     }
   }
 
   /**
    * 批量記錄搜尋分析數據
    */
-  public async recordBulkSearchAnalytics(analyticsArray: SearchAnalytics[]): Promise<void> {
+  public async recordBulkSearchAnalytics(
+    analyticsArray: SearchAnalytics[],
+  ): Promise<void> {
     try {
-      const body = analyticsArray.flatMap(analytics => [
+      const body = analyticsArray.flatMap((analytics) => [
         { index: { _index: indexingService.getSearchAnalyticsIndexName() } },
         {
           ...analytics,
-          timestamp: analytics.timestamp || new Date()
-        }
+          timestamp: analytics.timestamp || new Date(),
+        },
       ]);
 
       await elasticsearchService.getClient().bulk({ body });
       logger.debug(`批量記錄了 ${analyticsArray.length} 條搜尋分析數據`);
     } catch (error) {
-      logger.error('批量記錄搜尋分析數據失敗:', error);
+      logger.error("批量記錄搜尋分析數據失敗:", error);
     }
   }
 
   /**
    * 獲取搜尋統計數據
    */
-  public async getSearchStats(startDate?: Date, endDate?: Date): Promise<SearchStats> {
+  public async getSearchStats(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<SearchStats> {
     try {
       const query: any = {
         size: 0,
         aggs: {
           total_searches: {
             value_count: {
-              field: 'query.keyword'
-            }
+              field: "query.keyword",
+            },
           },
           unique_users: {
             cardinality: {
-              field: 'userId'
-            }
+              field: "userId",
+            },
           },
           average_result_count: {
             avg: {
-              field: 'resultCount'
-            }
+              field: "resultCount",
+            },
           },
           popular_queries: {
             terms: {
-              field: 'query.keyword',
-              size: 10
-            }
+              field: "query.keyword",
+              size: 10,
+            },
           },
           popular_types: {
             terms: {
-              field: 'filters.type',
-              size: 10
-            }
+              field: "filters.type",
+              size: 10,
+            },
           },
           popular_locations: {
             terms: {
-              field: 'filters.location.keyword',
-              size: 10
-            }
+              field: "filters.location.keyword",
+              size: 10,
+            },
           },
           popular_breeds: {
             terms: {
-              field: 'filters.breed.keyword',
-              size: 10
-            }
+              field: "filters.breed.keyword",
+              size: 10,
+            },
           },
           search_trends: {
             date_histogram: {
-              field: 'timestamp',
-              calendar_interval: 'day',
-              format: 'yyyy-MM-dd'
-            }
-          }
-        }
+              field: "timestamp",
+              calendar_interval: "day",
+              format: "yyyy-MM-dd",
+            },
+          },
+        },
       };
 
       // 添加日期範圍篩選
@@ -152,8 +162,8 @@ export class SearchAnalyticsService {
 
         query.query = {
           range: {
-            timestamp: dateRange
-          }
+            timestamp: dateRange,
+          },
         };
       }
 
@@ -161,30 +171,30 @@ export class SearchAnalyticsService {
       if (this.supportsAdvancedMetrics()) {
         query.aggs.average_search_duration = {
           avg: {
-            field: 'searchDuration'
-          }
+            field: "searchDuration",
+          },
         };
         query.aggs.click_through_rate = {
           bucket_script: {
             buckets_path: {
-              clicks: 'total_clicks',
-              searches: 'total_searches'
+              clicks: "total_clicks",
+              searches: "total_searches",
             },
-            script: 'params.clicks / params.searches'
-          }
+            script: "params.clicks / params.searches",
+          },
         };
         query.aggs.total_clicks = {
           sum: {
             script: {
-              source: "doc['clickedResults'].size()"
-            }
-          }
+              source: "doc['clickedResults'].size()",
+            },
+          },
         };
       }
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query
+        body: query,
       });
 
       const aggs = response.body.aggregations;
@@ -195,29 +205,29 @@ export class SearchAnalyticsService {
         averageResultCount: Math.round(aggs.average_result_count.value || 0),
         popularQueries: aggs.popular_queries.buckets.map((bucket: any) => ({
           query: bucket.key,
-          count: bucket.doc_count
+          count: bucket.doc_count,
         })),
         popularTypes: aggs.popular_types.buckets.map((bucket: any) => ({
           type: bucket.key,
-          count: bucket.doc_count
+          count: bucket.doc_count,
         })),
         popularLocations: aggs.popular_locations.buckets.map((bucket: any) => ({
           location: bucket.key,
-          count: bucket.doc_count
+          count: bucket.doc_count,
         })),
         popularBreeds: aggs.popular_breeds.buckets.map((bucket: any) => ({
           breed: bucket.key,
-          count: bucket.doc_count
+          count: bucket.doc_count,
         })),
         searchTrends: aggs.search_trends.buckets.map((bucket: any) => ({
           date: bucket.key_as_string,
-          count: bucket.doc_count
+          count: bucket.doc_count,
         })),
         averageSearchDuration: aggs.average_search_duration?.value,
-        clickThroughRate: aggs.click_through_rate?.value
+        clickThroughRate: aggs.click_through_rate?.value,
       };
     } catch (error) {
-      logger.error('獲取搜尋統計數據失敗:', error);
+      logger.error("獲取搜尋統計數據失敗:", error);
       return {
         totalSearches: 0,
         uniqueUsers: 0,
@@ -226,7 +236,7 @@ export class SearchAnalyticsService {
         popularTypes: [],
         popularLocations: [],
         popularBreeds: [],
-        searchTrends: []
+        searchTrends: [],
       };
     }
   }
@@ -234,47 +244,53 @@ export class SearchAnalyticsService {
   /**
    * 獲取用戶搜尋統計
    */
-  public async getUserSearchStats(userId: string, startDate?: Date, endDate?: Date): Promise<{
+  public async getUserSearchStats(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
     totalSearches: number;
     uniqueQueries: number;
     averageResultCount: number;
     topQueries: Array<{ query: string; count: number }>;
-    searchHistory: Array<{ query: string; timestamp: Date; resultCount: number }>;
+    searchHistory: Array<{
+      query: string;
+      timestamp: Date;
+      resultCount: number;
+    }>;
   }> {
     try {
       const query: any = {
         query: {
           bool: {
-            must: [
-              { term: { userId } }
-            ]
-          }
+            must: [{ term: { userId } }],
+          },
         },
         size: 100,
-        sort: [{ timestamp: { order: 'desc' } }],
+        sort: [{ timestamp: { order: "desc" } }],
         aggs: {
           total_searches: {
             value_count: {
-              field: 'query.keyword'
-            }
+              field: "query.keyword",
+            },
           },
           unique_queries: {
             cardinality: {
-              field: 'query.keyword'
-            }
+              field: "query.keyword",
+            },
           },
           average_result_count: {
             avg: {
-              field: 'resultCount'
-            }
+              field: "resultCount",
+            },
           },
           top_queries: {
             terms: {
-              field: 'query.keyword',
-              size: 10
-            }
-          }
-        }
+              field: "query.keyword",
+              size: 10,
+            },
+          },
+        },
       };
 
       // 添加日期範圍篩選
@@ -285,14 +301,14 @@ export class SearchAnalyticsService {
 
         query.query.bool.must.push({
           range: {
-            timestamp: dateRange
-          }
+            timestamp: dateRange,
+          },
         });
       }
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query
+        body: query,
       });
 
       const aggs = response.body.aggregations;
@@ -304,22 +320,22 @@ export class SearchAnalyticsService {
         averageResultCount: Math.round(aggs.average_result_count.value || 0),
         topQueries: aggs.top_queries.buckets.map((bucket: any) => ({
           query: bucket.key,
-          count: bucket.doc_count
+          count: bucket.doc_count,
         })),
         searchHistory: hits.map((hit: any) => ({
           query: hit._source.query,
           timestamp: new Date(hit._source.timestamp),
-          resultCount: hit._source.resultCount
-        }))
+          resultCount: hit._source.resultCount,
+        })),
       };
     } catch (error) {
-      logger.error('獲取用戶搜尋統計失敗:', error);
+      logger.error("獲取用戶搜尋統計失敗:", error);
       return {
         totalSearches: 0,
         uniqueQueries: 0,
         averageResultCount: 0,
         topQueries: [],
-        searchHistory: []
+        searchHistory: [],
       };
     }
   }
@@ -327,21 +343,25 @@ export class SearchAnalyticsService {
   /**
    * 獲取搜尋趨勢數據
    */
-  public async getSearchTrends(period: 'daily' | 'weekly' | 'monthly', startDate?: Date, endDate?: Date): Promise<SearchTrend[]> {
+  public async getSearchTrends(
+    period: "daily" | "weekly" | "monthly",
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<SearchTrend[]> {
     try {
       let interval: string;
       switch (period) {
-        case 'daily':
-          interval = 'day';
+        case "daily":
+          interval = "day";
           break;
-        case 'weekly':
-          interval = 'week';
+        case "weekly":
+          interval = "week";
           break;
-        case 'monthly':
-          interval = 'month';
+        case "monthly":
+          interval = "month";
           break;
         default:
-          interval = 'day';
+          interval = "day";
       }
 
       const query: any = {
@@ -349,30 +369,30 @@ export class SearchAnalyticsService {
         aggs: {
           trends: {
             date_histogram: {
-              field: 'timestamp',
+              field: "timestamp",
               calendar_interval: interval,
-              format: 'yyyy-MM-dd'
+              format: "yyyy-MM-dd",
             },
             aggs: {
               unique_users: {
                 cardinality: {
-                  field: 'userId'
-                }
+                  field: "userId",
+                },
               },
               average_results: {
                 avg: {
-                  field: 'resultCount'
-                }
+                  field: "resultCount",
+                },
               },
               top_queries: {
                 terms: {
-                  field: 'query.keyword',
-                  size: 5
-                }
-              }
-            }
-          }
-        }
+                  field: "query.keyword",
+                  size: 5,
+                },
+              },
+            },
+          },
+        },
       };
 
       // 添加日期範圍篩選
@@ -383,14 +403,14 @@ export class SearchAnalyticsService {
 
         query.query = {
           range: {
-            timestamp: dateRange
-          }
+            timestamp: dateRange,
+          },
         };
       }
 
       const response = await elasticsearchService.getClient().search({
         index: indexingService.getSearchAnalyticsIndexName(),
-        body: query
+        body: query,
       });
 
       const trends: SearchTrend[] = [];
@@ -403,14 +423,14 @@ export class SearchAnalyticsService {
             count: bucket.doc_count,
             uniqueUsers: bucket.unique_users.value,
             averageResults: Math.round(bucket.average_results.value || 0),
-            topQueries: bucket.top_queries.buckets.map((q: any) => q.key)
+            topQueries: bucket.top_queries.buckets.map((q: any) => q.key),
           });
         });
       }
 
       return trends;
     } catch (error) {
-      logger.error('獲取搜尋趨勢數據失敗:', error);
+      logger.error("獲取搜尋趨勢數據失敗:", error);
       return [];
     }
   }
@@ -418,7 +438,11 @@ export class SearchAnalyticsService {
   /**
    * 記錄搜尋結果點擊
    */
-  public async recordSearchClick(searchId: string, petId: string, position: number): Promise<void> {
+  public async recordSearchClick(
+    searchId: string,
+    petId: string,
+    position: number,
+  ): Promise<void> {
     try {
       await elasticsearchService.getClient().update({
         index: indexingService.getSearchAnalyticsIndexName(),
@@ -435,16 +459,16 @@ export class SearchAnalyticsService {
               click: {
                 petId,
                 position,
-                timestamp: new Date().toISOString()
-              }
-            }
-          }
-        }
+                timestamp: new Date().toISOString(),
+              },
+            },
+          },
+        },
       });
 
-      logger.debug('搜尋點擊已記錄', { searchId, petId, position });
+      logger.debug("搜尋點擊已記錄", { searchId, petId, position });
     } catch (error) {
-      logger.error('記錄搜尋點擊失敗:', error);
+      logger.error("記錄搜尋點擊失敗:", error);
     }
   }
 
@@ -455,7 +479,11 @@ export class SearchAnalyticsService {
     clickThroughRate: number;
     averageClickPosition: number;
     zeroResultQueries: Array<{ query: string; count: number }>;
-    highPerformingQueries: Array<{ query: string; ctr: number; avgPosition: number }>;
+    highPerformingQueries: Array<{
+      query: string;
+      ctr: number;
+      avgPosition: number;
+    }>;
   }> {
     try {
       const response = await elasticsearchService.getClient().search({
@@ -465,48 +493,48 @@ export class SearchAnalyticsService {
           aggs: {
             total_searches: {
               value_count: {
-                field: 'query.keyword'
-              }
+                field: "query.keyword",
+              },
             },
             searches_with_clicks: {
               filter: {
                 exists: {
-                  field: 'clickedResults'
-                }
-              }
+                  field: "clickedResults",
+                },
+              },
             },
             zero_result_queries: {
               filter: {
                 term: {
-                  resultCount: 0
-                }
+                  resultCount: 0,
+                },
               },
               aggs: {
                 queries: {
                   terms: {
-                    field: 'query.keyword',
-                    size: 10
-                  }
-                }
-              }
+                    field: "query.keyword",
+                    size: 10,
+                  },
+                },
+              },
             },
             query_performance: {
               terms: {
-                field: 'query.keyword',
-                size: 100
+                field: "query.keyword",
+                size: 100,
               },
               aggs: {
                 total_searches: {
                   value_count: {
-                    field: 'query.keyword'
-                  }
+                    field: "query.keyword",
+                  },
                 },
                 searches_with_clicks: {
                   filter: {
                     exists: {
-                      field: 'clickedResults'
-                    }
-                  }
+                      field: "clickedResults",
+                    },
+                  },
                 },
                 average_click_position: {
                   avg: {
@@ -516,47 +544,57 @@ export class SearchAnalyticsService {
                           return doc['clickedResults'][0].position;
                         }
                         return null;
-                      `
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                      `,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       const aggs = response.body.aggregations;
       const totalSearches = aggs.total_searches.value;
       const searchesWithClicks = aggs.searches_with_clicks.doc_count;
-      const clickThroughRate = totalSearches > 0 ? (searchesWithClicks / totalSearches) * 100 : 0;
+      const clickThroughRate =
+        totalSearches > 0 ? (searchesWithClicks / totalSearches) * 100 : 0;
 
       // 計算平均點擊位置
       let totalClickPositions = 0;
       let totalClicks = 0;
       aggs.query_performance.buckets.forEach((bucket: any) => {
         if (bucket.average_click_position.value) {
-          totalClickPositions += bucket.average_click_position.value * bucket.searches_with_clicks.doc_count;
+          totalClickPositions +=
+            bucket.average_click_position.value *
+            bucket.searches_with_clicks.doc_count;
           totalClicks += bucket.searches_with_clicks.doc_count;
         }
       });
-      const averageClickPosition = totalClicks > 0 ? totalClickPositions / totalClicks : 0;
+      const averageClickPosition =
+        totalClicks > 0 ? totalClickPositions / totalClicks : 0;
 
       // 零結果查詢
-      const zeroResultQueries = aggs.zero_result_queries.queries.buckets.map((bucket: any) => ({
-        query: bucket.key,
-        count: bucket.doc_count
-      }));
+      const zeroResultQueries = aggs.zero_result_queries.queries.buckets.map(
+        (bucket: any) => ({
+          query: bucket.key,
+          count: bucket.doc_count,
+        }),
+      );
 
       // 高效查詢
       const highPerformingQueries = aggs.query_performance.buckets
         .map((bucket: any) => {
-          const ctr = bucket.total_searches.value > 0 ? 
-            (bucket.searches_with_clicks.doc_count / bucket.total_searches.value) * 100 : 0;
+          const ctr =
+            bucket.total_searches.value > 0
+              ? (bucket.searches_with_clicks.doc_count /
+                  bucket.total_searches.value) *
+                100
+              : 0;
           return {
             query: bucket.key,
             ctr,
-            avgPosition: bucket.average_click_position.value || 0
+            avgPosition: bucket.average_click_position.value || 0,
           };
         })
         .filter((item: any) => item.ctr > 10) // 點擊率大於10%
@@ -567,15 +605,15 @@ export class SearchAnalyticsService {
         clickThroughRate,
         averageClickPosition,
         zeroResultQueries,
-        highPerformingQueries
+        highPerformingQueries,
       };
     } catch (error) {
-      logger.error('獲取搜尋效果分析失敗:', error);
+      logger.error("獲取搜尋效果分析失敗:", error);
       return {
         clickThroughRate: 0,
         averageClickPosition: 0,
         zeroResultQueries: [],
-        highPerformingQueries: []
+        highPerformingQueries: [],
       };
     }
   }
@@ -583,7 +621,9 @@ export class SearchAnalyticsService {
   /**
    * 清理過期的分析數據
    */
-  public async cleanupAnalyticsData(daysToKeep: number = 90): Promise<{ deletedCount: number }> {
+  public async cleanupAnalyticsData(
+    daysToKeep: number = 90,
+  ): Promise<{ deletedCount: number }> {
     try {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
@@ -594,19 +634,19 @@ export class SearchAnalyticsService {
           query: {
             range: {
               timestamp: {
-                lt: cutoffDate.toISOString()
-              }
-            }
-          }
-        }
+                lt: cutoffDate.toISOString(),
+              },
+            },
+          },
+        },
       });
 
       const deletedCount = response.body.deleted || 0;
       logger.info(`清理了 ${deletedCount} 條過期分析數據`);
-      
+
       return { deletedCount };
     } catch (error) {
-      logger.error('清理分析數據失敗:', error);
+      logger.error("清理分析數據失敗:", error);
       return { deletedCount: 0 };
     }
   }

@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // AI 圖像優化 schema
 export const imageOptimizeSchema = z.object({
   maxWidth: z.number().min(100).max(2000).optional(),
   maxHeight: z.number().min(100).max(2000).optional(),
   quality: z.number().min(10).max(100).optional(),
-  format: z.enum(['jpeg', 'png', 'webp']).optional(),
+  format: z.enum(["jpeg", "png", "webp"]).optional(),
 });
 
 // AI 圖像裁剪 schema

@@ -1,7 +1,7 @@
-import admin from 'firebase-admin';
-import { config } from '../config/environment';
-import { logger } from '../utils/logger';
-import { NotificationType, NotificationPriority } from '../models/Notification';
+import admin from "firebase-admin";
+import { config } from "../config/environment";
+import { logger } from "../utils/logger";
+import { NotificationType, NotificationPriority } from "../models/Notification";
 
 /**
  * Firebase 推播通知介面
@@ -29,13 +29,13 @@ export class FirebaseService {
   static initialize(): void {
     try {
       if (this.app) {
-        logger.info('Firebase Admin SDK 已經初始化');
+        logger.info("Firebase Admin SDK 已經初始化");
         return;
       }
 
       // 檢查必要的環境變數
       if (!config.firebase.serviceAccountKey) {
-        logger.warn('Firebase 服務帳號金鑰未設定，推播通知功能將被停用');
+        logger.warn("Firebase 服務帳號金鑰未設定，推播通知功能將被停用");
         return;
       }
 
@@ -46,9 +46,9 @@ export class FirebaseService {
       });
 
       this.messaging = admin.messaging(this.app);
-      logger.info('Firebase Admin SDK 初始化成功');
+      logger.info("Firebase Admin SDK 初始化成功");
     } catch (error) {
-      logger.error('Firebase Admin SDK 初始化失敗', { error });
+      logger.error("Firebase Admin SDK 初始化失敗", { error });
       throw error;
     }
   }
@@ -58,7 +58,7 @@ export class FirebaseService {
    */
   private static ensureInitialized(): void {
     if (!this.messaging) {
-      throw new Error('Firebase Admin SDK 尚未初始化');
+      throw new Error("Firebase Admin SDK 尚未初始化");
     }
   }
 
@@ -67,7 +67,7 @@ export class FirebaseService {
    */
   static async sendToDevice(
     token: string,
-    payload: PushNotificationPayload
+    payload: PushNotificationPayload,
   ): Promise<boolean> {
     try {
       this.ensureInitialized();
@@ -81,8 +81,8 @@ export class FirebaseService {
         },
         data: {
           ...payload.data,
-          type: payload.type || '',
-          actionUrl: payload.actionUrl || '',
+          type: payload.type || "",
+          actionUrl: payload.actionUrl || "",
           priority: payload.priority || NotificationPriority.NORMAL,
         },
         android: {
@@ -101,7 +101,7 @@ export class FirebaseService {
                 title: payload.title,
                 body: payload.body,
               },
-              sound: 'default',
+              sound: "default",
               badge: 1,
             },
           },
@@ -110,10 +110,11 @@ export class FirebaseService {
           notification: {
             title: payload.title,
             body: payload.body,
-            icon: '/icons/icon-192x192.png',
-            badge: '/icons/badge-72x72.png',
+            icon: "/icons/icon-192x192.png",
+            badge: "/icons/badge-72x72.png",
             image: payload.imageUrl,
-            requireInteraction: payload.priority === NotificationPriority.URGENT,
+            requireInteraction:
+              payload.priority === NotificationPriority.URGENT,
           },
           fcmOptions: {
             link: payload.actionUrl,
@@ -122,23 +123,25 @@ export class FirebaseService {
       };
 
       const response = await this.messaging!.send(message);
-      logger.info('推播通知發送成功', {
+      logger.info("推播通知發送成功", {
         messageId: response,
-        token: token.substring(0, 20) + '...',
+        token: token.substring(0, 20) + "...",
         title: payload.title,
       });
 
       return true;
     } catch (error: any) {
-      logger.error('推播通知發送失敗', {
+      logger.error("推播通知發送失敗", {
         error: error.message,
-        token: token.substring(0, 20) + '...',
+        token: token.substring(0, 20) + "...",
         title: payload.title,
       });
 
       // 檢查是否為無效的 token
-      if (error.code === 'messaging/registration-token-not-registered') {
-        logger.info('裝置 token 已失效', { token: token.substring(0, 20) + '...' });
+      if (error.code === "messaging/registration-token-not-registered") {
+        logger.info("裝置 token 已失效", {
+          token: token.substring(0, 20) + "...",
+        });
         // 這裡可以觸發清理無效 token 的邏輯
       }
 
@@ -151,8 +154,12 @@ export class FirebaseService {
    */
   static async sendToMultipleDevices(
     tokens: string[],
-    payload: PushNotificationPayload
-  ): Promise<{ successCount: number; failureCount: number; invalidTokens: string[] }> {
+    payload: PushNotificationPayload,
+  ): Promise<{
+    successCount: number;
+    failureCount: number;
+    invalidTokens: string[];
+  }> {
     try {
       this.ensureInitialized();
 
@@ -177,8 +184,8 @@ export class FirebaseService {
           },
           data: {
             ...payload.data,
-            type: payload.type || '',
-            actionUrl: payload.actionUrl || '',
+            type: payload.type || "",
+            actionUrl: payload.actionUrl || "",
             priority: payload.priority || NotificationPriority.NORMAL,
           },
           android: {
@@ -197,7 +204,7 @@ export class FirebaseService {
                   title: payload.title,
                   body: payload.body,
                 },
-                sound: 'default',
+                sound: "default",
                 badge: 1,
               },
             },
@@ -206,10 +213,11 @@ export class FirebaseService {
             notification: {
               title: payload.title,
               body: payload.body,
-              icon: '/icons/icon-192x192.png',
-              badge: '/icons/badge-72x72.png',
+              icon: "/icons/icon-192x192.png",
+              badge: "/icons/badge-72x72.png",
               image: payload.imageUrl,
-              requireInteraction: payload.priority === NotificationPriority.URGENT,
+              requireInteraction:
+                payload.priority === NotificationPriority.URGENT,
             },
             fcmOptions: {
               link: payload.actionUrl,
@@ -225,12 +233,15 @@ export class FirebaseService {
         response.responses.forEach((resp: any, idx: number) => {
           if (!resp.success && resp.error) {
             const token = batch[idx];
-            if (token && resp.error.code === 'messaging/registration-token-not-registered') {
+            if (
+              token &&
+              resp.error.code === "messaging/registration-token-not-registered"
+            ) {
               invalidTokens.push(token);
             }
             if (token) {
-              logger.warn('推播通知發送失敗', {
-                token: token.substring(0, 20) + '...',
+              logger.warn("推播通知發送失敗", {
+                token: token.substring(0, 20) + "...",
                 error: resp.error.message,
               });
             }
@@ -238,7 +249,7 @@ export class FirebaseService {
         });
       }
 
-      logger.info('批次推播通知發送完成', {
+      logger.info("批次推播通知發送完成", {
         totalTokens: tokens.length,
         successCount,
         failureCount,
@@ -247,8 +258,15 @@ export class FirebaseService {
 
       return { successCount, failureCount, invalidTokens };
     } catch (error) {
-      logger.error('批次推播通知發送失敗', { error, tokenCount: tokens.length });
-      return { successCount: 0, failureCount: tokens.length, invalidTokens: [] };
+      logger.error("批次推播通知發送失敗", {
+        error,
+        tokenCount: tokens.length,
+      });
+      return {
+        successCount: 0,
+        failureCount: tokens.length,
+        invalidTokens: [],
+      };
     }
   }
 
@@ -263,10 +281,10 @@ export class FirebaseService {
       const message: admin.messaging.Message = {
         token,
         data: {
-          test: 'true',
+          test: "true",
         },
       };
-      
+
       const options = {
         dryRun: true, // 不實際發送，只驗證
       };
@@ -274,10 +292,13 @@ export class FirebaseService {
       await this.messaging!.send(message, options.dryRun);
       return true;
     } catch (error: any) {
-      if (error.code === 'messaging/registration-token-not-registered') {
+      if (error.code === "messaging/registration-token-not-registered") {
         return false;
       }
-      logger.error('Token 驗證失敗', { error: error.message, token: token.substring(0, 20) + '...' });
+      logger.error("Token 驗證失敗", {
+        error: error.message,
+        token: token.substring(0, 20) + "...",
+      });
       return false;
     }
   }
@@ -285,13 +306,15 @@ export class FirebaseService {
   /**
    * 取得 Android 優先級
    */
-  private static getAndroidPriority(priority?: NotificationPriority): 'normal' | 'high' {
+  private static getAndroidPriority(
+    priority?: NotificationPriority,
+  ): "normal" | "high" {
     switch (priority) {
       case NotificationPriority.HIGH:
       case NotificationPriority.URGENT:
-        return 'high';
+        return "high";
       default:
-        return 'normal';
+        return "normal";
     }
   }
 
@@ -299,17 +322,17 @@ export class FirebaseService {
    * 取得 Android 通知優先級
    */
   private static getAndroidNotificationPriority(
-    priority?: NotificationPriority
-  ): 'min' | 'low' | 'default' | 'high' | 'max' {
+    priority?: NotificationPriority,
+  ): "min" | "low" | "default" | "high" | "max" {
     switch (priority) {
       case NotificationPriority.LOW:
-        return 'low';
+        return "low";
       case NotificationPriority.HIGH:
-        return 'high';
+        return "high";
       case NotificationPriority.URGENT:
-        return 'max';
+        return "max";
       default:
-        return 'default';
+        return "default";
     }
   }
 
@@ -319,19 +342,19 @@ export class FirebaseService {
   private static getChannelId(type?: NotificationType): string {
     switch (type) {
       case NotificationType.PET_FOUND:
-        return 'pet_found';
+        return "pet_found";
       case NotificationType.PET_MISSING:
-        return 'pet_missing';
+        return "pet_missing";
       case NotificationType.MATCH_FOUND:
-        return 'match_found';
+        return "match_found";
       case NotificationType.MESSAGE_RECEIVED:
-        return 'messages';
+        return "messages";
       case NotificationType.SYSTEM_UPDATE:
-        return 'system';
+        return "system";
       case NotificationType.ACCOUNT_SECURITY:
-        return 'security';
+        return "security";
       default:
-        return 'default';
+        return "default";
     }
   }
 

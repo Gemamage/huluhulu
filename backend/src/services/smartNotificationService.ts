@@ -14,9 +14,9 @@ export {
   GeofenceArea,
   ReminderConfig,
   SmartNotificationStats,
-  UserNotificationStats
-} from './notifications';
+  UserNotificationStats,
+} from "./notifications";
 
 // 為了向後兼容，也導出默認實例
-import { smartNotificationService } from './notifications';
+import { smartNotificationService } from "./notifications";
 export default smartNotificationService;

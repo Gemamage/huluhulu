@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { NotFoundError } from '../utils/errors';
+import { Request, Response, NextFunction } from "express";
+import { NotFoundError } from "../utils/errors";
 
 /**
  * 404 Not Found 中介軟體
@@ -8,12 +8,12 @@ import { NotFoundError } from '../utils/errors';
 export const notFoundHandler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   const error = new NotFoundError(
-    `API 端點 ${req.method} ${req.originalUrl} 不存在`
+    `API 端點 ${req.method} ${req.originalUrl} 不存在`,
   );
-  
+
   next(error);
 };
 

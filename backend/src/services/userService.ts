@@ -10,8 +10,8 @@ export {
   AdminUpdateUserData,
   UserQueryOptions,
   UserListResult,
-} from './users';
+} from "./users";
 
 // 為了向後兼容，也導出默認實例
-import { userService } from './users';
+import { userService } from "./users";
 export default userService;
