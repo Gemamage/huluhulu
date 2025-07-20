@@ -30,7 +30,8 @@ export interface UserRegistrationData {
  */
 export const validateEmail = (email: string): boolean => {
   if (!email) return false;
-  const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const emailRegex =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return emailRegex.test(String(email).toLowerCase());
 };
 
@@ -40,12 +41,12 @@ export const validateEmail = (email: string): boolean => {
  */
 export const validatePassword = (password: string): boolean => {
   if (password.length < 8) return false;
-  
+
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-  
+
   return hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
 };
 
@@ -80,18 +81,23 @@ export const validateRequired = (value: any): boolean => {
 /**
  * 驗證寵物資料
  */
-export const validatePetData = (data: CreatePetData): { isValid: boolean; errors: string[] } => {
+export const validatePetData = (
+  data: CreatePetData
+): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   // 驗證必填欄位
   if (!validateRequired(data.name)) errors.push('寵物名稱為必填項目');
   if (!validateRequired(data.type)) errors.push('寵物類型為必填項目');
   if (!validateRequired(data.gender)) errors.push('寵物性別為必填項目');
   if (!validateRequired(data.size)) errors.push('寵物體型為必填項目');
   if (!validateRequired(data.status)) errors.push('寵物狀態為必填項目');
-  
+
   // 驗證年齡
-  if (data.age !== undefined && (typeof data.age !== 'number' || data.age < 0)) {
+  if (
+    data.age !== undefined &&
+    (typeof data.age !== 'number' || data.age < 0)
+  ) {
     errors.push('寵物年齡必須為正數');
   }
 
@@ -109,162 +115,183 @@ export const validatePetData = (data: CreatePetData): { isValid: boolean; errors
   } else {
     errors.push('最後出現地點為必填項目');
   }
-  
+
   // 驗證聯絡資訊
   if (data.contactInfo) {
     if (data.contactInfo.email && !validateEmail(data.contactInfo.email)) {
       errors.push('請輸入有效的電子郵件地址');
     }
-    
+
     if (data.contactInfo.phone && !validatePhone(data.contactInfo.phone)) {
       errors.push('請輸入有效的電話號碼');
     }
-    
+
     if (!data.contactInfo.phone && !data.contactInfo.email) {
       errors.push('至少需要提供一種聯絡方式');
     }
   } else {
     errors.push('聯絡資訊為必填項目');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
 /**
  * 驗證用戶註冊資料
  */
-export const validateUserRegistration = (data: UserRegistrationData): ValidationResult => {
+export const validateUserRegistration = (
+  data: UserRegistrationData
+): ValidationResult => {
   const errors: ValidationError[] = [];
-  
+
   // 驗證姓名
   if (!validateRequired(data.name)) {
     errors.push({ field: 'name', message: '請輸入姓名' });
   } else if (data.name.trim().length < 2) {
     errors.push({ field: 'name', message: '姓名至少需要2個字符' });
   }
-  
+
   // 驗證電子郵件
   if (!validateRequired(data.email)) {
     errors.push({ field: 'email', message: '請輸入電子郵件' });
   } else if (!validateEmail(data.email)) {
     errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
   }
-  
+
   // 驗證密碼
   if (!validateRequired(data.password)) {
     errors.push({ field: 'password', message: '請輸入密碼' });
   } else if (data.password.length < 8) {
     errors.push({ field: 'password', message: '密碼至少需要8個字符' });
   }
-  
+
   // 驗證手機號碼（選填）
   if (data.phone && data.phone.trim() && !validatePhone(data.phone)) {
     errors.push({ field: 'phone', message: '請輸入有效的手機號碼' });
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
 /**
  * 將驗證錯誤轉換為表單錯誤格式
  */
-export const convertValidationErrors = (errors: ValidationError[]): Record<string, string> => {
+export const convertValidationErrors = (
+  errors: ValidationError[]
+): Record<string, string> => {
   const formErrors: Record<string, string> = {};
-  
+
   errors.forEach(error => {
     formErrors[error.field] = error.message;
   });
-  
+
   return formErrors;
 };
 
 /**
  * 驗證搜尋過濾條件
  */
-export const validateSearchFilters = (filters: SearchFilters): { isValid: boolean; errors: string[] } => {
+export const validateSearchFilters = (
+  filters: SearchFilters
+): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   // 驗證位置搜尋範圍
   if (filters.location && typeof filters.location !== 'string') {
     errors.push('位置必須是字串格式');
   }
-  
+
   // 驗證寵物類型
-  const validTypes = ['dog', 'cat', 'bird', 'rabbit', 'hamster', 'fish', 'reptile', 'other', ''];
+  const validTypes = [
+    'dog',
+    'cat',
+    'bird',
+    'rabbit',
+    'hamster',
+    'fish',
+    'reptile',
+    'other',
+    '',
+  ];
   if (filters.type && !validTypes.includes(filters.type)) {
     errors.push('無效的寵物類型');
   }
-  
+
   // 驗證寵物狀態
   const validStatuses = ['lost', 'found', 'adopted', ''];
   if (filters.status && !validStatuses.includes(filters.status)) {
     errors.push('無效的狀態');
   }
-  
+
   // 驗證寵物性別
   const validGenders = ['male', 'female', 'unknown', ''];
   if (filters.gender && !validGenders.includes(filters.gender)) {
     errors.push('無效的性別');
   }
-  
+
   // 驗證寵物體型
   const validSizes = ['tiny', 'small', 'medium', 'large', 'giant', ''];
   if (filters.size && !validSizes.includes(filters.size)) {
     errors.push('無效的體型');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
 /**
  * 驗證用戶登入資料
  */
-export const validateUserLogin = (data: { email: string; password: string }): ValidationResult => {
+export const validateUserLogin = (data: {
+  email: string;
+  password: string;
+}): ValidationResult => {
   const errors: ValidationError[] = [];
-  
+
   // 驗證電子郵件
   if (!validateRequired(data.email)) {
     errors.push({ field: 'email', message: '電子郵件為必填項目' });
   } else if (!validateEmail(data.email)) {
     errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
   }
-  
+
   // 驗證密碼
   if (!validateRequired(data.password)) {
     errors.push({ field: 'password', message: '密碼為必填項目' });
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
 /**
  * 驗證密碼重設資料
  */
-export const validatePasswordReset = (data: { email: string }): ValidationResult => {
+export const validatePasswordReset = (data: {
+  email: string;
+}): ValidationResult => {
   const errors: ValidationError[] = [];
-  
+
   // 驗證電子郵件
   if (!validateRequired(data.email)) {
     errors.push({ field: 'email', message: '電子郵件為必填項目' });
   } else if (!validateEmail(data.email)) {
     errors.push({ field: 'email', message: '請輸入有效的電子郵件格式' });
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -273,66 +300,87 @@ export const validatePasswordReset = (data: { email: string }): ValidationResult
  */
 export const validatePetForm = (data: CreatePetData): ValidationResult => {
   const errors: ValidationError[] = [];
-  
+
   // 驗證寵物名稱
   if (!validateRequired(data.name)) {
     errors.push({ field: 'name', message: '寵物名稱為必填項目' });
   }
-  
+
   // 驗證寵物類型
   if (!validateRequired(data.type)) {
     errors.push({ field: 'type', message: '寵物類型為必填項目' });
   }
-  
+
   // 驗證寵物性別
   if (!validateRequired(data.gender)) {
     errors.push({ field: 'gender', message: '寵物性別為必填項目' });
   }
-  
+
   // 驗證寵物體型
   if (!validateRequired(data.size)) {
     errors.push({ field: 'size', message: '寵物體型為必填項目' });
   }
-  
+
   // 驗證寵物狀態
   if (!validateRequired(data.status)) {
     errors.push({ field: 'status', message: '寵物狀態為必填項目' });
   }
-  
+
   // 驗證年齡
-  if (data.age !== undefined && (typeof data.age !== 'number' || data.age < 0)) {
+  if (
+    data.age !== undefined &&
+    (typeof data.age !== 'number' || data.age < 0)
+  ) {
     errors.push({ field: 'age', message: '寵物年齡必須為正數' });
   }
 
   // 驗證位置資訊
   if (data.lastSeenLocation) {
     if (!validateRequired(data.lastSeenLocation.address)) {
-      errors.push({ field: 'lastSeenLocation.address', message: '最後出現地點為必填項目' });
+      errors.push({
+        field: 'lastSeenLocation.address',
+        message: '最後出現地點為必填項目',
+      });
     }
   } else {
-    errors.push({ field: 'lastSeenLocation', message: '最後出現地點為必填項目' });
+    errors.push({
+      field: 'lastSeenLocation',
+      message: '最後出現地點為必填項目',
+    });
   }
-  
+
   // 驗證聯絡資訊
   if (data.contactInfo) {
     if (data.contactInfo.email && !validateEmail(data.contactInfo.email)) {
-      errors.push({ field: 'contactInfo.email', message: '請輸入有效的電子郵件地址' });
+      errors.push({
+        field: 'contactInfo.email',
+        message: '請輸入有效的電子郵件地址',
+      });
     }
-    
+
     if (data.contactInfo.phone && !validatePhone(data.contactInfo.phone)) {
-      errors.push({ field: 'contactInfo.phone', message: '請輸入有效的電話號碼' });
+      errors.push({
+        field: 'contactInfo.phone',
+        message: '請輸入有效的電話號碼',
+      });
     }
-    
+
     if (!data.contactInfo.phone && !data.contactInfo.email) {
-      errors.push({ field: 'contactInfo', message: '至少需要提供一種聯絡方式' });
+      errors.push({
+        field: 'contactInfo',
+        message: '至少需要提供一種聯絡方式',
+      });
     }
   } else {
-    errors.push({ field: 'contactInfo', message: '聯絡資訊為必填項目' });
+    errors.push({
+      field: 'contactInfo',
+      message: '聯絡資訊為必填項目',
+    });
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -342,18 +390,19 @@ export const validatePetForm = (data: CreatePetData): ValidationResult => {
 export const ValidationRules = {
   email: {
     test: (value: string) => validateEmail(value),
-    message: '請輸入有效的電子郵件格式'
+    message: '請輸入有效的電子郵件格式',
   },
   password: {
     test: (value: string) => validatePassword(value),
-    message: '密碼至少需要8個字符，包含大小寫字母、數字和特殊字符'
+    message: '密碼至少需要8個字符，包含大小寫字母、數字和特殊字符',
   },
   phone: {
     test: (value: string) => validatePhone(value),
-    message: '請輸入有效的電話號碼'
+    message: '請輸入有效的電話號碼',
   },
   name: {
     test: (value: string) => value && value.trim().length >= 2,
-    message: '姓名至少需要2個字符'
-  }
+    message: '姓名至少需要2個字符',
+  },
 };
+
