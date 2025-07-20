@@ -241,7 +241,7 @@ export default function EditPetPage() {
         ? pet.lastSeenLocation.coordinates[0]
         : 0
     },
-    lastSeenDate: new Date().toISOString().split('T')[0],
+    lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     contactInfo: {
       name: pet.owner.username || '',
       phone: pet.contactInfo?.phone || '',
