@@ -2,15 +2,19 @@
   # 指定前端建置目錄
   base = "frontend"
   # 建置命令
-  command = "npm run build"
+  command = "npm ci && npm run build:netlify"
   # 輸出目錄
-  publish = ".next"
+  publish = "out"
 
 [build.environment]
-  # Node.js 版本
-  NODE_VERSION = "18"
-  # NPM 版本
-  NPM_VERSION = "9"
+  # Node.js 版本 - 與 package.json engines 一致
+  NODE_VERSION = "18.20.8"
+  # NPM 版本 - 與 Node.js 18 相容
+  NPM_VERSION = "10"
+  # 啟用建置快取
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
+  # Next.js 建置優化
+  NEXT_TELEMETRY_DISABLED = "1"
 
 # API 路由重定向規則
 [[redirects]]
