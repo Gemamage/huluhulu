@@ -1,0 +1,1 @@
+self.__BUILD_MANIFEST={__rewrites:{afterFiles:[],beforeFiles:[],fallback:[]},"/_error":["static/chunks/pages/_error-b2e2a7e0f328e4ae.js"],"/firebase-test":["static/chunks/6450-399bf6f378232deb.js","static/chunks/pages/firebase-test-95f37471863c77e9.js"],sortedPages:["/_app","/_error","/firebase-test"]},self.__BUILD_MANIFEST_CB&&self.__BUILD_MANIFEST_CB();
