@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { PetService } from '@/services/petService';
 import { Pet } from '@/types';
+import { getNextImageSrc } from '@/lib/image-utils';
 import {
   Heart,
   MapPin,
@@ -263,7 +264,7 @@ export default function PetDetailClient({ petId }: PetDetailClientProps) {
             <div className='relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800'>
               {pet.images && pet.images.length > 0 ? (
                 <Image
-                  src={pet.images[0]}
+                  src={getNextImageSrc(pet.images[0])}
                   alt={pet.name}
                   fill
                   className='object-cover'
@@ -285,7 +286,7 @@ export default function PetDetailClient({ petId }: PetDetailClientProps) {
                     className='relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800'
                   >
                     <Image
-                      src={image}
+                      src={getNextImageSrc(image)}
                       alt={`${pet.name} ${index + 2}`}
                       fill
                       className='object-cover'

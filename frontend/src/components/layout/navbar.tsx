@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { getNextImageSrc } from '@/lib/image-utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +49,7 @@ export function Navbar() {
         <div className='flex items-center'>
           <Link href='/' className='flex items-center space-x-2'>
             <Image
-              src='/images/logo.png'
+              src={getNextImageSrc('/images/logo.png')}
               alt='呼嚕 Logo'
               width={40}
               height={40}

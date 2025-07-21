@@ -14,6 +14,7 @@ import {
   Search,
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '@/lib/utils';
+import { getNextImageSrc } from '@/lib/image-utils';
 
 interface RecentPostsProps {
   className?: string;
@@ -267,7 +268,7 @@ export function RecentPosts({ className }: RecentPostsProps) {
               <div className='relative aspect-[4/5] bg-gray-200'>
                 {post.images[0] ? (
                   <Image
-                    src={post.images[0]}
+                    src={getNextImageSrc(post.images[0])}
                     alt={post.name}
                     fill
                     className='object-cover group-hover:scale-105 transition-transform duration-300'
