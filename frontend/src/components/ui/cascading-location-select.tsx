@@ -401,7 +401,7 @@ interface LocationData {
 }
 
 interface CascadingLocationSelectProps {
-  label: string;
+  label?: string;
   value: LocationData;
   onChange: (value: LocationData) => void;
   className?: string;
@@ -446,10 +446,12 @@ export function CascadingLocationSelect({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <Label className='text-sm font-medium'>
-        {label}
-        {required && <span className='text-red-500 ml-1'>*</span>}
-      </Label>
+      {label && (
+        <Label className='text-sm font-medium'>
+          {label}
+          {required && <span className='text-red-500 ml-1'>*</span>}
+        </Label>
+      )}
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         {/* 縣市選擇 */}

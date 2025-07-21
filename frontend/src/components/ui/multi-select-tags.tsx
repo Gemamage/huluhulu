@@ -5,7 +5,7 @@ import { X, ChevronDown } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
 interface MultiSelectTagsProps {
-  label: string;
+  label?: string;
   value: string[];
   onChange: (value: string[]) => void;
   options: string[];
@@ -99,10 +99,12 @@ export function MultiSelectTags({
 
   return (
     <div className={`space-y-2 ${className}`} ref={containerRef}>
-      <Label className='text-sm font-medium'>
-        {label}
-        {required && <span className='text-red-500 ml-1'>*</span>}
-      </Label>
+      {label && (
+        <Label className='text-sm font-medium'>
+          {label}
+          {required && <span className='text-red-500 ml-1'>*</span>}
+        </Label>
+      )}
 
       <div className='relative'>
         {/* 輸入框和標籤容器 */}
