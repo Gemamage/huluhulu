@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+
+// GitHub Pages 配置
+const isGitHubPages = process.env.GITHUB_PAGES === 'true'
+const repoName = process.env.REPO_NAME || 'pet-finder-app' // 請替換為你的實際倉庫名稱
+
 const nextConfig = {
   images: {
     domains: [
@@ -27,10 +32,13 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  // 靜態導出設定 - 適用於 Netlify 部署
+  // 靜態導出設定
   output: 'export',
   trailingSlash: true,
   distDir: 'out',
+  // GitHub Pages 路徑設定
+  basePath: isGitHubPages ? `/${repoName}` : '',
+  assetPrefix: isGitHubPages ? `/${repoName}/` : '',
   // 壓縮設定
   compress: true,
   // 效能優化

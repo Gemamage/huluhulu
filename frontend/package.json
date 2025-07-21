@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:netlify": "npm run type-check && next build",
+    "build:github": "npm run type-check && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",

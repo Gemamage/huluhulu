@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-07-20T17:34:22.411Z",
+  "timestamp": "2025-07-21T02:20:09.404Z",
   "summary": {
     "totalFiles": 470,
-    "totalLines": 96694,
+    "totalLines": 96750,
     "averageLines": 206
   },
   "issues": {
@@ -117,15 +117,15 @@
       },
       {
         "file": "frontend\\src\\app\\pets\\[id]\\page.tsx",
-        "lines": 743
+        "lines": 741
       },
       {
         "file": "frontend\\src\\components\\pets\\found-pet-form.tsx",
-        "lines": 629
+        "lines": 652
       },
       {
         "file": "frontend\\src\\components\\pets\\pet-form.tsx",
-        "lines": 635
+        "lines": 639
       }
     ],
     "warnings": [
