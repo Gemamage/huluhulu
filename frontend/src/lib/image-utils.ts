@@ -1,11 +1,23 @@
 /**
  * 圖片路徑工具函數
- * Next.js 會自動處理 basePath 和 assetPrefix，所以我們只需要返回標準化的路徑
+ * 處理 GitHub Pages 部署時的路徑前綴問題
  */
 
 /**
+ * 檢查是否為 GitHub Pages 環境
+ */
+function isGitHubPages(): boolean {
+  if (typeof window === 'undefined') {
+    // 服務端渲染時，檢查環境變數
+    return process.env.GITHUB_PAGES === 'true';
+  }
+  // 客戶端檢查
+  return window.location.hostname.includes('github.io');
+}
+
+/**
  * 獲取正確的圖片路徑
- * Next.js 配置中的 basePath 會自動處理 GitHub Pages 路徑前綴
+ * 在 GitHub Pages 環境下添加 /huluhulu/ 前綴
  */
 export function getImagePath(imagePath: string): string {
   // 如果是絕對 URL，直接返回
@@ -13,8 +25,15 @@ export function getImagePath(imagePath: string): string {
     return imagePath;
   }
 
-  // 確保路徑以 / 開頭，讓 Next.js 自動處理 basePath
-  return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  // 確保路徑以 / 開頭
+  const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  // 在 GitHub Pages 環境下添加 basePath 前綴
+  if (isGitHubPages()) {
+    return `/huluhulu${normalizedPath}`;
+  }
+  
+  return normalizedPath;
 }
 
 /**
