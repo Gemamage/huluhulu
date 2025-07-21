@@ -2,7 +2,7 @@
 
 // GitHub Pages 配置
 const isGitHubPages = process.env.GITHUB_PAGES === 'true'
-const repoName = process.env.REPO_NAME || 'pet-finder-app'
+const repoName = process.env.REPO_NAME || 'huluhulu'
 
 const nextConfig = {
   // 圖片配置
