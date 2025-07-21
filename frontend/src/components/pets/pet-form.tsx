@@ -48,6 +48,7 @@ interface PetFormData {
     address: string;
     latitude?: number;
     longitude?: number;
+    coordinates?: [number, number];
   };
   lastSeenDate: string;
   contactInfo: {
@@ -86,34 +87,33 @@ export function PetForm({
   const [formData, setFormData] = useState<PetFormData>({
     name: initialData?.name || '',
     type: initialData?.type || 'dog',
-    breed: initialData?.breed,
+    ...(initialData?.breed !== undefined && { breed: initialData.breed }),
     gender: initialData?.gender || 'unknown',
-    age: initialData?.age,
-    color: initialData?.color,
-    size: initialData?.size,
+    ...(initialData?.age !== undefined && { age: initialData.age }),
+    ...(initialData?.color !== undefined && { color: initialData.color }),
+    ...(initialData?.size !== undefined && { size: initialData.size }),
     status: initialData?.status || 'lost',
-    description: initialData?.description,
+    ...(initialData?.description !== undefined && { description: initialData.description }),
     lastSeenLocation: {
       address: initialData?.lastSeenLocation?.address || '',
       ...(initialData?.lastSeenLocation?.latitude !== undefined && { latitude: initialData.lastSeenLocation.latitude }),
       ...(initialData?.lastSeenLocation?.longitude !== undefined && { longitude: initialData.lastSeenLocation.longitude }),
     },
-    lastSeenDate:
-      initialData?.lastSeenDate || new Date().toISOString().split('T')[0],
+    lastSeenDate: (initialData?.lastSeenDate || new Date().toISOString().split('T')[0]) as string,
     contactInfo: {
       name: initialData?.contactInfo?.name || '',
       phone: initialData?.contactInfo?.phone || '',
-      email: initialData?.contactInfo?.email,
+      ...(initialData?.contactInfo?.email && { email: initialData.contactInfo.email }),
       preferredContact: initialData?.contactInfo?.preferredContact || 'phone',
     },
-    images: initialData?.images,
-    reward: initialData?.reward,
+    ...(initialData?.images !== undefined && { images: initialData.images }),
+    ...(initialData?.reward !== undefined && { reward: initialData.reward }),
     isUrgent: initialData?.isUrgent || false,
-    microchipId: initialData?.microchipId,
-    vaccinated: initialData?.vaccinated,
-    medicalConditions: initialData?.medicalConditions,
-    specialMarks: initialData?.specialMarks,
-    personality: initialData?.personality,
+    ...(initialData?.microchipId !== undefined && { microchipId: initialData.microchipId }),
+    ...(initialData?.vaccinated !== undefined && { vaccinated: initialData.vaccinated }),
+    ...(initialData?.medicalConditions !== undefined && { medicalConditions: initialData.medicalConditions }),
+    ...(initialData?.specialMarks !== undefined && { specialMarks: initialData.specialMarks }),
+    ...(initialData?.personality !== undefined && { personality: initialData.personality }),
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -151,7 +151,11 @@ export function PetForm({
 
     // 清除該欄位的錯誤
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 
@@ -386,7 +390,7 @@ export function PetForm({
               <Input
                 id='lastSeenDate'
                 type='date'
-                value={formData.lastSeenDate.split('T')[0]}
+                value={formData.lastSeenDate ? formData.lastSeenDate.split('T')[0] : ''}
                 onChange={e =>
                   handleInputChange(
                     'lastSeenDate',
@@ -501,7 +505,7 @@ export function PetForm({
                   onChange={e =>
                     handleInputChange(
                       'reward',
-                      e.target.value ? parseInt(e.target.value) : 0
+                      e.target.value ? parseInt(e.target.value) : undefined
                     )
                   }
                   placeholder='請輸入獎勵金額'

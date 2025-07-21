@@ -1,5 +1,6 @@
 import { searchService } from '@/services/searchService';
 import { SearchFilters, SearchResult } from '@/types/search';
+import { Pet } from '@/types/pet';
 import { authService } from '@/services/authService';
 
 // Mock fetch
@@ -23,7 +24,7 @@ describe('searchService', () => {
   });
 
   const mockSearchResult: SearchResult<Pet> = {
-    pets: [
+    items: [
       {
         _id: '1',
         name: '小白',
@@ -39,11 +40,16 @@ describe('searchService', () => {
           address: '台北市信義區',
           coordinates: [121.5654, 25.0330]
         },
+        lastSeenDate: '2023-01-01',
         contactInfo: {
+          name: '測試用戶',
           phone: '0912345678',
           email: 'test@example.com',
           preferredContact: 'phone'
         },
+        contactName: 'Test Owner',
+        contactPhone: '0912345678',
+        contactEmail: 'test@example.com',
         images: ['https://example.com/image1.jpg'],
         owner: {
           _id: 'owner-1',
@@ -52,13 +58,14 @@ describe('searchService', () => {
         },
         createdAt: new Date('2023-01-01'),
         updatedAt: new Date('2023-01-01'),
-        viewCount: 10,
-        shareCount: 5
+        views: 10,
+        shares: 5
       }
     ],
     total: 1,
     page: 1,
-    totalPages: 1
+    totalPages: 1,
+    limit: 10
   };
 
   describe('searchPets', () => {
@@ -148,13 +155,13 @@ describe('searchService', () => {
         headers: new Headers({ 'Content-Type': 'application/json' }),
       });
 
-      const result = await searchService.advancedSearch(filters);
+      const result = await searchService.advancedSearch('小白', filters);
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3001/api/pets/advanced-search',
         {
           method: 'POST',
-          body: JSON.stringify(filters),
+          body: JSON.stringify({ q: '小白', ...filters }),
           headers: {
             Authorization: 'Bearer mock-token',
             'Content-Type': 'application/json',
@@ -175,13 +182,13 @@ describe('searchService', () => {
         headers: new Headers({ 'Content-Type': 'application/json' }),
       });
 
-      const result = await searchService.advancedSearch(filters);
+      const result = await searchService.advancedSearch('', filters);
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3001/api/pets/advanced-search',
         {
           method: 'POST',
-          body: JSON.stringify(filters),
+          body: JSON.stringify({ q: '', ...filters }),
           headers: {
             Authorization: 'Bearer mock-token',
             'Content-Type': 'application/json',
@@ -297,11 +304,12 @@ describe('searchService', () => {
   describe('checkSearchHealth', () => {
     it('checks search health successfully', async () => {
       const mockHealthStatus = {
-        status: 'healthy',
-        elasticsearch: {
-          status: 'green',
-          nodes: 3,
-          indices: 5
+        data: {
+          elasticsearch: {
+            status: 'green',
+            nodes: 3,
+            indices: 5
+          }
         },
         responseTime: 45,
         lastUpdated: new Date().toISOString()
@@ -329,12 +337,13 @@ describe('searchService', () => {
 
     it('handles unhealthy search service', async () => {
       const mockHealthStatus = {
-        status: 'unhealthy',
-        elasticsearch: {
-          status: 'red',
-          nodes: 1,
-          indices: 5,
-          error: 'Connection timeout'
+        data: {
+          elasticsearch: {
+            status: 'red',
+            nodes: 1,
+            indices: 5,
+            error: 'Connection timeout'
+          }
         },
         responseTime: 5000,
         lastUpdated: new Date().toISOString()
@@ -348,8 +357,8 @@ describe('searchService', () => {
 
       const result = await searchService.checkSearchHealth();
 
-      expect(result.status).toBe('unhealthy');
-      expect(result.elasticsearch.status).toBe('red');
+      expect(result.data.elasticsearch.status).toBe('red');
+      expect(result.data.elasticsearch).toBeDefined();
     });
   });
 

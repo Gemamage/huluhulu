@@ -61,7 +61,7 @@ export function AdditionalInfoSection({
           <div className='flex items-center space-x-2 pt-6'>
             <Checkbox
               id='hasCollar'
-              checked={formData.hasCollar}
+              checked={formData.hasCollar || false}
               onCheckedChange={checked => onInputChange('hasCollar', checked)}
             />
             <Label htmlFor='hasCollar' className='flex items-center gap-2'>
@@ -76,8 +76,11 @@ export function AdditionalInfoSection({
             <Label htmlFor='collarDescription'>項圈描述</Label>
             <Textarea
               id='collarDescription'
-              value={formData.collarDescription}
-              onChange={e => onInputChange('collarDescription', e.target.value)}
+              value={formData.collarDescription || ''}
+              onChange={e => {
+                const value = e.target.value;
+                onInputChange('collarDescription', value || undefined);
+              }}
               placeholder='請描述項圈的顏色、材質、是否有吊牌等'
               rows={2}
             />
@@ -88,8 +91,11 @@ export function AdditionalInfoSection({
           <Label htmlFor='healthCondition'>健康狀況</Label>
           <Textarea
             id='healthCondition'
-            value={formData.healthCondition}
-            onChange={e => onInputChange('healthCondition', e.target.value)}
+            value={formData.healthCondition || ''}
+            onChange={e => {
+              const value = e.target.value;
+              onInputChange('healthCondition', value || undefined);
+            }}
             placeholder='例如：健康狀況、慢性疾病、過敏等'
             rows={2}
           />
@@ -99,8 +105,11 @@ export function AdditionalInfoSection({
           <Label htmlFor='medications'>用藥資訊</Label>
           <Textarea
             id='medications'
-            value={formData.medications}
-            onChange={e => onInputChange('medications', e.target.value)}
+            value={formData.medications || ''}
+            onChange={e => {
+              const value = e.target.value;
+              onInputChange('medications', value || undefined);
+            }}
             placeholder='例如：正在服用的藥物、用藥時間等'
             rows={2}
           />
@@ -110,8 +119,11 @@ export function AdditionalInfoSection({
           <Label htmlFor='microchipId'>晶片號碼</Label>
           <Input
             id='microchipId'
-            value={formData.microchipId}
-            onChange={e => onInputChange('microchipId', e.target.value)}
+            value={formData.microchipId || ''}
+            onChange={e => {
+              const value = e.target.value;
+              onInputChange('microchipId', value || undefined);
+            }}
             placeholder='如果有植入晶片，請填寫晶片號碼'
           />
         </div>
@@ -121,8 +133,11 @@ export function AdditionalInfoSection({
             <Label htmlFor='rewardDescription'>懸賞說明</Label>
             <Textarea
               id='rewardDescription'
-              value={formData.rewardDescription}
-              onChange={e => onInputChange('rewardDescription', e.target.value)}
+              value={formData.rewardDescription || ''}
+              onChange={e => {
+                const value = e.target.value;
+                onInputChange('rewardDescription', value || undefined);
+              }}
               placeholder='請說明懸賞的詳細條件'
               rows={2}
             />
@@ -133,8 +148,11 @@ export function AdditionalInfoSection({
           <Label htmlFor='additionalNotes'>其他備註</Label>
           <Textarea
             id='additionalNotes'
-            value={formData.additionalNotes}
-            onChange={e => onInputChange('additionalNotes', e.target.value)}
+            value={formData.additionalNotes || ''}
+            onChange={e => {
+              const value = e.target.value;
+              onInputChange('additionalNotes', value || undefined);
+            }}
             placeholder='任何其他想要補充的資訊'
             rows={3}
           />

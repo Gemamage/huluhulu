@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-20T12:56:03.822Z",
+  "timestamp": "2025-07-20T17:34:22.411Z",
   "summary": {
-    "totalFiles": 357,
-    "totalLines": 87024,
-    "averageLines": 244
+    "totalFiles": 470,
+    "totalLines": 96694,
+    "averageLines": 206
   },
   "issues": {
     "oversized": [
@@ -64,8 +64,24 @@
         "lines": 618
       },
       {
+        "file": "frontend\\out\\server\\app\\about\\page.js",
+        "lines": 647
+      },
+      {
+        "file": "frontend\\out\\server\\app\\contact\\page.js",
+        "lines": 693
+      },
+      {
         "file": "frontend\\out\\server\\app\\page.js",
         "lines": 1136
+      },
+      {
+        "file": "frontend\\out\\server\\app\\pets\\new\\page.js",
+        "lines": 814
+      },
+      {
+        "file": "frontend\\out\\server\\app\\pets\\page.js",
+        "lines": 891
       },
       {
         "file": "frontend\\out\\server\\vendor-chunks\\next.js",
@@ -80,6 +96,14 @@
         "lines": 3484
       },
       {
+        "file": "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
+        "lines": 719
+      },
+      {
+        "file": "frontend\\out\\static\\chunks\\app\\pets\\page.js",
+        "lines": 2725
+      },
+      {
         "file": "frontend\\out\\static\\chunks\\main-app.js",
         "lines": 1804
       },
@@ -89,15 +113,15 @@
       },
       {
         "file": "frontend\\src\\app\\pets\\page.tsx",
-        "lines": 689
+        "lines": 645
       },
       {
         "file": "frontend\\src\\app\\pets\\[id]\\page.tsx",
-        "lines": 745
+        "lines": 743
       },
       {
         "file": "frontend\\src\\components\\pets\\found-pet-form.tsx",
-        "lines": 630
+        "lines": 629
       },
       {
         "file": "frontend\\src\\components\\pets\\pet-form.tsx",
@@ -120,6 +144,10 @@
       {
         "file": "backend\\test\\routes\\search.test.ts",
         "lines": 585
+      },
+      {
+        "file": "frontend\\out\\server\\vendor-chunks\\lucide-react.js",
+        "lines": 565
       }
     ],
     "todos": [
@@ -156,6 +184,10 @@
         "count": 1
       },
       {
+        "file": "frontend\\out\\server\\app\\pets\\page.js",
+        "count": 1
+      },
+      {
         "file": "frontend\\out\\server\\vendor-chunks\\@firebase.js",
         "count": 9
       },
@@ -168,6 +200,14 @@
         "count": 38
       },
       {
+        "file": "frontend\\out\\static\\chunks\\app\\about\\page.js",
+        "count": 3
+      },
+      {
+        "file": "frontend\\out\\static\\chunks\\app\\contact\\page.js",
+        "count": 6
+      },
+      {
         "file": "frontend\\out\\static\\chunks\\app\\layout.js",
         "count": 15
       },
@@ -176,12 +216,24 @@
         "count": 20
       },
       {
+        "file": "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
+        "count": 9
+      },
+      {
+        "file": "frontend\\out\\static\\chunks\\app\\pets\\page.js",
+        "count": 11
+      },
+      {
         "file": "frontend\\out\\static\\chunks\\app-pages-internals.js",
         "count": 5
       },
       {
         "file": "frontend\\out\\static\\chunks\\main-app.js",
         "count": 331
+      },
+      {
+        "file": "frontend\\src\\app\\pets\\page.tsx",
+        "count": 1
       },
       {
         "file": "frontend\\src\\app\\sightings\\new\\page.tsx",
@@ -203,6 +255,32 @@
     "fixmes": [],
     "complex": [
       {
+        "file": "frontend\\out\\server\\app\\about\\page.js",
+        "reason": "過多函數 (86)",
+        "metrics": {
+          "functions": 86,
+          "classes": 4,
+          "interfaces": 0,
+          "imports": 2,
+          "exports": 136,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\server\\app\\contact\\page.js",
+        "reason": "過多函數 (86)",
+        "metrics": {
+          "functions": 86,
+          "classes": 4,
+          "interfaces": 0,
+          "imports": 1,
+          "exports": 157,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
         "file": "frontend\\out\\server\\app\\page.js",
         "reason": "過多函數 (134)",
         "metrics": {
@@ -211,6 +289,32 @@
           "interfaces": 0,
           "imports": 6,
           "exports": 285,
+          "todos": 1,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\server\\app\\pets\\new\\page.js",
+        "reason": "過多函數 (111)",
+        "metrics": {
+          "functions": 111,
+          "classes": 9,
+          "interfaces": 0,
+          "imports": 2,
+          "exports": 203,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\server\\app\\pets\\page.js",
+        "reason": "過多函數 (125)",
+        "metrics": {
+          "functions": 125,
+          "classes": 9,
+          "interfaces": 0,
+          "imports": 6,
+          "exports": 244,
           "todos": 1,
           "fixmes": 0
         }
@@ -243,13 +347,13 @@
       },
       {
         "file": "frontend\\out\\server\\vendor-chunks\\@radix-ui.js",
-        "reason": "過多函數 (218)",
+        "reason": "過多函數 (280)",
         "metrics": {
-          "functions": 218,
+          "functions": 280,
           "classes": 1,
           "interfaces": 0,
-          "imports": 6,
-          "exports": 274,
+          "imports": 8,
+          "exports": 370,
           "todos": 0,
           "fixmes": 0
         }
@@ -308,13 +412,13 @@
       },
       {
         "file": "frontend\\out\\server\\vendor-chunks\\lucide-react.js",
-        "reason": "過多函數 (37)",
+        "reason": "過多函數 (55)",
         "metrics": {
-          "functions": 37,
+          "functions": 55,
           "classes": 0,
           "interfaces": 0,
           "imports": 0,
-          "exports": 112,
+          "exports": 167,
           "todos": 0,
           "fixmes": 0
         }
@@ -385,6 +489,32 @@
         }
       },
       {
+        "file": "frontend\\out\\static\\chunks\\app\\about\\page.js",
+        "reason": "過多函數 (116)",
+        "metrics": {
+          "functions": 116,
+          "classes": 7,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 63,
+          "todos": 3,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\static\\chunks\\app\\contact\\page.js",
+        "reason": "過多函數 (189)",
+        "metrics": {
+          "functions": 189,
+          "classes": 15,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 112,
+          "todos": 6,
+          "fixmes": 0
+        }
+      },
+      {
         "file": "frontend\\out\\static\\chunks\\app\\layout.js",
         "reason": "過多函數 (830)",
         "metrics": {
@@ -407,6 +537,32 @@
           "imports": 29,
           "exports": 1286,
           "todos": 20,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
+        "reason": "過多函數 (283)",
+        "metrics": {
+          "functions": 283,
+          "classes": 58,
+          "interfaces": 0,
+          "imports": 1,
+          "exports": 174,
+          "todos": 9,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\static\\chunks\\app\\pets\\page.js",
+        "reason": "過多函數 (1015)",
+        "metrics": {
+          "functions": 1015,
+          "classes": 85,
+          "interfaces": 2,
+          "imports": 16,
+          "exports": 760,
+          "todos": 11,
           "fixmes": 0
         }
       },
@@ -484,10 +640,16 @@
         "backend\\test\\routes\\notifications.test.ts",
         "backend\\test\\routes\\upload.test.ts",
         "backend\\test\\services\\matchingService.test.ts",
+        "frontend\\out\\server\\app\\about\\page.js",
+        "frontend\\out\\server\\app\\contact\\page.js",
         "frontend\\out\\server\\app\\page.js",
+        "frontend\\out\\server\\app\\pets\\new\\page.js",
+        "frontend\\out\\server\\app\\pets\\page.js",
         "frontend\\out\\server\\vendor-chunks\\next.js",
         "frontend\\out\\static\\chunks\\app\\layout.js",
         "frontend\\out\\static\\chunks\\app\\page.js",
+        "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
+        "frontend\\out\\static\\chunks\\app\\pets\\page.js",
         "frontend\\out\\static\\chunks\\main-app.js",
         "frontend\\out\\static\\chunks\\webpack.js",
         "frontend\\src\\app\\pets\\page.tsx",
@@ -504,7 +666,8 @@
         "backend\\src\\routes\\upload.ts",
         "backend\\src\\services\\matchingService.ts",
         "backend\\test\\routes\\privacy.test.ts",
-        "backend\\test\\routes\\search.test.ts"
+        "backend\\test\\routes\\search.test.ts",
+        "frontend\\out\\server\\vendor-chunks\\lucide-react.js"
       ]
     },
     {
@@ -512,7 +675,11 @@
       "type": "simplify",
       "description": "簡化複雜的文件結構",
       "files": [
+        "frontend\\out\\server\\app\\about\\page.js",
+        "frontend\\out\\server\\app\\contact\\page.js",
         "frontend\\out\\server\\app\\page.js",
+        "frontend\\out\\server\\app\\pets\\new\\page.js",
+        "frontend\\out\\server\\app\\pets\\page.js",
         "frontend\\out\\server\\vendor-chunks\\@firebase.js",
         "frontend\\out\\server\\vendor-chunks\\@floating-ui.js",
         "frontend\\out\\server\\vendor-chunks\\@radix-ui.js",
@@ -526,8 +693,12 @@
         "frontend\\out\\server\\vendor-chunks\\socket.io-parser.js",
         "frontend\\out\\server\\vendor-chunks\\tailwind-merge.js",
         "frontend\\out\\server\\vendor-chunks\\tslib.js",
+        "frontend\\out\\static\\chunks\\app\\about\\page.js",
+        "frontend\\out\\static\\chunks\\app\\contact\\page.js",
         "frontend\\out\\static\\chunks\\app\\layout.js",
         "frontend\\out\\static\\chunks\\app\\page.js",
+        "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
+        "frontend\\out\\static\\chunks\\app\\pets\\page.js",
         "frontend\\out\\static\\chunks\\app-pages-internals.js",
         "frontend\\out\\static\\chunks\\main-app.js",
         "frontend\\out\\static\\chunks\\polyfills.js",

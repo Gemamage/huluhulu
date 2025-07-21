@@ -71,6 +71,7 @@ describe('petService', () => {
       coordinates: [121.5654, 25.0330]
     },
     contactInfo: {
+      name: '測試用戶',
       phone: '0912345678',
       email: 'test@example.com',
       preferredContact: 'phone'
@@ -203,6 +204,7 @@ describe('petService', () => {
           coordinates: [121.5654, 25.0330]
         },
         contactInfo: {
+          name: '測試用戶',
           phone: '0912345678',
           email: 'test@example.com',
           preferredContact: 'phone'
@@ -308,9 +310,9 @@ describe('petService', () => {
         };
         mockSearchService.advancedSearch.mockResolvedValue(mockResult);
 
-        const result = await petService.advancedSearch(filters);
+        const result = await petService.advancedSearch('', filters);
 
-        expect(mockSearchService.advancedSearch).toHaveBeenCalledWith(filters);
+        expect(mockSearchService.advancedSearch).toHaveBeenCalledWith('', filters);
         expect(result).toEqual(mockResult);
       });
     });

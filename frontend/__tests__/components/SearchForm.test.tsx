@@ -189,7 +189,6 @@ describe('SearchForm', () => {
   })
 
   it('shows loading state during search', async () => {
-    const user = userEvent.setup()
     renderWithQueryClient(
       <SearchForm onSearch={mockOnSearch} initialFilters={defaultFilters} loading />
     )

@@ -5,7 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { User, Camera, Clock, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -29,14 +35,14 @@ interface FoundPetFormData {
     | 'reptile'
     | 'other'
     | 'unknown';
-  breed: string[]; // 改為多選標籤
+  breed?: string[]; // 改為多選標籤
   gender: 'male' | 'female' | 'unknown';
   estimatedAge?: 'puppy' | 'young' | 'adult' | 'senior' | 'unknown';
   size?: 'small' | 'medium' | 'large' | 'unknown';
-  color: string[]; // 改為多選標籤
+  color?: string[]; // 改為多選標籤
 
   // 重點資訊
-  description: string[]; // 外觀特徵改為多選標籤
+  description?: string[]; // 外觀特徵改為多選標籤
   foundLocation: LocationData; // 改為層級式地點選擇
   foundDate: string;
   foundTime?: string;
@@ -45,19 +51,19 @@ interface FoundPetFormData {
   finderContact: {
     name: string;
     phone: string;
-    email?: string;
+    email?: string | undefined;
     preferredContact: 'phone' | 'email';
   };
 
   // 照片
-  images: string[];
+  images?: string[];
 
   // 其他資訊
   specialMarks?: string;
-  behaviorNotes: string[]; // 個性特徵改為多選標籤
+  behaviorNotes?: string[]; // 個性特徵改為多選標籤
   healthCondition?: string;
-  isInjured: boolean;
-  hasCollar: boolean;
+  isInjured?: boolean;
+  hasCollar?: boolean;
   collarDescription?: string;
 }
 
@@ -73,34 +79,34 @@ export function FoundPetForm({
   isLoading = false,
 }: FoundPetFormProps) {
   const [formData, setFormData] = useState<FoundPetFormData>({
-    name: initialData?.name,
     type: initialData?.type ?? 'unknown',
-    breed: initialData?.breed ?? [],
     gender: initialData?.gender ?? 'unknown',
-    estimatedAge: initialData?.estimatedAge,
-    size: initialData?.size,
-    color: initialData?.color ?? [],
-    description: initialData?.description ?? [],
     foundLocation: initialData?.foundLocation ?? {
       city: '',
       district: '',
       address: '',
     },
-    foundDate: initialData?.foundDate ?? new Date().toISOString().split('T')[0],
-    foundTime: initialData?.foundTime,
+    foundDate: (initialData?.foundDate || new Date().toISOString().split('T')[0]) as string,
     finderContact: {
       name: initialData?.finderContact?.name ?? '',
       phone: initialData?.finderContact?.phone ?? '',
-      email: initialData?.finderContact?.email,
       preferredContact: initialData?.finderContact?.preferredContact ?? 'phone',
+      ...(initialData?.finderContact?.email !== undefined && { email: initialData.finderContact.email }),
     },
-    images: initialData?.images ?? [],
-    specialMarks: initialData?.specialMarks,
-    behaviorNotes: initialData?.behaviorNotes ?? [],
-    healthCondition: initialData?.healthCondition,
     isInjured: initialData?.isInjured ?? false,
     hasCollar: initialData?.hasCollar ?? false,
-    collarDescription: initialData?.collarDescription,
+    ...(initialData?.name !== undefined && { name: initialData.name }),
+    ...(initialData?.breed !== undefined && { breed: initialData.breed }),
+    ...(initialData?.estimatedAge !== undefined && { estimatedAge: initialData.estimatedAge }),
+    ...(initialData?.size !== undefined && { size: initialData.size }),
+    ...(initialData?.color !== undefined && { color: initialData.color }),
+    ...(initialData?.description !== undefined && { description: initialData.description }),
+    ...(initialData?.foundTime !== undefined && { foundTime: initialData.foundTime }),
+    ...(initialData?.images !== undefined && { images: initialData.images }),
+    ...(initialData?.specialMarks !== undefined && { specialMarks: initialData.specialMarks }),
+    ...(initialData?.behaviorNotes !== undefined && { behaviorNotes: initialData.behaviorNotes }),
+    ...(initialData?.healthCondition !== undefined && { healthCondition: initialData.healthCondition }),
+    ...(initialData?.collarDescription !== undefined && { collarDescription: initialData.collarDescription }),
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -192,7 +198,7 @@ export function FoundPetForm({
           ...prev,
           [keys[0] as keyof FoundPetFormData]: {
             ...(prev[keys[0] as keyof FoundPetFormData] as any),
-            [keys[1]]: value,
+            [keys[1] as string]: value,
           },
         };
       }
@@ -201,7 +207,11 @@ export function FoundPetForm({
 
     // 清除該欄位的錯誤
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 
@@ -267,7 +277,18 @@ export function FoundPetForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
+    <Card className='w-full max-w-4xl mx-auto'>
+      <CardHeader>
+        <CardTitle className='flex items-center gap-2'>
+          <AlertCircle className='h-5 w-5' />
+          拾獲動物通報
+        </CardTitle>
+        <CardDescription>
+          請填寫您拾獲動物的詳細資訊，幫助我們協助動物與主人團聚
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className='space-y-6'>
       {/* 基本資訊 */}
       <div className='space-y-4'>
         <h3 className='text-lg font-semibold flex items-center gap-2'>
@@ -309,7 +330,7 @@ export function FoundPetForm({
             <Label htmlFor='breed'>品種</Label>
             <MultiSelectTags
               label='品種'
-              value={formData.breed}
+              value={formData.breed || []}
               onChange={value => handleInputChange('breed', value)}
               options={getCurrentBreedOptions()}
               placeholder='選擇或輸入品種'
@@ -366,7 +387,7 @@ export function FoundPetForm({
             <Label htmlFor='color'>毛色/顏色</Label>
             <MultiSelectTags
               label='毛色/顏色'
-              value={formData.color}
+              value={formData.color || []}
               onChange={value => handleInputChange('color', value)}
               options={colorOptions}
               placeholder='選擇或輸入毛色'
@@ -388,7 +409,7 @@ export function FoundPetForm({
           <Label htmlFor='description'>外觀特徵 *</Label>
           <MultiSelectTags
             label='外觀特徵'
-            value={formData.description}
+            value={formData.description || []}
             onChange={value => handleInputChange('description', value)}
             options={appearanceOptions}
             placeholder='選擇或輸入外觀特徵'
@@ -406,7 +427,7 @@ export function FoundPetForm({
           動物照片
         </h3>
         <ImageUpload
-          images={formData.images}
+          images={formData.images || []}
           onImagesChange={images => handleInputChange('images', images)}
           maxImages={5}
           maxFileSize={5}
@@ -594,7 +615,7 @@ export function FoundPetForm({
             <Label htmlFor='behaviorNotes'>個性特徵</Label>
             <MultiSelectTags
               label='個性特徵'
-              value={formData.behaviorNotes}
+              value={formData.behaviorNotes || []}
               onChange={value => handleInputChange('behaviorNotes', value)}
               options={personalityOptions}
               placeholder='選擇或輸入個性特徵'
@@ -617,12 +638,14 @@ export function FoundPetForm({
         </div>
       </div>
 
-      {/* 提交按鈕 */}
-      <div className='flex justify-end pt-6'>
-        <Button type='submit' disabled={isLoading} className='px-8 py-2'>
-          {isLoading ? '提交中...' : '發布拾獲通報'}
-        </Button>
-      </div>
-    </form>
+          {/* 提交按鈕 */}
+          <div className='flex justify-end pt-6'>
+            <Button type='submit' disabled={isLoading} className='px-8 py-2'>
+              {isLoading ? '提交中...' : '發布拾獲通報'}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

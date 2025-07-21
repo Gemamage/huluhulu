@@ -53,6 +53,7 @@ export default function NewPetPage() {
         foundDate: formData.foundDate,
         foundTime: formData.foundTime,
         contactInfo: {
+          name: formData.finderContact.name || '匿名',
           phone: formData.finderContact.phone,
           email: formData.finderContact.email,
           preferredContact: formData.finderContact.preferredContact,

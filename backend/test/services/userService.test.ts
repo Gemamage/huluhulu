@@ -1,4 +1,4 @@
-import { UserService } from '../../src/services/userService';
+import { userService as UserService } from '../../src/services/userService';
 import { User, IUser } from '../../src/models/User';
 import { EmailService } from '../../src/services/emailService';
 import bcrypt from 'bcryptjs';
@@ -31,7 +31,7 @@ describe('UserService', () => {
     };
 
     it('should register a new user successfully', async () => {
-      const result = await UserService.registerUser(newUserData);
+      const result = await UserService.register(newUserData);
 
       expect(result.user).toBeDefined();
       expect(result.user.email).toBe(newUserData.email);
@@ -47,7 +47,7 @@ describe('UserService', () => {
     });
 
     it('should send welcome email after registration', async () => {
-      await UserService.registerUser(newUserData);
+      await UserService.register(newUserData);
       
       expect(mockEmailService.sendWelcomeEmail).toHaveBeenCalledWith(
         newUserData.email,
@@ -56,7 +56,7 @@ describe('UserService', () => {
     });
 
     it('should send email verification after registration', async () => {
-      await UserService.registerUser(newUserData);
+      await UserService.register(newUserData);
       
       expect(mockEmailService.sendEmailVerification).toHaveBeenCalledWith(
         newUserData.email,
@@ -65,7 +65,7 @@ describe('UserService', () => {
     });
 
     it('should not register user with existing email', async () => {
-      await expect(UserService.registerUser(validUserData))
+      await expect(UserService.register(validUserData))
         .rejects.toThrow('此電子郵件已被註冊');
     });
 
@@ -75,7 +75,7 @@ describe('UserService', () => {
         // Missing required fields
       };
       
-      await expect(UserService.registerUser(incompleteData as any))
+      await expect(UserService.register(incompleteData as any))
         .rejects.toThrow();
     });
 
@@ -85,7 +85,7 @@ describe('UserService', () => {
         email: 'invalid-email'
       };
       
-      await expect(UserService.registerUser(invalidEmailData))
+      await expect(UserService.register(invalidEmailData))
         .rejects.toThrow();
     });
 
@@ -95,7 +95,7 @@ describe('UserService', () => {
         password: '123'
       };
       
-      await expect(UserService.registerUser(weakPasswordData))
+      await expect(UserService.register(weakPasswordData))
         .rejects.toThrow();
     });
   });

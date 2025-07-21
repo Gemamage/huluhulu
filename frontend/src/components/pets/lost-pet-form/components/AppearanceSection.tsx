@@ -41,7 +41,7 @@ export function AppearanceSection({
               <Badge
                 key={appearance}
                 variant={
-                  formData.description.includes(appearance)
+                  formData.description?.includes(appearance)
                     ? 'default'
                     : 'outline'
                 }
@@ -64,7 +64,7 @@ export function AppearanceSection({
               <Badge
                 key={personality}
                 variant={
-                  formData.personality.includes(personality)
+                  formData.personality?.includes(personality)
                     ? 'default'
                     : 'outline'
                 }
@@ -84,8 +84,11 @@ export function AppearanceSection({
           <Label htmlFor='specialMarks'>特殊標記</Label>
           <Textarea
             id='specialMarks'
-            value={formData.specialMarks}
-            onChange={e => onInputChange('specialMarks', e.target.value)}
+            value={formData.specialMarks || ''}
+            onChange={e => {
+              const value = e.target.value;
+              onInputChange('specialMarks', value || undefined);
+            }}
             placeholder='例如：疤痕、胎記、特殊毛色分布等'
             rows={3}
           />

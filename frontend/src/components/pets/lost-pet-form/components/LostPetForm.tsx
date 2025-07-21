@@ -61,7 +61,11 @@ export function LostPetForm({ onSubmit, initialData }: LostPetFormProps) {
     if (error) {
       setErrors(prev => ({ ...prev, [field]: error }));
     } else {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 

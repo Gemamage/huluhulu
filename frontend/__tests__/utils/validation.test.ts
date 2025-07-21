@@ -149,6 +149,7 @@ describe('validation utils', () => {
         coordinates: [121.5654, 25.0330] as [number, number]
       },
       contactInfo: {
+        name: '測試用戶',
         phone: '0912345678',
         email: 'test@example.com',
         preferredContact: 'phone'

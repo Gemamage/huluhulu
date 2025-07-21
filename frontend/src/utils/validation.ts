@@ -106,7 +106,7 @@ export const validatePetData = (
     if (!validateRequired(data.lastSeenLocation.address)) {
       errors.push('最後出現地點為必填項目');
     }
-    if (data.lastSeenLocation.coordinates) {
+    if ('coordinates' in data.lastSeenLocation && data.lastSeenLocation.coordinates) {
       const [lng, lat] = data.lastSeenLocation.coordinates;
       if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
         errors.push('經緯度座標無效');

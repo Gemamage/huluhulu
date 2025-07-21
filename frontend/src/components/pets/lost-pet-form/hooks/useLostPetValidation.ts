@@ -59,7 +59,7 @@ export function useLostPetValidation() {
       }
 
       // 照片驗證
-      if (formData.images.length === 0) {
+      if (!formData.images || formData.images.length === 0) {
         newErrors.images = '請至少上傳一張寵物照片';
       }
 

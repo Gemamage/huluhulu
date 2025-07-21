@@ -28,6 +28,7 @@ const mockPet: Pet = {
     coordinates: [121.5654, 25.0330]
   },
   contactInfo: {
+    name: '測試用戶',
     phone: '0912345678',
     email: 'test@example.com',
     preferredContact: 'phone'

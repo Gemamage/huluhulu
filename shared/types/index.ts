@@ -184,6 +184,7 @@ export enum PostType {
  */
 export interface Pet {
   _id: string;
+  id?: string; // 相容性屬性
   name: string;
   type: PetType;
   breed?: string;
@@ -201,6 +202,23 @@ export interface Pet {
     description?: string;
   };
   owner: string; // User ID
+  // 聯絡資訊
+  contactName?: string;
+  contactPhone?: string;
+    contactEmail?: string;
+  // 位置和時間資訊
+  lastSeenLocation?: {
+    address: string;
+    city?: string;
+    district?: string;
+    coordinates?: [number, number];
+  };
+  lastSeenDate?: string;
+  // 獎勵資訊
+  reward?: number;
+  // 統計資訊
+  views?: number;
+  shares?: number;
   createdAt: string;
   updatedAt: string;
 }

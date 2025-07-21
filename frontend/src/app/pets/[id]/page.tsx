@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { petService } from '@/services/petService';
-import { Pet } from '@/types';
+import { Pet } from '@/types/index';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -177,7 +177,7 @@ export default function PetDetailPage() {
 
       // 更新分享次數
       setPet(prev =>
-        prev ? { ...prev, shares: (prev.shares || 0) + 1 } : null
+        prev ? { ...prev, shares: ((prev.shares ?? 0) + 1) } : null
       );
     } catch (error) {
       console.error('分享失敗:', error);
@@ -196,15 +196,13 @@ export default function PetDetailPage() {
 
     try {
       setDeleting(true);
-      const response = await petService.deletePet(pet._id);
-
-      if (response) {
-        toast({
-          title: '刪除成功',
-          description: '寵物協尋案例已成功刪除',
-        });
-        router.push('/pets/my');
-      }
+      await petService.deletePet(pet._id);
+      
+      toast({
+        title: '刪除成功',
+        description: '寵物協尋案例已成功刪除',
+      });
+      router.push('/pets/my');
     } catch (error) {
       console.error('刪除失敗:', error);
       toast({

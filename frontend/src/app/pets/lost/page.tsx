@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import LostPetForm from '@/components/pets/lost-pet-form';
 import { petService } from '@/services/petService';
-import { CreatePetData } from '@/types';
+import { CreatePetData } from '@/types/index';
 
 export default function LostPetPage() {
   const router = useRouter();
@@ -33,6 +33,7 @@ export default function LostPetPage() {
           ] as [number, number],
         },
         contactInfo: {
+          name: formData.ownerContact?.name || '匿名',
           phone: formData.ownerContact?.phone || '',
           email: formData.ownerContact?.email || '',
           preferredContact: formData.ownerContact?.preferredContact || 'phone',

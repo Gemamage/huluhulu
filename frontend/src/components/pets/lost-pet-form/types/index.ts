@@ -10,17 +10,17 @@ export interface LostPetFormData {
     | 'fish'
     | 'reptile'
     | 'other';
-  breed: string[];
+  breed?: string[];
   gender: 'male' | 'female' | 'unknown';
-  age: 'puppy' | 'young' | 'adult' | 'senior';
-  size: 'small' | 'medium' | 'large';
-  color: string[];
+  age?: 'puppy' | 'young' | 'adult' | 'senior';
+  size?: 'small' | 'medium' | 'large';
+  color?: string[];
   weight?: number;
 
   // 詳細特徵
-  description: string[];
+  description?: string[];
   specialMarks?: string;
-  personality: string[];
+  personality?: string[];
 
   // 走失資訊
   lostLocation: LocationData;
@@ -32,16 +32,16 @@ export interface LostPetFormData {
   ownerContact: {
     name: string;
     phone: string;
-    email?: string;
+    email?: string | undefined;
     preferredContact: 'phone' | 'email';
   };
 
   // 照片（重要）
-  images: string[];
+  images?: string[];
 
   // 識別資訊
   microchipId?: string;
-  hasCollar: boolean;
+  hasCollar?: boolean;
   collarDescription?: string;
 
   // 健康資訊

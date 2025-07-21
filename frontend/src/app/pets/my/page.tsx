@@ -20,7 +20,7 @@ import {
   Eye,
   Share2,
 } from 'lucide-react';
-import { Pet } from '@/types';
+import { Pet } from '@/types/index';
 
 function PetCard({
   pet,

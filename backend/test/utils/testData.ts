@@ -4,6 +4,7 @@ import { IPet } from '../../src/models/Pet';
 
 // 輕量級用戶測試數據
 export const validUserData = {
+  username: 'testuser',
   email: 'test@example.com',
   password: 'password123',
   name: 'Test User',
@@ -11,6 +12,7 @@ export const validUserData = {
 };
 
 export const otherUserData = {
+  username: 'otheruser',
   email: 'other@example.com',
   password: 'password123',
   name: 'Other User',

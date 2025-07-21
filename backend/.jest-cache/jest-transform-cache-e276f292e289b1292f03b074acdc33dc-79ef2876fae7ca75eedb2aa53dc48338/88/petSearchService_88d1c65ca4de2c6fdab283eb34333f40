@@ -1,0 +1,25 @@
+810cd4175827b38e8d6c74ad332f4f1a
+"use strict";
+// 重構後的寵物搜尋服務
+// 導出模組化的搜尋服務和相關介面
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = exports.searchAnalyticsService = exports.searchSuggestionsService = exports.searchCoreService = exports.indexingService = exports.petSearchService = exports.SearchAnalyticsService = exports.SearchSuggestionsService = exports.SearchCoreService = exports.IndexingService = exports.PetSearchService = void 0;
+// 導出類和實例
+var search_1 = require("./search");
+Object.defineProperty(exports, "PetSearchService", { enumerable: true, get: function () { return search_1.PetSearchService; } });
+Object.defineProperty(exports, "IndexingService", { enumerable: true, get: function () { return search_1.IndexingService; } });
+Object.defineProperty(exports, "SearchCoreService", { enumerable: true, get: function () { return search_1.SearchCoreService; } });
+Object.defineProperty(exports, "SearchSuggestionsService", { enumerable: true, get: function () { return search_1.SearchSuggestionsService; } });
+Object.defineProperty(exports, "SearchAnalyticsService", { enumerable: true, get: function () { return search_1.SearchAnalyticsService; } });
+Object.defineProperty(exports, "petSearchService", { enumerable: true, get: function () { return search_1.petSearchService; } });
+Object.defineProperty(exports, "indexingService", { enumerable: true, get: function () { return search_1.indexingService; } });
+Object.defineProperty(exports, "searchCoreService", { enumerable: true, get: function () { return search_1.searchCoreService; } });
+Object.defineProperty(exports, "searchSuggestionsService", { enumerable: true, get: function () { return search_1.searchSuggestionsService; } });
+Object.defineProperty(exports, "searchAnalyticsService", { enumerable: true, get: function () { return search_1.searchAnalyticsService; } });
+// 默認導出主服務實例（向後兼容）
+var search_2 = require("./search");
+Object.defineProperty(exports, "default", { enumerable: true, get: function () { return __importDefault(search_2).default; } });
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHNlcnZpY2VzXFxwZXRTZWFyY2hTZXJ2aWNlLnRzIiwibWFwcGluZ3MiOiI7QUFBQSxhQUFhO0FBQ2Isa0JBQWtCOzs7Ozs7QUFFbEIsU0FBUztBQUNULG1DQVdrQjtBQVZoQiwwR0FBQSxnQkFBZ0IsT0FBQTtBQUNoQix5R0FBQSxlQUFlLE9BQUE7QUFDZiwyR0FBQSxpQkFBaUIsT0FBQTtBQUNqQixrSEFBQSx3QkFBd0IsT0FBQTtBQUN4QixnSEFBQSxzQkFBc0IsT0FBQTtBQUN0QiwwR0FBQSxnQkFBZ0IsT0FBQTtBQUNoQix5R0FBQSxlQUFlLE9BQUE7QUFDZiwyR0FBQSxpQkFBaUIsT0FBQTtBQUNqQixrSEFBQSx3QkFBd0IsT0FBQTtBQUN4QixnSEFBQSxzQkFBc0IsT0FBQTtBQWF4QixrQkFBa0I7QUFDbEIsbUNBQW1DO0FBQTFCLGtIQUFBLE9BQU8sT0FBQSIsIm5hbWVzIjpbXSwic291cmNlcyI6WyJDOlxcVXNlcnNcXFVzZXJcXERlc2t0b3BcXHRyYWVwcm9qZWN0XFx0ZXN0MlxccGV0LWZpbmRlci1hcHBcXGJhY2tlbmRcXHNyY1xcc2VydmljZXNcXHBldFNlYXJjaFNlcnZpY2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8g6YeN5qeL5b6M55qE5a+154mp5pCc5bCL5pyN5YuZXG4vLyDlsI7lh7rmqKHntYTljJbnmoTmkJzlsIvmnI3li5nlkoznm7jpl5zku4vpnaJcblxuLy8g5bCO5Ye66aGe5ZKM5a+m5L6LXG5leHBvcnQge1xuICBQZXRTZWFyY2hTZXJ2aWNlLFxuICBJbmRleGluZ1NlcnZpY2UsXG4gIFNlYXJjaENvcmVTZXJ2aWNlLFxuICBTZWFyY2hTdWdnZXN0aW9uc1NlcnZpY2UsXG4gIFNlYXJjaEFuYWx5dGljc1NlcnZpY2UsXG4gIHBldFNlYXJjaFNlcnZpY2UsXG4gIGluZGV4aW5nU2VydmljZSxcbiAgc2VhcmNoQ29yZVNlcnZpY2UsXG4gIHNlYXJjaFN1Z2dlc3Rpb25zU2VydmljZSxcbiAgc2VhcmNoQW5hbHl0aWNzU2VydmljZSxcbn0gZnJvbSBcIi4vc2VhcmNoXCI7XG5cbi8vIOWwjuWHuumhnuWei1xuZXhwb3J0IHR5cGUge1xuICBQZXRTZWFyY2hRdWVyeSxcbiAgU2VhcmNoU3VnZ2VzdGlvbixcbiAgUG9wdWxhclNlYXJjaCxcbiAgU2VhcmNoQW5hbHl0aWNzLFxuICBTZWFyY2hTdGF0cyxcbiAgU2VhcmNoVHJlbmQsXG59IGZyb20gXCIuL3NlYXJjaFwiO1xuXG4vLyDpu5joqo3lsI7lh7rkuLvmnI3li5nlr6bkvovvvIjlkJHlvozlhbzlrrnvvIlcbmV4cG9ydCB7IGRlZmF1bHQgfSBmcm9tIFwiLi9zZWFyY2hcIjtcbiJdLCJ2ZXJzaW9uIjozfQ==

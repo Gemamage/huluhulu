@@ -1,4 +1,4 @@
-import { UserService } from '../../src/services/userService';
+import { userService as UserService } from '../../src/services/userService';
 import { User, IUser } from '../../src/models/User';
 import jwt from 'jsonwebtoken';
 import { config } from '../../src/config/environment';
@@ -18,13 +18,14 @@ describe('UserService - Authentication', () => {
   describe('register', () => {
     it('should register a new user successfully', async () => {
       const newUserData = {
+        username: 'newuser',
         email: 'newuser@example.com',
         password: 'password123',
         name: 'New User',
         phone: '+1987654321'
       };
 
-      const result = await UserService.registerUser(newUserData);
+      const result = await UserService.register(newUserData);
 
       expect(result.user).toBeDefined();
       expect(result.user.email).toBe(newUserData.email);
@@ -37,7 +38,7 @@ describe('UserService - Authentication', () => {
     });
 
     it('should not register user with existing email', async () => {
-      await expect(UserService.registerUser(validUserData))
+      await expect(UserService.register(validUserData))
         .rejects
         .toThrow('此電子郵件已被註冊');
     });
@@ -48,7 +49,7 @@ describe('UserService - Authentication', () => {
         email: 'invalid-email'
       };
 
-      await expect(UserService.registerUser(invalidUserData))
+      await expect(UserService.register(invalidUserData))
         .rejects
         .toThrow();
     });
@@ -60,7 +61,7 @@ describe('UserService - Authentication', () => {
         password: '123'
       };
 
-      await expect(UserService.registerUser(weakPasswordData))
+      await expect(UserService.register(weakPasswordData))
         .rejects
         .toThrow();
     });
@@ -68,7 +69,7 @@ describe('UserService - Authentication', () => {
 
   describe('login', () => {
     it('should login with valid credentials', async () => {
-      const result = await UserService.loginUser({
+      const result = await UserService.login({
         email: validUserData.email,
         password: validUserData.password
       });
@@ -83,14 +84,14 @@ describe('UserService - Authentication', () => {
     });
 
     it('should not login with invalid email', async () => {
-      await expect(UserService.loginUser({
+      await expect(UserService.login({
         email: 'nonexistent@example.com',
         password: validUserData.password
       })).rejects.toThrow('電子郵件或密碼錯誤');
     });
 
     it('should not login with invalid password', async () => {
-      await expect(UserService.loginUser({
+      await expect(UserService.login({
         email: validUserData.email,
         password: 'wrongpassword'
       })).rejects.toThrow('電子郵件或密碼錯誤');
@@ -100,7 +101,7 @@ describe('UserService - Authentication', () => {
       testUser.isActive = false;
       await testUser.save();
 
-      await expect(UserService.loginUser({
+      await expect(UserService.login({
         email: validUserData.email,
         password: validUserData.password
       })).rejects.toThrow('用戶帳號已被停用');
@@ -109,7 +110,7 @@ describe('UserService - Authentication', () => {
     it('should update lastLoginAt on successful login', async () => {
       const originalLastLogin = testUser.lastLoginAt;
       
-      await UserService.loginUser({
+      await UserService.login({
         email: validUserData.email,
         password: validUserData.password
       });

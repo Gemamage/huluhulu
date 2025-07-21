@@ -23,13 +23,13 @@ export function ImageUploadSection({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      const newImages = [...formData.images, ...files].slice(0, 5); // 最多5張圖片
+      const newImages = [...(formData.images || []), ...files].slice(0, 5); // 最多5張圖片
       onInputChange('images', newImages);
     }
   };
 
   const removeImage = (index: number) => {
-    const newImages = formData.images.filter((_, i) => i !== index);
+    const newImages = formData.images?.filter((_, i) => i !== index) || [];
     onInputChange('images', newImages);
   };
 
@@ -53,7 +53,7 @@ export function ImageUploadSection({
           </p>
 
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4'>
-            {formData.images.map((image, index) => (
+            {formData.images?.map((image, index) => (
               <div key={index} className='relative group'>
                 <img
                   src={typeof image === 'string' ? image : getImagePreview(image)}
@@ -70,7 +70,7 @@ export function ImageUploadSection({
               </div>
             ))}
 
-            {formData.images.length < 5 && (
+            {(formData.images?.length || 0) < 5 && (
               <div
                 onClick={() => fileInputRef.current?.click()}
                 className='w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors'
@@ -90,7 +90,7 @@ export function ImageUploadSection({
             className='hidden'
           />
 
-          {formData.images.length < 5 && (
+          {(formData.images?.length || 0) < 5 && (
             <Button
               type='button'
               variant='outline'

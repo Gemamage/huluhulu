@@ -98,13 +98,14 @@ export function ContactSection({
             <Input
               id='ownerEmail'
               type='email'
-              value={formData.ownerContact.email}
-              onChange={e =>
+              value={formData.ownerContact.email || ''}
+              onChange={e => {
+                const value = e.target.value;
                 onInputChange('ownerContact', {
                   ...formData.ownerContact,
-                  email: e.target.value,
-                })
-              }
+                  email: value || undefined,
+                });
+              }}
               onBlur={e => onFieldBlur('ownerContact.email', e.target.value)}
               placeholder='選填，方便聯絡'
               className={errors['ownerContact.email'] ? 'border-red-500' : ''}

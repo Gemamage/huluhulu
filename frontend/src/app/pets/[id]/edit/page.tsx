@@ -29,7 +29,7 @@ interface PetFormData {
     latitude?: number;
     longitude?: number;
   };
-  lastSeenDate: string;
+  lastSeenDate?: string;
   contactInfo: {
     name: string;
     phone: string;
@@ -38,7 +38,7 @@ interface PetFormData {
   };
   images?: string[];
   reward?: number;
-  isUrgent: boolean;
+  isUrgent?: boolean;
   microchipId?: string;
   vaccinated?: boolean;
   medicalConditions?: string;
@@ -224,40 +224,31 @@ export default function EditPetPage() {
   const initialData: PetFormData = {
     name: pet.name,
     type: pet.type as 'dog' | 'cat' | 'other',
-    breed: pet.breed || '',
+    ...(pet.breed && { breed: pet.breed }),
     gender: pet.gender as 'male' | 'female' | 'unknown',
-    age: pet.age || 0,
-    size: pet.size as 'small' | 'medium' | 'large',
-    color: pet.color || '',
+    ...(pet.age && { age: pet.age }),
+    ...(pet.size && { size: pet.size as 'small' | 'medium' | 'large' }),
+    ...(pet.color && { color: pet.color }),
     status: pet.status as 'lost' | 'found',
-    description: pet.description || '',
+    ...(pet.description && { description: pet.description }),
     lastSeenLocation: {
       address: typeof pet.lastSeenLocation === 'string'
         ? pet.lastSeenLocation
         : pet.lastSeenLocation?.address || '',
-      latitude: typeof pet.lastSeenLocation === 'object' && pet.lastSeenLocation?.coordinates
-        ? pet.lastSeenLocation.coordinates[1]
-        : 0,
-      longitude: typeof pet.lastSeenLocation === 'object' && pet.lastSeenLocation?.coordinates
-        ? pet.lastSeenLocation.coordinates[0]
-        : 0
+      ...(typeof pet.lastSeenLocation === 'object' && pet.lastSeenLocation?.coordinates && {
+        latitude: pet.lastSeenLocation.coordinates[1],
+        longitude: pet.lastSeenLocation.coordinates[0]
+      })
     },
-    lastSeenDate: pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    lastSeenDate: (pet.lastSeenDate ? new Date(pet.lastSeenDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]) as string,
     contactInfo: {
-      name: (pet.contactName as string) || '',
-      phone: (pet.contactPhone as string) || '',
-      email: (pet.contactEmail as string) || '',
+      name: pet.contactName || '',
+      phone: pet.contactPhone || '',
+      ...(pet.contactEmail && { email: pet.contactEmail }),
       preferredContact: 'phone' as 'phone' | 'email',
     },
     images: [],
-    reward: 0,
     isUrgent: false,
-    microchipId: '',
-    vaccinated: false,
-    medicalConditions: '',
-    specialMarks: '',
-    personality: '',
-    healthCondition: '',
     isVaccinated: false
   };
 

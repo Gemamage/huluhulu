@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { petService } from '@/services/petService';
-import { Pet } from '@/types';
+import { Pet } from '@/types/index';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 

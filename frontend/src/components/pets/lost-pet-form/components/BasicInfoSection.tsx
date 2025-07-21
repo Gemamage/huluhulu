@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Heart } from 'lucide-react';
-import { LostPetFormData } from '../types';
+import { LostPetFormData } from '../types/index';
 import {
   PET_TYPES,
   GENDER_OPTIONS,
@@ -89,7 +89,7 @@ export function BasicInfoSection({
             {getCurrentBreedOptions().map(breed => (
               <Badge
                 key={breed}
-                variant={formData.breed.includes(breed) ? 'default' : 'outline'}
+                variant={formData.breed?.includes(breed) ? 'default' : 'outline'}
                 className='cursor-pointer'
                 onClick={() => onArrayToggle('breed', breed)}
               >
@@ -125,8 +125,8 @@ export function BasicInfoSection({
           <div>
             <Label htmlFor='age'>年齡</Label>
             <Select
-              value={formData.age}
-              onValueChange={value => onInputChange('age', value)}
+              value={formData.age || ''}
+              onValueChange={value => onInputChange('age', value || undefined)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -144,8 +144,8 @@ export function BasicInfoSection({
           <div>
             <Label htmlFor='size'>體型</Label>
             <Select
-              value={formData.size}
-              onValueChange={value => onInputChange('size', value)}
+              value={formData.size || ''}
+              onValueChange={value => onInputChange('size', value || undefined)}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -171,8 +171,8 @@ export function BasicInfoSection({
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   const value = e.currentTarget.value.trim();
-                  if (value && !formData.color.includes(value)) {
-                    onInputChange('color', [...formData.color, value]);
+                  if (value && !formData.color?.includes(value)) {
+                    onInputChange('color', [...(formData.color || []), value]);
                     e.currentTarget.value = '';
                   }
                 }
@@ -180,7 +180,7 @@ export function BasicInfoSection({
               className={errors.color ? 'border-red-500' : ''}
             />
             <div className='flex flex-wrap gap-2 mt-2'>
-              {formData.color.map((color, index) => (
+              {formData.color?.map((color, index) => (
                 <Badge
                   key={index}
                   variant='default'
@@ -190,9 +190,9 @@ export function BasicInfoSection({
                   <button
                     type='button'
                     onClick={() => {
-                      const newColors = formData.color.filter(
+                      const newColors = formData.color?.filter(
                         (_, i) => i !== index
-                      );
+                      ) || [];
                       onInputChange('color', newColors);
                     }}
                     className='ml-1 hover:bg-red-500 rounded-full p-0.5'
@@ -214,12 +214,14 @@ export function BasicInfoSection({
               type='number'
               step='0.1'
               value={formData.weight || ''}
-              onChange={e =>
-                onInputChange(
-                  'weight',
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
+              onChange={e => {
+                const value = e.target.value;
+                if (value) {
+                  onInputChange('weight', parseFloat(value));
+                } else {
+                  onInputChange('weight', undefined);
+                }
+              }}
               placeholder='例如：5.5'
             />
           </div>
