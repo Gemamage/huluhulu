@@ -1,0 +1,222 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 專業溫暖設計風格配色 */
+    --background: 39 100% 97%; /* 柔和的淡米白色 #FFF0E5 */
+    --foreground: 0 0% 20%; /* 專業的深炭灰色 #333333 */
+    --card: 0 0% 100%; /* 純白卡片背景 */
+    --card-foreground: 0 0% 20%; /* 深炭灰色文字 */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 16 100% 70%; /* 暖橘色 #FF8C69 */
+    --primary-foreground: 0 0% 100%; /* 白色文字 */
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 0 0% 20%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 16 100% 70%; /* 暖橘色焦點環 */
+    --radius: 0.5rem;
+
+    /* 品牌專用顏色變數 */
+    --brand-orange: 16 100% 70%; /* #FF8C69 */
+    --brand-warm-bg: 39 100% 97%; /* #FFF0E5 */
+    --text-primary: 0 0% 20%; /* #333333 */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-stone-50 text-zinc-700;
+    font-family: 'Noto Sans TC', 'Inter', sans-serif;
+  }
+}
+
+/* 自定義樣式 */
+@layer components {
+  /* 容器樣式 */
+  .container-custom {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* 按鈕樣式 */
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-secondary-foreground font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+
+  /* 卡片樣式 */
+  .card-custom {
+    @apply bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200;
+  }
+
+  /* 輸入框樣式 */
+  .input-custom {
+    @apply w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring;
+  }
+
+  /* 標籤樣式 */
+  .label-custom {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* 寵物狀態標籤 */
+  .status-lost {
+    @apply bg-pet-red text-white px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-found {
+    @apply bg-pet-green text-white px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-reunited {
+    @apply bg-pet-blue text-white px-2 py-1 rounded-full text-xs font-medium;
+  }
+}
+
+/* 動畫效果 */
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-bounce-slow {
+    animation: bounce 2s infinite;
+  }
+}
+
+/* 響應式字體大小 */
+@layer utilities {
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+}
+
+/* 滾動條樣式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 無障礙設計 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 列印樣式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Dify Chatbot Custom Styles - V5 (Final) */
+
+/* 聊天氣泡按鈕 */
+#dify-chatbot-bubble-button {
+  background-color: #ff8c69 !important; /* 品牌主色 */
+}
+
+/* 聊天視窗頂部標題列 - 使用多種可能的選擇器 */
+div[class*='header'],
+div[class*='chat-header'],
+div[class*='dify-header'],
+div[class*='title-bar'],
+div[class*='top-bar'],
+#dify-chatbot-bubble-window > div:first-child,
+#dify-chatbot-bubble-window [class*='header'],
+#dify-chatbot-bubble-window [class*='title'],
+#dify-chatbot-bubble-window [class*='top'] {
+  background-color: #ff8c69 !important;
+}
+
+/* 發送按鈕 */
+#dify-chatbot-bubble-window button[class*='chat-send-button'] {
+  background-color: #ff8c69 !important;
+}
+
+/* AI 回應的對話框背景 */
+#dify-chatbot-bubble-window div[class*='bot-message-bubble'] {
+  background-color: #fff0e5 !important;
+  color: #333333 !important;
+}

@@ -1,0 +1,32 @@
+8c7295df47a8cd9a0e8a999ac247314a
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validateFile = exports.validateParams = exports.validateQuery = exports.validateRequest = void 0;
+// 統一導出所有 schemas
+__exportStar(require("./auth"), exports);
+__exportStar(require("./pet"), exports);
+__exportStar(require("./search"), exports);
+__exportStar(require("./common"), exports);
+__exportStar(require("./ai"), exports);
+__exportStar(require("./upload"), exports);
+// 重新導出驗證中介軟體
+var validation_1 = require("../utils/validation");
+Object.defineProperty(exports, "validateRequest", { enumerable: true, get: function () { return validation_1.validateRequest; } });
+Object.defineProperty(exports, "validateQuery", { enumerable: true, get: function () { return validation_1.validateQuery; } });
+Object.defineProperty(exports, "validateParams", { enumerable: true, get: function () { return validation_1.validateParams; } });
+Object.defineProperty(exports, "validateFile", { enumerable: true, get: function () { return validation_1.validateFile; } });
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHNjaGVtYXNcXGluZGV4LnRzIiwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQUEsaUJBQWlCO0FBQ2pCLHlDQUF1QjtBQUN2Qix3Q0FBc0I7QUFDdEIsMkNBQXlCO0FBQ3pCLDJDQUF5QjtBQUN6Qix1Q0FBcUI7QUFDckIsMkNBQXlCO0FBRXpCLGFBQWE7QUFDYixrREFBbUc7QUFBMUYsNkdBQUEsZUFBZSxPQUFBO0FBQUUsMkdBQUEsYUFBYSxPQUFBO0FBQUUsNEdBQUEsY0FBYyxPQUFBO0FBQUUsMEdBQUEsWUFBWSxPQUFBIiwibmFtZXMiOltdLCJzb3VyY2VzIjpbIkM6XFxVc2Vyc1xcVXNlclxcRGVza3RvcFxcdHJhZXByb2plY3RcXHRlc3QyXFxwZXQtZmluZGVyLWFwcFxcYmFja2VuZFxcc3JjXFxzY2hlbWFzXFxpbmRleC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyDntbHkuIDlsI7lh7rmiYDmnIkgc2NoZW1hc1xuZXhwb3J0ICogZnJvbSAnLi9hdXRoJztcbmV4cG9ydCAqIGZyb20gJy4vcGV0JztcbmV4cG9ydCAqIGZyb20gJy4vc2VhcmNoJztcbmV4cG9ydCAqIGZyb20gJy4vY29tbW9uJztcbmV4cG9ydCAqIGZyb20gJy4vYWknO1xuZXhwb3J0ICogZnJvbSAnLi91cGxvYWQnO1xuXG4vLyDph43mlrDlsI7lh7rpqZforYnkuK3ku4vou5/pq5RcbmV4cG9ydCB7IHZhbGlkYXRlUmVxdWVzdCwgdmFsaWRhdGVRdWVyeSwgdmFsaWRhdGVQYXJhbXMsIHZhbGlkYXRlRmlsZSB9IGZyb20gJy4uL3V0aWxzL3ZhbGlkYXRpb24nOyJdLCJ2ZXJzaW9uIjozfQ==

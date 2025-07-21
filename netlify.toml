@@ -1,0 +1,39 @@
+[build]
+  # 指定前端建置目錄
+  base = "frontend"
+  # 建置命令
+  command = "npm ci && npm run build:netlify"
+  # 輸出目錄
+  publish = "out"
+
+[build.environment]
+  # Node.js 版本 - 與 package.json engines 一致
+  NODE_VERSION = "22.17.0"
+  # NPM 版本 - 與 Node.js 18 相容
+  NPM_VERSION = "10"
+  # 啟用建置快取
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
+  # Next.js 建置優化
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# API 路由重定向規則
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA 路由支援
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 安全標頭
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:;"

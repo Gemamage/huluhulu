@@ -1,0 +1,19 @@
+80d2a4e7fd432765f4bfd90c33ddfde2
+"use strict";
+// 重構後的用戶服務 - 模組化架構
+// 原始文件已備份為 userService-backup.ts
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserListResult = exports.UserQueryOptions = exports.AdminUpdateUserData = exports.UpdateUserData = exports.LoginUserData = exports.RegisterUserData = exports.userService = exports.UserService = void 0;
+var users_1 = require("./users");
+Object.defineProperty(exports, "UserService", { enumerable: true, get: function () { return users_1.UserService; } });
+Object.defineProperty(exports, "userService", { enumerable: true, get: function () { return users_1.userService; } });
+Object.defineProperty(exports, "RegisterUserData", { enumerable: true, get: function () { return users_1.RegisterUserData; } });
+Object.defineProperty(exports, "LoginUserData", { enumerable: true, get: function () { return users_1.LoginUserData; } });
+Object.defineProperty(exports, "UpdateUserData", { enumerable: true, get: function () { return users_1.UpdateUserData; } });
+Object.defineProperty(exports, "AdminUpdateUserData", { enumerable: true, get: function () { return users_1.AdminUpdateUserData; } });
+Object.defineProperty(exports, "UserQueryOptions", { enumerable: true, get: function () { return users_1.UserQueryOptions; } });
+Object.defineProperty(exports, "UserListResult", { enumerable: true, get: function () { return users_1.UserListResult; } });
+// 為了向後兼容，也導出默認實例
+const users_2 = require("./users");
+exports.default = users_2.userService;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJmaWxlIjoiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHNlcnZpY2VzXFx1c2VyU2VydmljZS50cyIsIm1hcHBpbmdzIjoiO0FBQUEsbUJBQW1CO0FBQ25CLGlDQUFpQzs7O0FBRWpDLGlDQVNpQjtBQVJmLG9HQUFBLFdBQVcsT0FBQTtBQUNYLG9HQUFBLFdBQVcsT0FBQTtBQUNYLHlHQUFBLGdCQUFnQixPQUFBO0FBQ2hCLHNHQUFBLGFBQWEsT0FBQTtBQUNiLHVHQUFBLGNBQWMsT0FBQTtBQUNkLDRHQUFBLG1CQUFtQixPQUFBO0FBQ25CLHlHQUFBLGdCQUFnQixPQUFBO0FBQ2hCLHVHQUFBLGNBQWMsT0FBQTtBQUdoQixpQkFBaUI7QUFDakIsbUNBQXNDO0FBQ3RDLGtCQUFlLG1CQUFXLENBQUMiLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiQzpcXFVzZXJzXFxVc2VyXFxEZXNrdG9wXFx0cmFlcHJvamVjdFxcdGVzdDJcXHBldC1maW5kZXItYXBwXFxiYWNrZW5kXFxzcmNcXHNlcnZpY2VzXFx1c2VyU2VydmljZS50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyDph43mp4vlvoznmoTnlKjmiLbmnI3li5kgLSDmqKHntYTljJbmnrbmp4tcbi8vIOWOn+Wni+aWh+S7tuW3suWCmeS7veeCuiB1c2VyU2VydmljZS1iYWNrdXAudHNcblxuZXhwb3J0IHtcbiAgVXNlclNlcnZpY2UsXG4gIHVzZXJTZXJ2aWNlLFxuICBSZWdpc3RlclVzZXJEYXRhLFxuICBMb2dpblVzZXJEYXRhLFxuICBVcGRhdGVVc2VyRGF0YSxcbiAgQWRtaW5VcGRhdGVVc2VyRGF0YSxcbiAgVXNlclF1ZXJ5T3B0aW9ucyxcbiAgVXNlckxpc3RSZXN1bHQsXG59IGZyb20gJy4vdXNlcnMnO1xuXG4vLyDngrrkuoblkJHlvozlhbzlrrnvvIzkuZ/lsI7lh7rpu5joqo3lr6bkvotcbmltcG9ydCB7IHVzZXJTZXJ2aWNlIH0gZnJvbSAnLi91c2Vycyc7XG5leHBvcnQgZGVmYXVsdCB1c2VyU2VydmljZTsiXSwidmVyc2lvbiI6M30=
