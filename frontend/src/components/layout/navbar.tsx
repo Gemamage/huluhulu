@@ -1,6 +1,5 @@
 'use client';
 import Image from 'next/image';
-
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -18,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/auth-context';
 import { NotificationPopover } from '@/components/notifications';
 import { User, LogOut, Settings, Mail, Heart, Bell } from 'lucide-react';
+import { getImagePath } from '@/lib/image-utils';
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -48,7 +48,7 @@ export function Navbar() {
         <div className='flex items-center'>
           <Link href='/' className='flex items-center space-x-2'>
             <Image
-              src='/images/logo.png'
+              src={getImagePath('/images/logo.png')}
               alt='呼嚕 Logo'
               width={40}
               height={40}

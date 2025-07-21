@@ -14,6 +14,7 @@ import {
   Search,
 } from 'lucide-react';
 import { cn, formatRelativeTime } from '@/lib/utils';
+import { getImagePath } from '@/lib/image-utils';
 
 interface RecentPostsProps {
   className?: string;
@@ -51,7 +52,7 @@ const mockPosts: PetPost[] = [
     location: '台北市大安區',
     lastSeenDate: '2024-01-15T10:30:00Z',
     description: '非常親人的柴犬，會回應名字，額頭有白色愛心形斑紋',
-    images: ['/images/pets/dog-01.jpeg'],
+    images: [getImagePath('/images/pets/dog-01.jpeg')],
     contactInfo: {
       name: '王小明',
       phone: '0912345678',
@@ -71,7 +72,7 @@ const mockPosts: PetPost[] = [
     location: '新北市板橋區',
     lastSeenDate: '2024-01-14T16:45:00Z',
     description: '灰色英短，很親人，在公園附近發現',
-    images: ['/images/pets/cat-02.jpeg'],
+    images: [getImagePath('/images/pets/cat-02.jpeg')],
     contactInfo: {
       name: '李小華',
       phone: '0987654321',
@@ -90,7 +91,7 @@ const mockPosts: PetPost[] = [
     location: '台中市西屯區',
     lastSeenDate: '2024-01-13T14:20:00Z',
     description: '大型黃金獵犬，非常溫馴，脖子上有紅色項圈',
-    images: ['/images/pets/dog-03.jpeg'],
+    images: [getImagePath('/images/pets/dog-03.jpeg')],
     contactInfo: {
       name: '張大明',
       phone: '0923456789',
@@ -110,7 +111,7 @@ const mockPosts: PetPost[] = [
     location: '高雄市左營區',
     lastSeenDate: '2024-01-12T09:15:00Z',
     description: '已找到！感謝大家的幫助',
-    images: ['/images/pets/cat-04.jpeg'],
+    images: [getImagePath('/images/pets/cat-04.jpeg')],
     contactInfo: {
       name: '陳小美',
       phone: '0934567890',
@@ -129,7 +130,7 @@ const mockPosts: PetPost[] = [
     location: '桃園市中壢區',
     lastSeenDate: '2024-01-11T11:30:00Z',
     description: '灰色玄鳳鸚鵡，會說話，頭上有黃色冠羽',
-    images: ['/images/pets/bird-05.jpeg'],
+    images: [getImagePath('/images/pets/bird-05.jpeg')],
     contactInfo: {
       name: '林小強',
       phone: '0945678901',
@@ -149,7 +150,7 @@ const mockPosts: PetPost[] = [
     location: '台南市東區',
     lastSeenDate: '2024-01-10T13:45:00Z',
     description: '白色荷蘭兔，在學校附近發現，很乖巧',
-    images: ['/images/pets/rabit-06.jpeg'],
+    images: [getImagePath('/images/pets/rabit-06.jpeg')],
     contactInfo: {
       name: '黃小芳',
       phone: '0956789012',
