@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-21T02:59:31.310Z",
+  "timestamp": "2025-07-21T05:42:54.391Z",
   "summary": {
-    "totalFiles": 314,
-    "totalLines": 71927,
-    "averageLines": 229
+    "totalFiles": 366,
+    "totalLines": 74062,
+    "averageLines": 202
   },
   "issues": {
     "oversized": [
@@ -64,20 +64,24 @@
         "lines": 618
       },
       {
-        "file": "frontend\\src\\app\\pets\\page.tsx",
-        "lines": 645
+        "file": "frontend\\out\\_next\\static\\chunks\\6450-399bf6f378232deb.js",
+        "lines": 646
       },
       {
-        "file": "frontend\\src\\app\\pets\\[id]\\page.tsx",
-        "lines": 741
+        "file": "frontend\\out\\_next\\static\\chunks\\9853-9c2c37bf7fc55778.js",
+        "lines": 661
+      },
+      {
+        "file": "frontend\\src\\app\\pets\\page.tsx",
+        "lines": 639
       },
       {
         "file": "frontend\\src\\components\\pets\\found-pet-form.tsx",
-        "lines": 650
+        "lines": 688
       },
       {
         "file": "frontend\\src\\components\\pets\\pet-form.tsx",
-        "lines": 639
+        "lines": 659
       }
     ],
     "warnings": [
@@ -147,7 +151,137 @@
     "fixmes": [],
     "complex": [
       {
-        "file": "frontend\\out\\static\\chunks\\polyfills.js",
+        "file": "frontend\\out\\_next\\static\\chunks\\4597-e29e30fea0ef7fdd.js",
+        "reason": "過多函數 (71)",
+        "metrics": {
+          "functions": 71,
+          "classes": 0,
+          "interfaces": 0,
+          "imports": 1,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\4938-0cd8d6053a2eb656.js",
+        "reason": "過多函數 (167)",
+        "metrics": {
+          "functions": 167,
+          "classes": 9,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\6173-b9a36622a7ef244d.js",
+        "reason": "過多函數 (52)",
+        "metrics": {
+          "functions": 52,
+          "classes": 10,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\6448-c5a599ae8bf0282c.js",
+        "reason": "過多函數 (40)",
+        "metrics": {
+          "functions": 40,
+          "classes": 6,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\6450-399bf6f378232deb.js",
+        "reason": "過多函數 (97)",
+        "metrics": {
+          "functions": 97,
+          "classes": 16,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\8129-031e2b14524aa163.js",
+        "reason": "過多函數 (25)",
+        "metrics": {
+          "functions": 25,
+          "classes": 0,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\9853-9c2c37bf7fc55778.js",
+        "reason": "過多函數 (122)",
+        "metrics": {
+          "functions": 122,
+          "classes": 33,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\fd9d1056-ac0df6507107f45c.js",
+        "reason": "過多函數 (446)",
+        "metrics": {
+          "functions": 446,
+          "classes": 0,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\framework-e5f7b5c033c11bea.js",
+        "reason": "過多函數 (358)",
+        "metrics": {
+          "functions": 358,
+          "classes": 0,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\main-3e46cf9b8cb0d8d7.js",
+        "reason": "過多函數 (137)",
+        "metrics": {
+          "functions": 137,
+          "classes": 14,
+          "interfaces": 0,
+          "imports": 0,
+          "exports": 0,
+          "todos": 0,
+          "fixmes": 0
+        }
+      },
+      {
+        "file": "frontend\\out\\_next\\static\\chunks\\polyfills-c67a75d1b6f99dc8.js",
         "reason": "過多函數 (23)",
         "metrics": {
           "functions": 23,
@@ -181,8 +315,9 @@
         "backend\\test\\routes\\notifications.test.ts",
         "backend\\test\\routes\\upload.test.ts",
         "backend\\test\\services\\matchingService.test.ts",
+        "frontend\\out\\_next\\static\\chunks\\6450-399bf6f378232deb.js",
+        "frontend\\out\\_next\\static\\chunks\\9853-9c2c37bf7fc55778.js",
         "frontend\\src\\app\\pets\\page.tsx",
-        "frontend\\src\\app\\pets\\[id]\\page.tsx",
         "frontend\\src\\components\\pets\\found-pet-form.tsx",
         "frontend\\src\\components\\pets\\pet-form.tsx"
       ]
@@ -203,7 +338,17 @@
       "type": "simplify",
       "description": "簡化複雜的文件結構",
       "files": [
-        "frontend\\out\\static\\chunks\\polyfills.js"
+        "frontend\\out\\_next\\static\\chunks\\4597-e29e30fea0ef7fdd.js",
+        "frontend\\out\\_next\\static\\chunks\\4938-0cd8d6053a2eb656.js",
+        "frontend\\out\\_next\\static\\chunks\\6173-b9a36622a7ef244d.js",
+        "frontend\\out\\_next\\static\\chunks\\6448-c5a599ae8bf0282c.js",
+        "frontend\\out\\_next\\static\\chunks\\6450-399bf6f378232deb.js",
+        "frontend\\out\\_next\\static\\chunks\\8129-031e2b14524aa163.js",
+        "frontend\\out\\_next\\static\\chunks\\9853-9c2c37bf7fc55778.js",
+        "frontend\\out\\_next\\static\\chunks\\fd9d1056-ac0df6507107f45c.js",
+        "frontend\\out\\_next\\static\\chunks\\framework-e5f7b5c033c11bea.js",
+        "frontend\\out\\_next\\static\\chunks\\main-3e46cf9b8cb0d8d7.js",
+        "frontend\\out\\_next\\static\\chunks\\polyfills-c67a75d1b6f99dc8.js"
       ]
     }
   ]
