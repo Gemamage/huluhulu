@@ -72,7 +72,11 @@ export function useLostPetValidation() {
       }
 
       // 獎金驗證
-      if (formData.reward !== undefined && formData.reward !== null && formData.reward < 0) {
+      if (
+        formData.reward !== undefined &&
+        formData.reward !== null &&
+        formData.reward < 0
+      ) {
         newErrors.reward = '獎金金額不能為負數';
       }
 
@@ -101,61 +105,58 @@ export function useLostPetValidation() {
     []
   );
 
-  const validateField = useCallback(
-    (field: string, value: any): string => {
-      switch (field) {
-        case 'name':
-          return !value?.trim() ? '請填寫寵物名稱' : '';
+  const validateField = useCallback((field: string, value: any): string => {
+    switch (field) {
+      case 'name':
+        return !value?.trim() ? '請填寫寵物名稱' : '';
 
-        case 'breed':
-          return !value || value.length === 0 ? '請選擇寵物品種' : '';
+      case 'breed':
+        return !value || value.length === 0 ? '請選擇寵物品種' : '';
 
-        case 'color':
-          return !value || value.length === 0 ? '請選擇寵物毛色' : '';
+      case 'color':
+        return !value || value.length === 0 ? '請選擇寵物毛色' : '';
 
-        case 'ownerContact.phone':
-          if (!value?.trim()) return '請填寫聯絡電話';
-          if (!/^[0-9+\-\s()]+$/.test(value)) return '請填寫有效的電話號碼';
-          return '';
+      case 'ownerContact.phone':
+        if (!value?.trim()) return '請填寫聯絡電話';
+        if (!/^[0-9+\-\s()]+$/.test(value)) return '請填寫有效的電話號碼';
+        return '';
 
-        case 'ownerContact.email':
-          if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            return '請填寫有效的電子郵件';
-          }
-          return '';
+      case 'ownerContact.email':
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return '請填寫有效的電子郵件';
+        }
+        return '';
 
-        case 'weight':
-          if (value !== undefined && (value <= 0 || value > 200)) {
-            return '請填寫有效的體重（0-200公斤）';
-          }
-          return '';
+      case 'weight':
+        if (value !== undefined && (value <= 0 || value > 200)) {
+          return '請填寫有效的體重（0-200公斤）';
+        }
+        return '';
 
-        case 'reward':
-          if (value !== undefined && value < 0) {
-            return '獎金金額不能為負數';
-          }
-          return '';
+      case 'reward':
+        if (value !== undefined && value < 0) {
+          return '獎金金額不能為負數';
+        }
+        return '';
 
-        case 'lostDate':
-          if (!value) return '請選擇走失日期';
-          const lostDate = new Date(value);
-          const today = new Date();
-          today.setHours(23, 59, 59, 999);
-          if (lostDate > today) return '走失日期不能是未來的日期';
-          return '';
+      case 'lostDate':
+        if (!value) return '請選擇走失日期';
+        const lostDate = new Date(value);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        if (lostDate > today) return '走失日期不能是未來的日期';
+        return '';
 
-        case 'lostTime':
-          if (value && !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-            return '請填寫有效的時間格式（HH:MM）';
-          }
-          return '';
+      case 'lostTime':
+        if (value && !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
+          return '請填寫有效的時間格式（HH:MM）';
+        }
+        return '';
 
-        default:
-          return '';
-      }
-    },
-    []
-  );
+      default:
+        return '';
+    }
+  }, []);
 
   return {
     validateForm,

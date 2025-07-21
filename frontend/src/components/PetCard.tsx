@@ -194,7 +194,13 @@ const PetCard: React.FC<PetCardProps> = ({ pet, onClick, currentUserId }) => {
 
           <div className='flex items-center space-x-1 text-sm text-gray-600'>
             <MapPin className='h-4 w-4' />
-            <span>{pet.lastSeenLocation ? (typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address || '未知地點') : '未知地點'}</span>
+            <span>
+              {pet.lastSeenLocation
+                ? typeof pet.lastSeenLocation === 'string'
+                  ? pet.lastSeenLocation
+                  : pet.lastSeenLocation?.address || '未知地點'
+                : '未知地點'}
+            </span>
           </div>
 
           <div className='flex justify-between items-center pt-2'>

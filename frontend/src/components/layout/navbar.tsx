@@ -17,14 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/auth-context';
 import { NotificationPopover } from '@/components/notifications';
-import {
-  User,
-  LogOut,
-  Settings,
-  Mail,
-  Heart,
-  Bell,
-} from 'lucide-react';
+import { User, LogOut, Settings, Mail, Heart, Bell } from 'lucide-react';
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();

@@ -88,16 +88,17 @@ function PetCard({
           <div className='flex items-center text-sm text-muted-foreground'>
             <MapPin className='h-4 w-4 mr-1' />
             <span className='truncate'>
-              {typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address || '未提供位置'}
+              {typeof pet.lastSeenLocation === 'string'
+                ? pet.lastSeenLocation
+                : pet.lastSeenLocation?.address || '未提供位置'}
             </span>
           </div>
           <div className='flex items-center text-sm text-muted-foreground'>
             <Calendar className='h-4 w-4 mr-1' />
             <span>
-              {pet.lastSeenDate 
+              {pet.lastSeenDate
                 ? new Date(pet.lastSeenDate).toLocaleDateString('zh-TW')
-                : '未提供日期'
-              }
+                : '未提供日期'}
             </span>
           </div>
         </div>

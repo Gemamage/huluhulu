@@ -45,17 +45,17 @@ class SearchService implements SearchServiceMethods {
     try {
       const token = authService.getToken();
       const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    // 安全地合併headers
-    if (options.headers) {
-      Object.entries(options.headers).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          headers[key] = value;
-        }
-      });
-    }
+        'Content-Type': 'application/json',
+      };
+
+      // 安全地合併headers
+      if (options.headers) {
+        Object.entries(options.headers).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            headers[key] = value;
+          }
+        });
+      }
 
       if (token) {
         headers.Authorization = `Bearer ${token}`;
@@ -251,11 +251,7 @@ class SearchService implements SearchServiceMethods {
     try {
       return this.makeRequest<{
         data: { elasticsearch: ElasticsearchHealth };
-      }>(
-        '/advanced-search/health',
-        {},
-        'checkSearchHealth'
-      );
+      }>('/advanced-search/health', {}, 'checkSearchHealth');
     } catch (error) {
       throw new ApiError(
         ApiErrorCode.SERVICE_UNAVAILABLE,

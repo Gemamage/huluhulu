@@ -277,9 +277,7 @@ class AuthService {
   /**
    * 檢查驗證狀態
    */
-  async checkVerificationStatus(
-    email: string
-  ): Promise<{
+  async checkVerificationStatus(email: string): Promise<{
     isVerified: boolean;
     canResend: boolean;
     nextResendTime?: string;

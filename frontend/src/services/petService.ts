@@ -72,7 +72,7 @@ class PetService implements PetServiceMethods {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      
+
       // 安全地合併headers
       if (options.headers) {
         Object.entries(options.headers).forEach(([key, value]) => {
@@ -340,8 +340,8 @@ class PetService implements PetServiceMethods {
           { _id: '德國牧羊犬', count: 50 },
         ].slice(0, limit),
       },
-     };
-   }
+    };
+  }
 
   async getSearchHistory(limit: number = 10): Promise<{
     success: boolean;
@@ -365,4 +365,9 @@ class PetService implements PetServiceMethods {
 export const petService = new PetService();
 export { PetService };
 // 導出 Pet 型別以供其他模組使用
-export type { Pet, CreatePetData, UpdatePetData, PetSearchResult } from '@/types';
+export type {
+  Pet,
+  CreatePetData,
+  UpdatePetData,
+  PetSearchResult,
+} from '@/types';

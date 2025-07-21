@@ -12,32 +12,57 @@ export function useLostPetForm(initialData?: Partial<LostPetFormData>) {
     ...(initialData?.size !== undefined && { size: initialData.size }),
     ...(initialData?.color !== undefined && { color: initialData.color }),
     ...(initialData?.weight !== undefined && { weight: initialData.weight }),
-    ...(initialData?.description !== undefined && { description: initialData.description }),
-    ...(initialData?.specialMarks !== undefined && { specialMarks: initialData.specialMarks }),
-    ...(initialData?.personality !== undefined && { personality: initialData.personality }),
+    ...(initialData?.description !== undefined && {
+      description: initialData.description,
+    }),
+    ...(initialData?.specialMarks !== undefined && {
+      specialMarks: initialData.specialMarks,
+    }),
+    ...(initialData?.personality !== undefined && {
+      personality: initialData.personality,
+    }),
     lostLocation: initialData?.lostLocation ?? {
       city: '',
       district: '',
       address: '',
     },
-    lostDate: (initialData?.lostDate || new Date().toISOString().split('T')[0]) as string,
-    ...(initialData?.lostTime !== undefined && { lostTime: initialData.lostTime }),
-    ...(initialData?.circumstances !== undefined && { circumstances: initialData.circumstances }),
+    lostDate: (initialData?.lostDate ||
+      new Date().toISOString().split('T')[0]) as string,
+    ...(initialData?.lostTime !== undefined && {
+      lostTime: initialData.lostTime,
+    }),
+    ...(initialData?.circumstances !== undefined && {
+      circumstances: initialData.circumstances,
+    }),
     ownerContact: {
       name: initialData?.ownerContact?.name ?? '',
       phone: initialData?.ownerContact?.phone ?? '',
-      ...(initialData?.ownerContact?.email !== undefined && { email: initialData.ownerContact.email }),
+      ...(initialData?.ownerContact?.email !== undefined && {
+        email: initialData.ownerContact.email,
+      }),
       preferredContact: initialData?.ownerContact?.preferredContact ?? 'phone',
     },
     ...(initialData?.images !== undefined && { images: initialData.images }),
-    ...(initialData?.microchipId !== undefined && { microchipId: initialData.microchipId }),
+    ...(initialData?.microchipId !== undefined && {
+      microchipId: initialData.microchipId,
+    }),
     hasCollar: initialData?.hasCollar ?? false,
-    ...(initialData?.collarDescription !== undefined && { collarDescription: initialData.collarDescription }),
-    ...(initialData?.healthCondition !== undefined && { healthCondition: initialData.healthCondition }),
-    ...(initialData?.medications !== undefined && { medications: initialData.medications }),
+    ...(initialData?.collarDescription !== undefined && {
+      collarDescription: initialData.collarDescription,
+    }),
+    ...(initialData?.healthCondition !== undefined && {
+      healthCondition: initialData.healthCondition,
+    }),
+    ...(initialData?.medications !== undefined && {
+      medications: initialData.medications,
+    }),
     reward: initialData?.reward ?? null,
-    ...(initialData?.rewardDescription !== undefined && { rewardDescription: initialData.rewardDescription }),
-    ...(initialData?.additionalNotes !== undefined && { additionalNotes: initialData.additionalNotes }),
+    ...(initialData?.rewardDescription !== undefined && {
+      rewardDescription: initialData.rewardDescription,
+    }),
+    ...(initialData?.additionalNotes !== undefined && {
+      additionalNotes: initialData.additionalNotes,
+    }),
   });
 
   const [errors, setErrors] = useState<FormErrors>({});

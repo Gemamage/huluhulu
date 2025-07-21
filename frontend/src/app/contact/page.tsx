@@ -51,7 +51,7 @@ export default function ContactPage() {
         subject: '',
         message: '',
       });
-    } catch (error) {
+    } catch {
       toast({
         title: '送出失敗',
         description: '請稍後再試，或直接透過電話聯絡我們。',

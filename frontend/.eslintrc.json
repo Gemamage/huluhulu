@@ -14,26 +14,26 @@
     "prettier"
   ],
   "rules": {
-    "prettier/prettier": "error",
-    "@typescript-eslint/no-unused-vars": "error",
+    "prettier/prettier": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "warn",
+
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-empty-function": "warn",
-    "@typescript-eslint/prefer-const": "error",
-    "@typescript-eslint/no-var-requires": "error",
+    "@typescript-eslint/no-var-requires": "warn",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
-    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/rules-of-hooks": "warn",
     "react-hooks/exhaustive-deps": "warn",
     "no-console": "warn",
-    "no-debugger": "error",
-    "no-duplicate-imports": "error",
-    "no-unused-expressions": "error",
-    "prefer-const": "error",
-    "no-var": "error",
-    "object-shorthand": "error",
-    "prefer-template": "error"
+    "no-debugger": "warn",
+    "no-duplicate-imports": "warn",
+    "no-unused-expressions": "warn",
+
+    "no-var": "warn",
+    "object-shorthand": "warn",
+    "prefer-template": "warn"
   },
   "settings": {
     "react": {

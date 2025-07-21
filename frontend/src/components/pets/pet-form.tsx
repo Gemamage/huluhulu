@@ -12,13 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import {
-  MapPin,
-  User,
-  Heart,
-  AlertTriangle,
-  Camera,
-} from 'lucide-react';
+import { MapPin, User, Heart, AlertTriangle, Camera } from 'lucide-react';
 import {
   validatePetForm,
   convertValidationErrors,
@@ -93,27 +87,46 @@ export function PetForm({
     ...(initialData?.color !== undefined && { color: initialData.color }),
     ...(initialData?.size !== undefined && { size: initialData.size }),
     status: initialData?.status || 'lost',
-    ...(initialData?.description !== undefined && { description: initialData.description }),
+    ...(initialData?.description !== undefined && {
+      description: initialData.description,
+    }),
     lastSeenLocation: {
       address: initialData?.lastSeenLocation?.address || '',
-      ...(initialData?.lastSeenLocation?.latitude !== undefined && { latitude: initialData.lastSeenLocation.latitude }),
-      ...(initialData?.lastSeenLocation?.longitude !== undefined && { longitude: initialData.lastSeenLocation.longitude }),
+      ...(initialData?.lastSeenLocation?.latitude !== undefined && {
+        latitude: initialData.lastSeenLocation.latitude,
+      }),
+      ...(initialData?.lastSeenLocation?.longitude !== undefined && {
+        longitude: initialData.lastSeenLocation.longitude,
+      }),
     },
-    lastSeenDate: (initialData?.lastSeenDate || new Date().toISOString().split('T')[0]) as string,
+    lastSeenDate: (initialData?.lastSeenDate ||
+      new Date().toISOString().split('T')[0]) as string,
     contactInfo: {
       name: initialData?.contactInfo?.name || '',
       phone: initialData?.contactInfo?.phone || '',
-      ...(initialData?.contactInfo?.email && { email: initialData.contactInfo.email }),
+      ...(initialData?.contactInfo?.email && {
+        email: initialData.contactInfo.email,
+      }),
       preferredContact: initialData?.contactInfo?.preferredContact || 'phone',
     },
     ...(initialData?.images !== undefined && { images: initialData.images }),
     ...(initialData?.reward !== undefined && { reward: initialData.reward }),
     isUrgent: initialData?.isUrgent || false,
-    ...(initialData?.microchipId !== undefined && { microchipId: initialData.microchipId }),
-    ...(initialData?.vaccinated !== undefined && { vaccinated: initialData.vaccinated }),
-    ...(initialData?.medicalConditions !== undefined && { medicalConditions: initialData.medicalConditions }),
-    ...(initialData?.specialMarks !== undefined && { specialMarks: initialData.specialMarks }),
-    ...(initialData?.personality !== undefined && { personality: initialData.personality }),
+    ...(initialData?.microchipId !== undefined && {
+      microchipId: initialData.microchipId,
+    }),
+    ...(initialData?.vaccinated !== undefined && {
+      vaccinated: initialData.vaccinated,
+    }),
+    ...(initialData?.medicalConditions !== undefined && {
+      medicalConditions: initialData.medicalConditions,
+    }),
+    ...(initialData?.specialMarks !== undefined && {
+      specialMarks: initialData.specialMarks,
+    }),
+    ...(initialData?.personality !== undefined && {
+      personality: initialData.personality,
+    }),
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -390,7 +403,11 @@ export function PetForm({
               <Input
                 id='lastSeenDate'
                 type='date'
-                value={formData.lastSeenDate ? formData.lastSeenDate.split('T')[0] : ''}
+                value={
+                  formData.lastSeenDate
+                    ? formData.lastSeenDate.split('T')[0]
+                    : ''
+                }
                 onChange={e =>
                   handleInputChange(
                     'lastSeenDate',
@@ -620,15 +637,18 @@ export function PetForm({
           </div>
 
           <div className='flex justify-end space-x-4 pt-6'>
-            <Button type='button' variant='outline' disabled={isLoading || isSubmitting}>
+            <Button
+              type='button'
+              variant='outline'
+              disabled={isLoading || isSubmitting}
+            >
               取消
             </Button>
             <Button type='submit' disabled={isLoading || isSubmitting}>
               {isLoading || isSubmitting
                 ? '處理中...'
-                : submitButtonText || (mode === 'create'
-                  ? '新增寵物'
-                  : '更新資訊')}
+                : submitButtonText ||
+                  (mode === 'create' ? '新增寵物' : '更新資訊')}
             </Button>
           </div>
         </form>

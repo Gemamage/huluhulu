@@ -1,7 +1,15 @@
 // 寵物相關類型定義
 // 這個文件提供前端測試所需的寵物類型定義
 
-export type PetType = 'dog' | 'cat' | 'bird' | 'rabbit' | 'hamster' | 'fish' | 'reptile' | 'other';
+export type PetType =
+  | 'dog'
+  | 'cat'
+  | 'bird'
+  | 'rabbit'
+  | 'hamster'
+  | 'fish'
+  | 'reptile'
+  | 'other';
 export type PetGender = 'male' | 'female' | 'unknown';
 export type PetSize = 'small' | 'medium' | 'large';
 export type PetStatus = 'lost' | 'found' | 'adopted';
@@ -70,11 +78,13 @@ export interface CreatePetData {
   color?: string;
   description?: string;
   status: PetStatus;
-  lastSeenLocation?: Location | {
-    address: string;
-    latitude?: number;
-    longitude?: number;
-  };
+  lastSeenLocation?:
+    | Location
+    | {
+        address: string;
+        latitude?: number;
+        longitude?: number;
+      };
   contactInfo: ContactInfo;
   images?: string[];
   reward?: number;

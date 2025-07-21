@@ -46,12 +46,12 @@ class ImageService implements ImageServiceMethods {
     try {
       const token = authService.getToken();
       const headers: Record<string, string> = {};
-      
+
       // 設置Content-Type（除非是FormData）
       if (!(options.body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
       }
-      
+
       // 安全地合併headers
       if (options.headers) {
         Object.entries(options.headers).forEach(([key, value]) => {

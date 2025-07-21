@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-21T02:20:09.404Z",
+  "timestamp": "2025-07-21T02:59:31.310Z",
   "summary": {
-    "totalFiles": 470,
-    "totalLines": 96750,
-    "averageLines": 206
+    "totalFiles": 314,
+    "totalLines": 71927,
+    "averageLines": 229
   },
   "issues": {
     "oversized": [
@@ -64,54 +64,6 @@
         "lines": 618
       },
       {
-        "file": "frontend\\out\\server\\app\\about\\page.js",
-        "lines": 647
-      },
-      {
-        "file": "frontend\\out\\server\\app\\contact\\page.js",
-        "lines": 693
-      },
-      {
-        "file": "frontend\\out\\server\\app\\page.js",
-        "lines": 1136
-      },
-      {
-        "file": "frontend\\out\\server\\app\\pets\\new\\page.js",
-        "lines": 814
-      },
-      {
-        "file": "frontend\\out\\server\\app\\pets\\page.js",
-        "lines": 891
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\next.js",
-        "lines": 2383
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\layout.js",
-        "lines": 1267
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\page.js",
-        "lines": 3484
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
-        "lines": 719
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\pets\\page.js",
-        "lines": 2725
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\main-app.js",
-        "lines": 1804
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\webpack.js",
-        "lines": 1416
-      },
-      {
         "file": "frontend\\src\\app\\pets\\page.tsx",
         "lines": 645
       },
@@ -121,7 +73,7 @@
       },
       {
         "file": "frontend\\src\\components\\pets\\found-pet-form.tsx",
-        "lines": 652
+        "lines": 650
       },
       {
         "file": "frontend\\src\\components\\pets\\pet-form.tsx",
@@ -144,10 +96,6 @@
       {
         "file": "backend\\test\\routes\\search.test.ts",
         "lines": 585
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\lucide-react.js",
-        "lines": 565
       }
     ],
     "todos": [
@@ -180,63 +128,7 @@
         "count": 1
       },
       {
-        "file": "frontend\\out\\server\\app\\page.js",
-        "count": 1
-      },
-      {
-        "file": "frontend\\out\\server\\app\\pets\\page.js",
-        "count": 1
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\@firebase.js",
-        "count": 9
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\date-fns.js",
-        "count": 1
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\next.js",
-        "count": 38
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\about\\page.js",
-        "count": 3
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\contact\\page.js",
-        "count": 6
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\layout.js",
-        "count": 15
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\page.js",
-        "count": 20
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
-        "count": 9
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\pets\\page.js",
-        "count": 11
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app-pages-internals.js",
-        "count": 5
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\main-app.js",
-        "count": 331
-      },
-      {
         "file": "frontend\\src\\app\\pets\\page.tsx",
-        "count": 1
-      },
-      {
-        "file": "frontend\\src\\app\\sightings\\new\\page.tsx",
         "count": 1
       },
       {
@@ -255,344 +147,6 @@
     "fixmes": [],
     "complex": [
       {
-        "file": "frontend\\out\\server\\app\\about\\page.js",
-        "reason": "過多函數 (86)",
-        "metrics": {
-          "functions": 86,
-          "classes": 4,
-          "interfaces": 0,
-          "imports": 2,
-          "exports": 136,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\app\\contact\\page.js",
-        "reason": "過多函數 (86)",
-        "metrics": {
-          "functions": 86,
-          "classes": 4,
-          "interfaces": 0,
-          "imports": 1,
-          "exports": 157,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\app\\page.js",
-        "reason": "過多函數 (134)",
-        "metrics": {
-          "functions": 134,
-          "classes": 4,
-          "interfaces": 0,
-          "imports": 6,
-          "exports": 285,
-          "todos": 1,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\app\\pets\\new\\page.js",
-        "reason": "過多函數 (111)",
-        "metrics": {
-          "functions": 111,
-          "classes": 9,
-          "interfaces": 0,
-          "imports": 2,
-          "exports": 203,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\app\\pets\\page.js",
-        "reason": "過多函數 (125)",
-        "metrics": {
-          "functions": 125,
-          "classes": 9,
-          "interfaces": 0,
-          "imports": 6,
-          "exports": 244,
-          "todos": 1,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\@firebase.js",
-        "reason": "過多函數 (288)",
-        "metrics": {
-          "functions": 288,
-          "classes": 21,
-          "interfaces": 2,
-          "imports": 5,
-          "exports": 134,
-          "todos": 9,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\@floating-ui.js",
-        "reason": "過多函數 (182)",
-        "metrics": {
-          "functions": 182,
-          "classes": 0,
-          "interfaces": 1,
-          "imports": 3,
-          "exports": 103,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\@radix-ui.js",
-        "reason": "過多函數 (280)",
-        "metrics": {
-          "functions": 280,
-          "classes": 1,
-          "interfaces": 0,
-          "imports": 8,
-          "exports": 370,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\@tanstack.js",
-        "reason": "過多函數 (94)",
-        "metrics": {
-          "functions": 94,
-          "classes": 9,
-          "interfaces": 0,
-          "imports": 2,
-          "exports": 117,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\date-fns.js",
-        "reason": "過多函數 (55)",
-        "metrics": {
-          "functions": 55,
-          "classes": 0,
-          "interfaces": 0,
-          "imports": 1,
-          "exports": 116,
-          "todos": 1,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\engine.io-client.js",
-        "reason": "過多函數 (123)",
-        "metrics": {
-          "functions": 123,
-          "classes": 35,
-          "interfaces": 4,
-          "imports": 2,
-          "exports": 113,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\idb.js",
-        "reason": "過多函數 (24)",
-        "metrics": {
-          "functions": 24,
-          "classes": 0,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 15,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\lucide-react.js",
-        "reason": "過多函數 (55)",
-        "metrics": {
-          "functions": 55,
-          "classes": 0,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 167,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\next.js",
-        "reason": "過多函數 (860)",
-        "metrics": {
-          "functions": 860,
-          "classes": 50,
-          "interfaces": 0,
-          "imports": 5,
-          "exports": 33,
-          "todos": 38,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\socket.io-client.js",
-        "reason": "過多函數 (39)",
-        "metrics": {
-          "functions": 39,
-          "classes": 3,
-          "interfaces": 0,
-          "imports": 2,
-          "exports": 38,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\socket.io-parser.js",
-        "reason": "過多函數 (34)",
-        "metrics": {
-          "functions": 34,
-          "classes": 3,
-          "interfaces": 0,
-          "imports": 2,
-          "exports": 14,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\tailwind-merge.js",
-        "reason": "過多函數 (62)",
-        "metrics": {
-          "functions": 62,
-          "classes": 2,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 10,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\server\\vendor-chunks\\tslib.js",
-        "reason": "過多函數 (52)",
-        "metrics": {
-          "functions": 52,
-          "classes": 2,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 36,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\about\\page.js",
-        "reason": "過多函數 (116)",
-        "metrics": {
-          "functions": 116,
-          "classes": 7,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 63,
-          "todos": 3,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\contact\\page.js",
-        "reason": "過多函數 (189)",
-        "metrics": {
-          "functions": 189,
-          "classes": 15,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 112,
-          "todos": 6,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\layout.js",
-        "reason": "過多函數 (830)",
-        "metrics": {
-          "functions": 830,
-          "classes": 83,
-          "interfaces": 5,
-          "imports": 20,
-          "exports": 725,
-          "todos": 15,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\page.js",
-        "reason": "過多函數 (1476)",
-        "metrics": {
-          "functions": 1476,
-          "classes": 137,
-          "interfaces": 7,
-          "imports": 29,
-          "exports": 1286,
-          "todos": 20,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
-        "reason": "過多函數 (283)",
-        "metrics": {
-          "functions": 283,
-          "classes": 58,
-          "interfaces": 0,
-          "imports": 1,
-          "exports": 174,
-          "todos": 9,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app\\pets\\page.js",
-        "reason": "過多函數 (1015)",
-        "metrics": {
-          "functions": 1015,
-          "classes": 85,
-          "interfaces": 2,
-          "imports": 16,
-          "exports": 760,
-          "todos": 11,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\app-pages-internals.js",
-        "reason": "過多函數 (27)",
-        "metrics": {
-          "functions": 27,
-          "classes": 11,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 0,
-          "todos": 5,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\main-app.js",
-        "reason": "過多函數 (2202)",
-        "metrics": {
-          "functions": 2202,
-          "classes": 172,
-          "interfaces": 15,
-          "imports": 6,
-          "exports": 31,
-          "todos": 331,
-          "fixmes": 0
-        }
-      },
-      {
         "file": "frontend\\out\\static\\chunks\\polyfills.js",
         "reason": "過多函數 (23)",
         "metrics": {
@@ -601,19 +155,6 @@
           "interfaces": 0,
           "imports": 0,
           "exports": 0,
-          "todos": 0,
-          "fixmes": 0
-        }
-      },
-      {
-        "file": "frontend\\out\\static\\chunks\\webpack.js",
-        "reason": "過多函數 (22)",
-        "metrics": {
-          "functions": 22,
-          "classes": 0,
-          "interfaces": 0,
-          "imports": 0,
-          "exports": 1,
           "todos": 0,
           "fixmes": 0
         }
@@ -640,18 +181,6 @@
         "backend\\test\\routes\\notifications.test.ts",
         "backend\\test\\routes\\upload.test.ts",
         "backend\\test\\services\\matchingService.test.ts",
-        "frontend\\out\\server\\app\\about\\page.js",
-        "frontend\\out\\server\\app\\contact\\page.js",
-        "frontend\\out\\server\\app\\page.js",
-        "frontend\\out\\server\\app\\pets\\new\\page.js",
-        "frontend\\out\\server\\app\\pets\\page.js",
-        "frontend\\out\\server\\vendor-chunks\\next.js",
-        "frontend\\out\\static\\chunks\\app\\layout.js",
-        "frontend\\out\\static\\chunks\\app\\page.js",
-        "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
-        "frontend\\out\\static\\chunks\\app\\pets\\page.js",
-        "frontend\\out\\static\\chunks\\main-app.js",
-        "frontend\\out\\static\\chunks\\webpack.js",
         "frontend\\src\\app\\pets\\page.tsx",
         "frontend\\src\\app\\pets\\[id]\\page.tsx",
         "frontend\\src\\components\\pets\\found-pet-form.tsx",
@@ -666,8 +195,7 @@
         "backend\\src\\routes\\upload.ts",
         "backend\\src\\services\\matchingService.ts",
         "backend\\test\\routes\\privacy.test.ts",
-        "backend\\test\\routes\\search.test.ts",
-        "frontend\\out\\server\\vendor-chunks\\lucide-react.js"
+        "backend\\test\\routes\\search.test.ts"
       ]
     },
     {
@@ -675,34 +203,7 @@
       "type": "simplify",
       "description": "簡化複雜的文件結構",
       "files": [
-        "frontend\\out\\server\\app\\about\\page.js",
-        "frontend\\out\\server\\app\\contact\\page.js",
-        "frontend\\out\\server\\app\\page.js",
-        "frontend\\out\\server\\app\\pets\\new\\page.js",
-        "frontend\\out\\server\\app\\pets\\page.js",
-        "frontend\\out\\server\\vendor-chunks\\@firebase.js",
-        "frontend\\out\\server\\vendor-chunks\\@floating-ui.js",
-        "frontend\\out\\server\\vendor-chunks\\@radix-ui.js",
-        "frontend\\out\\server\\vendor-chunks\\@tanstack.js",
-        "frontend\\out\\server\\vendor-chunks\\date-fns.js",
-        "frontend\\out\\server\\vendor-chunks\\engine.io-client.js",
-        "frontend\\out\\server\\vendor-chunks\\idb.js",
-        "frontend\\out\\server\\vendor-chunks\\lucide-react.js",
-        "frontend\\out\\server\\vendor-chunks\\next.js",
-        "frontend\\out\\server\\vendor-chunks\\socket.io-client.js",
-        "frontend\\out\\server\\vendor-chunks\\socket.io-parser.js",
-        "frontend\\out\\server\\vendor-chunks\\tailwind-merge.js",
-        "frontend\\out\\server\\vendor-chunks\\tslib.js",
-        "frontend\\out\\static\\chunks\\app\\about\\page.js",
-        "frontend\\out\\static\\chunks\\app\\contact\\page.js",
-        "frontend\\out\\static\\chunks\\app\\layout.js",
-        "frontend\\out\\static\\chunks\\app\\page.js",
-        "frontend\\out\\static\\chunks\\app\\pets\\new\\page.js",
-        "frontend\\out\\static\\chunks\\app\\pets\\page.js",
-        "frontend\\out\\static\\chunks\\app-pages-internals.js",
-        "frontend\\out\\static\\chunks\\main-app.js",
-        "frontend\\out\\static\\chunks\\polyfills.js",
-        "frontend\\out\\static\\chunks\\webpack.js"
+        "frontend\\out\\static\\chunks\\polyfills.js"
       ]
     }
   ]

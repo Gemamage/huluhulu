@@ -10,7 +10,6 @@ import { Separator } from '../ui/separator';
 import { useNotifications } from '../../hooks/useNotifications';
 import { NotificationItem } from './NotificationItem';
 
-
 interface NotificationListProps {
   onSettingsClick?: () => void;
   showHeader?: boolean;

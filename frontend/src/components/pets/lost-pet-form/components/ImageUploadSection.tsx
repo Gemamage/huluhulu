@@ -56,7 +56,9 @@ export function ImageUploadSection({
             {formData.images?.map((image, index) => (
               <div key={index} className='relative group'>
                 <img
-                  src={typeof image === 'string' ? image : getImagePreview(image)}
+                  src={
+                    typeof image === 'string' ? image : getImagePreview(image)
+                  }
                   alt={`寵物照片 ${index + 1}`}
                   className='w-full h-24 object-cover rounded-lg border'
                 />

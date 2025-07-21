@@ -60,8 +60,6 @@ const SORT_OPTIONS = [
   { value: 'views', label: '瀏覽次數' },
 ];
 
-
-
 const DOG_BREEDS = [
   '黃金獵犬',
   '拉布拉多',
@@ -113,7 +111,6 @@ export function AdvancedSearch({
   onReset,
   className,
 }: AdvancedSearchProps) {
-
   const [gettingLocation, setGettingLocation] = useState(false);
 
   const updateFilter = (key: keyof SearchFilters, value: any) => {

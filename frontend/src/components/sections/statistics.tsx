@@ -165,7 +165,7 @@ export function Statistics({ className }: StatisticsProps) {
 
         {/* 統計數據網格 */}
         <div className='grid grid-cols-2 md:grid-cols-3 gap-8'>
-          {statisticsData.map((stat) => (
+          {statisticsData.map(stat => (
             <div
               key={stat.id}
               className='bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-center p-8'

@@ -16,7 +16,7 @@ export type {
   PetStatus,
   Location,
   ContactInfo,
-  PetOwner
+  PetOwner,
 } from './pet';
 
 // 搜尋相關型別

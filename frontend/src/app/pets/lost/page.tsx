@@ -29,7 +29,7 @@ export default function LostPetPage() {
           address: formData.lostLocation?.address || '',
           coordinates: [
             formData.lostLocation?.longitude || 0,
-            formData.lostLocation?.latitude || 0
+            formData.lostLocation?.latitude || 0,
           ] as [number, number],
         },
         contactInfo: {

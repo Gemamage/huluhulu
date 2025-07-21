@@ -7,7 +7,6 @@ import { Pet } from '@/types/index';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 
-
 import {
   Card,
   CardContent,
@@ -19,11 +18,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import {
-  Collapsible,
-  CollapsibleContent,
-
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 
 import {
   Search,
@@ -33,7 +28,6 @@ import {
   Calendar,
   Phone,
   Mail,
-
   ChevronDown,
   ChevronUp,
   History,
@@ -108,7 +102,6 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
     }
   };
 
-
   const getStatusColor = (status: string) => {
     return status === 'lost' ? 'destructive' : 'secondary';
   };
@@ -148,7 +141,6 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
             <Badge variant={getStatusColor(pet.status)}>
               {getStatusText(pet.status)}
             </Badge>
-
           </div>
         </div>
       </CardHeader>
@@ -170,13 +162,17 @@ function PetCard({ pet, currentUserId, onClick }: PetCardProps) {
           <div className='flex items-center gap-2'>
             <MapPin className='h-4 w-4' />
             <span className='truncate'>
-              {typeof pet.lastSeenLocation === 'string' ? pet.lastSeenLocation : pet.lastSeenLocation?.address || (pet as any).location}
+              {typeof pet.lastSeenLocation === 'string'
+                ? pet.lastSeenLocation
+                : pet.lastSeenLocation?.address || (pet as any).location}
             </span>
           </div>
 
           <div className='flex items-center gap-2'>
             <Calendar className='h-4 w-4' />
-            <span>發布時間: {new Date(pet.createdAt).toLocaleDateString('zh-TW')}</span>
+            <span>
+              發布時間: {new Date(pet.createdAt).toLocaleDateString('zh-TW')}
+            </span>
           </div>
 
           {pet.description && (
@@ -360,8 +356,6 @@ export default function PetsPage() {
     setSearchText(searchQuery);
     loadPets();
   };
-
-
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
     setFilters(newFilters);

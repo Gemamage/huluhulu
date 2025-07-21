@@ -68,7 +68,7 @@ export default function NewPetPage() {
       });
 
       // 跳轉到新建立的寵物詳情頁面
-       router.push(`/pets/${response._id}`);
+      router.push(`/pets/${response._id}`);
     } catch (error) {
       console.error('發布拾獲通報失敗:', error);
       toast({
@@ -106,10 +106,7 @@ export default function NewPetPage() {
       {/* 表單 */}
       <Card>
         <CardContent className='pt-6'>
-          <FoundPetForm
-            onSubmit={handleSubmit}
-            isLoading={isSubmitting}
-          />
+          <FoundPetForm onSubmit={handleSubmit} isLoading={isSubmitting} />
         </CardContent>
       </Card>
 

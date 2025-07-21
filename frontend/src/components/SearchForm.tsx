@@ -21,7 +21,9 @@ const SearchForm: React.FC<SearchFormProps> = ({
   loading = false,
 }) => {
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
-  const [errors, setErrors] = useState<Partial<Record<keyof SearchFilters, string | undefined>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof SearchFilters, string | undefined>>
+  >({});
 
   useEffect(() => {
     setFilters(initialFilters);
@@ -32,7 +34,8 @@ const SearchForm: React.FC<SearchFormProps> = ({
       const newFilters = { ...prev };
       if (field === 'age') {
         const parsedValue = value ? parseInt(value, 10) : undefined;
-        (newFilters as any)[field] = parsedValue && !isNaN(parsedValue) ? parsedValue : undefined;
+        (newFilters as any)[field] =
+          parsedValue && !isNaN(parsedValue) ? parsedValue : undefined;
       } else {
         (newFilters as any)[field] = value || undefined;
       }
@@ -51,7 +54,8 @@ const SearchForm: React.FC<SearchFormProps> = ({
   const validateForm = (): boolean => {
     if (!required) return true;
 
-    const newErrors: Partial<Record<keyof SearchFilters, string | undefined>> = {};
+    const newErrors: Partial<Record<keyof SearchFilters, string | undefined>> =
+      {};
 
     // 檢查必填欄位
     if (!filters.type || filters.type.trim() === '') {

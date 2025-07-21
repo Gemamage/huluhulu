@@ -106,7 +106,10 @@ export const validatePetData = (
     if (!validateRequired(data.lastSeenLocation.address)) {
       errors.push('最後出現地點為必填項目');
     }
-    if ('coordinates' in data.lastSeenLocation && data.lastSeenLocation.coordinates) {
+    if (
+      'coordinates' in data.lastSeenLocation &&
+      data.lastSeenLocation.coordinates
+    ) {
       const [lng, lat] = data.lastSeenLocation.coordinates;
       if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
         errors.push('經緯度座標無效');
@@ -308,7 +311,10 @@ export const validateNewPassword = (data: {
   if (!validateRequired(data.password)) {
     errors.push({ field: 'password', message: '密碼為必填項目' });
   } else if (!validatePassword(data.password)) {
-    errors.push({ field: 'password', message: '密碼至少需要8個字符，包含大小寫字母、數字和特殊字符' });
+    errors.push({
+      field: 'password',
+      message: '密碼至少需要8個字符，包含大小寫字母、數字和特殊字符',
+    });
   }
 
   // 驗證確認密碼
@@ -432,4 +438,3 @@ export const ValidationRules = {
     message: '姓名至少需要2個字符',
   },
 };
-

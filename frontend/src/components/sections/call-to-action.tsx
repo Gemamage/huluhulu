@@ -108,10 +108,7 @@ export function CallToAction({ className }: CallToActionProps) {
           {/* 信任指標 */}
           <div className='flex flex-wrap justify-center gap-8 mb-8'>
             {trustIndicators.map((indicator, i) => (
-              <div
-                key={i}
-                className='flex items-center gap-2 text-zinc-700'
-              >
+              <div key={i} className='flex items-center gap-2 text-zinc-700'>
                 <div className='text-amber-600'>{indicator.icon}</div>
                 <div className='text-left'>
                   <div className='font-semibold text-sm'>{indicator.title}</div>
@@ -126,7 +123,7 @@ export function CallToAction({ className }: CallToActionProps) {
 
         {/* 行動卡片 */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16'>
-          {actionCards.map((card) => (
+          {actionCards.map(card => (
             <div
               key={card.id}
               className='group relative bg-white rounded-3xl p-8 border border-gray-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-4'

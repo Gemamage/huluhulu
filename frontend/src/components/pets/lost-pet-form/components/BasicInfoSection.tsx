@@ -89,7 +89,9 @@ export function BasicInfoSection({
             {getCurrentBreedOptions().map(breed => (
               <Badge
                 key={breed}
-                variant={formData.breed?.includes(breed) ? 'default' : 'outline'}
+                variant={
+                  formData.breed?.includes(breed) ? 'default' : 'outline'
+                }
                 className='cursor-pointer'
                 onClick={() => onArrayToggle('breed', breed)}
               >
@@ -190,9 +192,8 @@ export function BasicInfoSection({
                   <button
                     type='button'
                     onClick={() => {
-                      const newColors = formData.color?.filter(
-                        (_, i) => i !== index
-                      ) || [];
+                      const newColors =
+                        formData.color?.filter((_, i) => i !== index) || [];
                       onInputChange('color', newColors);
                     }}
                     className='ml-1 hover:bg-red-500 rounded-full p-0.5'

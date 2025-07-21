@@ -80,14 +80,15 @@ export default function AdvancedSearchPage() {
     if (state.query || Object.values(state.filters).some(v => v)) {
       handleSearch();
     }
-  }, []);
+  }, [state.query, state.filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAnalytics = async () => {
     try {
       const analytics = await petService.getSearchAnalytics('7d');
       setState(prev => ({ ...prev, analytics }));
     } catch (error) {
-      console.error('載入搜尋分析失敗:', error);
+      // 載入搜尋分析失敗，靜默處理
+      setState(prev => ({ ...prev, analytics: null }));
     }
   };
 
@@ -100,7 +101,8 @@ export default function AdvancedSearchPage() {
         isMockService: false,
       }));
     } catch (error) {
-      console.error('健康檢查失敗:', error);
+      // 健康檢查失敗，設置為離線狀態
+      setState(prev => ({ ...prev, health: null, isMockService: true }));
     }
   };
 
@@ -121,7 +123,7 @@ export default function AdvancedSearchPage() {
         results: response.items,
         total: response.total,
         loading: false,
-        isMockService: (response as any).mock || false,
+        isMockService: 'mock' in response ? Boolean(response.mock) : false,
       }));
 
       // 更新 URL
@@ -151,7 +153,8 @@ export default function AdvancedSearchPage() {
         const suggestions = await petService.getSearchSuggestions(newQuery);
         setState(prev => ({ ...prev, suggestions }));
       } catch (error) {
-        console.error('獲取搜尋建議失敗:', error);
+        // 獲取搜尋建議失敗，清空建議列表
+        setState(prev => ({ ...prev, suggestions: [] }));
       }
     } else {
       setState(prev => ({ ...prev, suggestions: [] }));
@@ -331,9 +334,9 @@ export default function AdvancedSearchPage() {
           {!state.loading && state.results.length > 0 && (
             <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
               {state.results.map(pet => (
-                <PetCard 
-                  key={pet._id} 
-                  pet={pet} 
+                <PetCard
+                  key={pet._id}
+                  pet={pet}
                   {...(user?.id && { currentUserId: user.id })}
                 />
               ))}
